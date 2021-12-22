@@ -17,6 +17,5 @@ jobs:
           node-version: '16'
       - run: npm install -g npm@8 verdaccio
       - run: npm install
-      - run: verdaccio
-      - run: cat ~/.npmrc
+      - run: verdaccio & cat ~/.npmrc
 
