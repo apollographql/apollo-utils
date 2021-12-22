@@ -1,6 +1,6 @@
 {
   "name": "@skull-king/utils.isnodelike",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Node environment detection utility",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
