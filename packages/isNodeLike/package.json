@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/utils.isnodelike",
+  "name": "@skull-king/utils.isnodelike",
   "version": "0.0.1",
   "description": "Node environment detection utility",
   "main": "dist/index.js",
