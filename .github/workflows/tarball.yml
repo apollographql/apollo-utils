@@ -17,5 +17,5 @@ jobs:
           node-version: '16'
       - run: npm install -g npm@8 verdaccio
       - run: npm install
-      - run: "verdaccio & while ! curl --output /dev/null --silent --head --fail http://localhost:4873; do sleep 1 && echo -n .; done; TOKEN=$(curl -s -H \"Accept: application/json\" -H \"Content-Type:application/json\" -X PUT --data '{\"name\": \"apollo\", \"password\": \"abc123\"}' http://localhost:4873/-/user/org.couchdb.user:apollo | jq -r .token) & npm set registry \"http://localhost:4873\" & npm set //localhost:4873/:_authToken $TOKEN & cat ~/.npmrc" 
+      - run: "verdaccio & while ! curl --output /dev/null --silent --head --fail http://localhost:4873; do sleep 1 && echo -n .; done; TOKEN=$(curl -s -H \"Accept: application/json\" -H \"Content-Type:application/json\" -X PUT --data '{\"name\": \"apollo\", \"password\": \"abc123\"}' http://localhost:4873/-/user/org.couchdb.user:apollo | jq -r .token) && npm set registry \"http://localhost:4873\" && npm set //localhost:4873/:_authToken $TOKEN && cat ~/.npmrc" 
 
