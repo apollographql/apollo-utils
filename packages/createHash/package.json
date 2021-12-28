@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@skull-king/utils.isnodelike": "0.0.2",
+    "@skull-king/utils.isnodelike": "file:../isNodeLike",
     "sha.js": "^2.4.11"
   }
 }
