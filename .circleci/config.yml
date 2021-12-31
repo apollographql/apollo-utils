@@ -20,7 +20,7 @@ jobs:
           command: ls -al
       - store_artifacts:
           path: ./artifacts/
-          destination: artifacts
+          destination: ./
 
 workflows:
   test: # This is the name of the workflow, feel free to change it to better match your workflow.
