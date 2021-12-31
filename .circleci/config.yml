@@ -11,6 +11,6 @@ workflows:
           matrix:
             parameters:
               version:
-                - 14.18
-                - 16.13
-                - 17.3
+                - "14.18"
+                - "16.13"
+                - "17.3"
