@@ -1,7 +1,7 @@
-name: Comment on pull request
+name: Provide Artifact Links
 on:
   workflow_run:
-    workflows: ['Test workflow with upload']
+    workflows: ['Upload Artifacts']
     types: [completed]
 jobs:
   pr_comment:

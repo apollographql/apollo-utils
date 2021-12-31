@@ -1,4 +1,4 @@
-name: Generate Tarballs
+name: Upload Artifacts
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     branches:
       - main
 jobs:
-  generate-tarballs:
+  upload-artifacts:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
