@@ -35,7 +35,7 @@ jobs:
             echo "EOF_ARTIFACTS" >> $BASH_ENV
             echo "$STORED_ARTIFACTS"
       - run:
-          command: node ./scrips/pr-comment.mjs
+          command: node ./scripts/pr-comment.mjs
 
   Lint:
     docker:

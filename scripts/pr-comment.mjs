@@ -1,1 +1,1 @@
-console.log(process.env.STORED_ARTIFACTS)
+console.log(process.env.STORED_ARTIFACTS);
