@@ -17,4 +17,4 @@ jobs:
           node-version: '16'
       - run: npm install
       - run: npm run monorepo-pack
-      - run: ls -al $HOME/.config/verdaccio/storage/
+      - run: ls -al $HOME
