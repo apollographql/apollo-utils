@@ -1,4 +1,4 @@
-# @skull-king/utils.createhash
+# @apollo/utils.createhash
 
 ## 0.0.2
 ### Patch Changes

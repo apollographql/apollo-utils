@@ -17,6 +17,7 @@
   "scripts": {
     "clean": "git clean -dfqX",
     "build": "tsc --build",
+    "monorepo-pack": "node ./scripts/monorepo-pack.mjs",
     "lint": "prettier --check .",
     "lint-fix": "prettier --write .",
     "postinstall": "npm run build",
@@ -24,8 +25,8 @@
     "watch": "tsc --build --watch"
   },
   "dependencies": {
-    "@skull-king/utils.createhash": "file:packages/createHash",
-    "@skull-king/utils.isnodelike": "file:packages/isNodeLike"
+    "@apollo/utils.createhash": "file:packages/createHash",
+    "@apollo/utils.isnodelike": "file:packages/isNodeLike"
   },
   "devDependencies": {
     "@changesets/cli": "^2.19.0",
