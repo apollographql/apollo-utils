@@ -21,6 +21,18 @@ jobs:
       - store_artifacts:
           path: ./artifacts/
           destination: ./
+      - run:
+          when: on_success
+          command: |
+            artifacts=$(curl -X GET "https://circleci.com/api/v2/project/github/trevor-scheer/apollo-utils/$CIRCLE_BUILD_NUM/artifacts" \
+            -H "Accept: application/json" \
+            -u "$CIRCLE_TOKEN:")
+            # generate a heredoc in BASH_ENV
+            # the '\<<' is a CircleCI escape
+            echo "read -r -d '' STORED_ARTIFACTS \<< 'EOF_ARTIFACTS'" >> $BASH_ENV
+            echo "$artifacts" >> $BASH_ENV
+            echo "EOF_ARTIFACTS" >> $BASH_ENV
+            echo "$STORED_ARTIFACTS"
 
 workflows:
   test: # This is the name of the workflow, feel free to change it to better match your workflow.
@@ -35,3 +47,6 @@ workflows:
   pack:
     jobs:
       - Pack Monorepo
+  lint:
+    jobs:
+      - 
