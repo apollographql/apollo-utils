@@ -5,6 +5,7 @@ import packlist from "npm-packlist";
 import { Command } from "@lerna/command";
 import { Project } from "@lerna/project";
 import { PackageGraph } from "@lerna/package-graph";
+import { mkdir, stat, writeFile } from "fs/promises";
 
 class PackCommand extends Command {
   constructor(argv) {
@@ -59,9 +60,10 @@ class PackCommand extends Command {
         files.map((f) => `./${f}`),
       );
 
-      const filePath = `./${getTarballName(pkg)}`;
+      const filePath = `./artifacts/${getTarballName(pkg)}`;
       // touch
-      writeFileSync(filePath, "");
+      (await stat('./artifacts')).isDirectory() ?? await mkdir('./artifacts');
+      await writeFile(filePath, "");
       const writeStream = createWriteStream(filePath);
       stream.pipe(writeStream);
     }

@@ -18,6 +18,9 @@ jobs:
           command: npm run monorepo-pack
       - run:
           command: ls -al
+      - store_artifacts:
+          path: ./artifacts/
+          destination: artifacts
 
 workflows:
   test: # This is the name of the workflow, feel free to change it to better match your workflow.
