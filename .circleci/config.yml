@@ -8,11 +8,11 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - node/test:
-          version: '14'
+          version: '14.18'
           pkg-manager: npm
       - node/test:
-          version: '16'
+          version: '16.13'
           pkg-manager: npm
       - node/test:
-          version: '17'
+          version: '17.3'
           pkg-manager: npm
