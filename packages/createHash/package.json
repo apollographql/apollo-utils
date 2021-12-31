@@ -1,5 +1,5 @@
 {
-  "name": "@skull-king/utils.createhash",
+  "name": "@apollo/utils.createhash",
   "version": "0.0.2",
   "description": "Node-agnostic hashing utility",
   "main": "dist/index.js",
@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@apollo/utils.isnodelike": "file:../isNodeLike",
+    "@apollo/utils.isnodelike": "0.0.2",
     "sha.js": "^2.4.11"
   }
 }

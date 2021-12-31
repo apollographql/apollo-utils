@@ -1,4 +1,4 @@
-# @skull-king/utils.isnodelike
+# @apollo/utils.isnodelike
 
 ## 0.0.2
 ### Patch Changes

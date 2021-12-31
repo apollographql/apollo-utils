@@ -20,3 +20,6 @@ npm-debug.log*
 
 # Mac OS
 .DS_Store
+
+# Generated tarballs
+*.tgz
