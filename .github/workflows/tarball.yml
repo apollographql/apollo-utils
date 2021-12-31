@@ -20,3 +20,7 @@ jobs:
       - run: npm run monorepo-pack
       - run: pwd
       - run: ls -al
+      - uses: actions/upload-artifact@v2
+        with:
+          name: tarballs
+          path: *.tgz
