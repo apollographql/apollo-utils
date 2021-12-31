@@ -34,6 +34,16 @@ jobs:
             echo "EOF_ARTIFACTS" >> $BASH_ENV
             echo "$STORED_ARTIFACTS"
 
+  Lint:
+    docker:
+      - image: cimg/node:16.13
+    steps:
+      - oss/install_specific_npm_version:
+          version: '8'
+      - checkout
+      - oss/npm_clean_install_with_caching
+      - run:
+          command: npm run lint
 workflows:
   test: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
@@ -49,4 +59,4 @@ workflows:
       - Pack Monorepo
   lint:
     jobs:
-      - 
+      - Lint
