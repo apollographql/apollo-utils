@@ -1,0 +1,18 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.7
+
+workflows:
+  test: # This is the name of the workflow, feel free to change it to better match your workflow.
+    # Inside the workflow, you define the jobs you want to run.
+    jobs:
+      - Node v14:
+          version: '14'
+          pkg-manager: npm
+      - Node v16:
+          version: '16'
+          pkg-manager: npm
+      - Node v17:
+          version: '17'
+          pkg-manager: npm
