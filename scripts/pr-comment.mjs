@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 
+console.log(process.env.CIRCLE_BUILD_NUM);
 console.log(
   "url is :" +
     `https://circleci.com/api/v2/project/github/trevor-scheer/apollo-utils/${process.env.CIRCLE_BUILD_NUM}/artifacts`,
