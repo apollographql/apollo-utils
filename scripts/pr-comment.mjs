@@ -67,8 +67,12 @@ const ghAuthed = request.defaults({
     variables: {
       input: {
         subjectId: prId,
-        body: artifactLinks.join("\n"),
-      }
+        body:
+          "The following artifacts were published to CircleCI:\n" +
+          artifactLinks.map((url) => `- ${url}`).join("\n") +
+          "These can be `npm install`ed into your project like so:\n>`npm i <url to artifact>`\n\n" +
+          "This comment will be updated on every successful build.",
+      },
     },
   });
 })();
