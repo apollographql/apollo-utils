@@ -2,37 +2,30 @@
 import fetch from "node-fetch";
 import { request } from "@octokit/request";
 
-console.log(process.env);
-console.log(
-  "url is :" +
-    `https://circleci.com/api/v2/project/github/trevor-scheer/apollo-utils/${process.env.CIRCLE_BUILD_NUM}/artifacts`,
-);
+const { CI_PULL_REQUEST, CIRCLE_BUILD_NUM, CIRCLE_TOKEN, GITHUB_TOKEN } =
+  process.env;
 
 const ghAuthed = request.defaults({
   headers: {
-    authorization: `token ${process.env.GITHUB_TOKEN}`,
+    authorization: `token ${GITHUB_TOKEN}`,
   },
 });
 
 (async () => {
   const response = await fetch(
-    `https://circleci.com/api/v2/project/github/trevor-scheer/apollo-utils/${process.env.CIRCLE_BUILD_NUM}/artifacts`,
+    `https://circleci.com/api/v2/project/github/trevor-scheer/apollo-utils/${CIRCLE_BUILD_NUM}/artifacts`,
     {
       headers: {
         Accept: "application/json",
-        "Circle-Token": `${process.env.CIRCLE_TOKEN}`,
+        "Circle-Token": `${CIRCLE_TOKEN}`,
       },
     },
   );
 
   const artifactLinks = (await response.json()).items.map((item) => item.url);
 
-  process.env.CI_PULL_REQUEST;
-
-  console.log(artifactLinks);
-
   const comments = await ghAuthed("POST /graphql", {
-    query: `
+    query: `#graphql
       query GetPrComments($url: URI!) { 
         resource(url: $url) {
           ... on PullRequest {
@@ -49,31 +42,28 @@ const ghAuthed = request.defaults({
       }
     `,
     variables: {
-      url: process.env.CI_PULL_REQUEST,
+      url: CI_PULL_REQUEST,
     },
   });
 
-  console.log(comments.data);
+  const pr = comments.data.data.resource;
 
-  const existingCommentId = comments.data.data.resource.comments.nodes.find(
-    (comment) =>
-      comment.body.includes(
-        "The following artifacts were published to CircleCI:",
-      ),
+  const commentSubject = "The following artifacts were published to CircleCI:";
+  const existingCommentId = pr.comments.nodes.find((comment) =>
+    comment.body.includes(commentSubject),
   )?.id;
 
-  const prId = comments.data.data.resource.id;
-
-  const body =
-    "The following artifacts were published to CircleCI:\n" +
-    artifactLinks.map((url) => `- ${url}`).join("\n") +
-    "\n" +
-    `These can be \`npm install\`ed into your project like so:\n>\`npm i ${artifactLinks[0]}\`\n\n` +
-    "This comment will be updated on every successful build.";
+  const body = [
+    commentSubject,
+    artifactLinks.map((url) => `- ${url}`).join("\n") + "\n",
+    "These can be `npm install`ed into your project like so:",
+    `>\`npm i ${artifactLinks[0]}\`\n`,
+    "This comment will be updated on every successful build.",
+  ].join("\n");
 
   if (existingCommentId) {
-    const updateComment = await ghAuthed("POST /graphql", {
-      query: `
+    await ghAuthed("POST /graphql", {
+      query: `#graphql
         mutation UpdateComment($input: UpdateIssueCommentInput!) {
           updateIssueComment(input: $input) {
             clientMutationId
@@ -88,8 +78,8 @@ const ghAuthed = request.defaults({
       },
     });
   } else {
-    const newComment = await ghAuthed("POST /graphql", {
-      query: `
+    await ghAuthed("POST /graphql", {
+      query: `#graphql
       mutation AddComment($input: AddCommentInput!) {
         addComment(input: $input) {
           clientMutationId
@@ -98,7 +88,7 @@ const ghAuthed = request.defaults({
     `,
       variables: {
         input: {
-          subjectId: prId,
+          subjectId: pr.id,
           body,
         },
       },
