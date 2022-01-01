@@ -1,10 +1,11 @@
 // @ts-check
-import { createWriteStream, writeFileSync } from "fs";
+import { createWriteStream, existsSync } from "fs";
 import tar from "tar";
 import packlist from "npm-packlist";
 import { Command } from "@lerna/command";
 import { Project } from "@lerna/project";
 import { PackageGraph } from "@lerna/package-graph";
+import { mkdir, writeFile } from "fs/promises";
 
 class PackCommand extends Command {
   constructor(argv) {
@@ -59,9 +60,10 @@ class PackCommand extends Command {
         files.map((f) => `./${f}`),
       );
 
-      const filePath = `./${getTarballName(pkg)}`;
+      const filePath = `./artifacts/${getTarballName(pkg)}`;
       // touch
-      writeFileSync(filePath, "");
+      existsSync("./artifacts") || (await mkdir("./artifacts"));
+      await writeFile(filePath, "");
       const writeStream = createWriteStream(filePath);
       stream.pipe(writeStream);
     }

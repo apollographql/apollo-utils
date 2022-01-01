@@ -1,0 +1,54 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.0
+  oss: apollo/oss-ci-cd-tooling@0.0.20
+
+jobs:
+  Pack Monorepo:
+    description: "Pack and upload artifacts"
+    docker:
+      - image: cimg/node:16.13
+    steps:
+      - oss/install_specific_npm_version:
+          version: "8"
+      - checkout
+      - oss/npm_clean_install_with_caching
+      - run:
+          command: npm run monorepo-pack
+      - run:
+          command: ls -al
+      - store_artifacts:
+          path: ./artifacts/
+          destination: ./
+      - run:
+          name: Gather artifact links
+          when: on_success
+          command: node ./scripts/pr-comment.mjs
+
+  Lint:
+    docker:
+      - image: cimg/node:16.13
+    steps:
+      - oss/install_specific_npm_version:
+          version: "8"
+      - checkout
+      - oss/npm_clean_install_with_caching
+      - run:
+          command: npm run lint
+workflows:
+  test: # This is the name of the workflow, feel free to change it to better match your workflow.
+    # Inside the workflow, you define the jobs you want to run.
+    jobs:
+      - node/test:
+          matrix:
+            parameters:
+              version:
+                - "16.13"
+                - "17.3"
+  pack:
+    jobs:
+      - Pack Monorepo
+  lint:
+    jobs:
+      - Lint
