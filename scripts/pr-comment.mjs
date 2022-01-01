@@ -64,6 +64,13 @@ const ghAuthed = request.defaults({
 
   const prId = comments.data.data.resource.id;
 
+  const body =
+    "The following artifacts were published to CircleCI:\n" +
+    artifactLinks.map((url) => `- ${url}`).join("\n") +
+    "\n" +
+    `These can be \`npm install\`ed into your project like so:\n>\`npm i ${artifactLinks[0]}\`\n\n` +
+    "This comment will be updated on every successful build.";
+
   if (existingCommentId) {
     const updateComment = await ghAuthed("POST /graphql", {
       query: `
@@ -76,12 +83,7 @@ const ghAuthed = request.defaults({
       variables: {
         input: {
           id: existingCommentId,
-          body:
-            "The following artifacts were published to CircleCI:\n" +
-            artifactLinks.map((url) => `- ${url}`).join("\n") +
-            "\n" +
-            "These can be `npm install`ed into your project like so:\n>`npm i <url to artifact>`\n\n" +
-            "This comment will be updated on every successful build.",
+          body,
         },
       },
     });
@@ -97,12 +99,7 @@ const ghAuthed = request.defaults({
       variables: {
         input: {
           subjectId: prId,
-          body:
-            "The following artifacts were published to CircleCI:\n" +
-            artifactLinks.map((url) => `- ${url}`).join("\n") +
-            "\n" +
-            "These can be `npm install`ed into your project like so:\n>`npm i <url to artifact>`\n\n" +
-            "This comment will be updated on every successful build.",
+          body,
         },
       },
     });
