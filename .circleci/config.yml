@@ -24,10 +24,12 @@ jobs:
           name: Gather artifact links and post PR comment
           when: on_success
           command: |
-            if [ "${CIRCLE_PULL_REQUEST##*/}" != "" ];then
+            if [[ ! -z $CIRCLE_PULL_REQUEST ]]
+            then
+              node ./scripts/pr-comment.mjs
+            else
               circleci-agent step halt
             fi
-            node ./scripts/pr-comment.mjs
 
   Lint:
     docker:
