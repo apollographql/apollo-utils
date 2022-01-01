@@ -16,13 +16,11 @@ jobs:
       - oss/npm_clean_install_with_caching
       - run:
           command: npm run monorepo-pack
-      - run:
-          command: ls -al
       - store_artifacts:
           path: ./artifacts/
           destination: ./
       - run:
-          name: Gather artifact links
+          name: Gather artifact links and post PR comment
           when: on_success
           command: node ./scripts/pr-comment.mjs
 
