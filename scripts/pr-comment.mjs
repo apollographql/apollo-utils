@@ -13,7 +13,7 @@ console.log(
     {
       headers: {
         Accept: "application/json",
-        Authorization: `Basic ${process.env.CIRCLE_TOKEN}`,
+        "Circle-Token": `${process.env.CIRCLE_TOKEN}`,
       },
     },
   );
