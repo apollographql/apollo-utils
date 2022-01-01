@@ -39,6 +39,7 @@ const ghAuthed = request.defaults({
             id
             comments(first: 10) {
               nodes {
+                id
                 body
                 author { login }
               }
@@ -54,25 +55,56 @@ const ghAuthed = request.defaults({
 
   console.log(comments.data);
 
+  const existingCommentId = comments.data.data.resource.comments.nodes.find(
+    (comment) =>
+      comment.body.includes(
+        "The following artifacts were published to CircleCI:",
+      ),
+  )?.id;
+
   const prId = comments.data.data.resource.id;
 
-  const newComment = await ghAuthed("POST /graphql", {
-    query: `
+  if (existingCommentId) {
+    const updateComment = await ghAuthed("POST /graphql", {
+      query: `
+        mutation UpdateComment($input: UpdateIssueCommentInput!) {
+          updateIssueComment(input: $input) {
+            clientMutationId
+          }
+        }
+      `,
+      variables: {
+        input: {
+          id: existingCommentId,
+          body:
+            "The following artifacts were published to CircleCI:\n" +
+            artifactLinks.map((url) => `- ${url}`).join("\n") +
+            "\n" +
+            "These can be `npm install`ed into your project like so:\n>`npm i <url to artifact>`\n\n" +
+            "This comment will be updated on every successful build.",
+        },
+      },
+    });
+  } else {
+    const newComment = await ghAuthed("POST /graphql", {
+      query: `
       mutation AddComment($input: AddCommentInput!) {
         addComment(input: $input) {
           clientMutationId
         }
       }
     `,
-    variables: {
-      input: {
-        subjectId: prId,
-        body:
-          "The following artifacts were published to CircleCI:\n" +
-          artifactLinks.map((url) => `- ${url}`).join("\n") +
-          "These can be `npm install`ed into your project like so:\n>`npm i <url to artifact>`\n\n" +
-          "This comment will be updated on every successful build.",
+      variables: {
+        input: {
+          subjectId: prId,
+          body:
+            "The following artifacts were published to CircleCI:\n" +
+            artifactLinks.map((url) => `- ${url}`).join("\n") +
+            "\n" +
+            "These can be `npm install`ed into your project like so:\n>`npm i <url to artifact>`\n\n" +
+            "This comment will be updated on every successful build.",
+        },
       },
-    },
-  });
+    });
+  }
 })();
