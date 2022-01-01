@@ -1,9 +1,9 @@
 import fetch from "node-fetch";
 
-console.log(process.env.STORED_ARTIFACTS);
-console.log(process.env.CIRCLE_TOKEN);
-console.log(process.env.TESTING);
-console.log(process.env);
+console.log(
+  "url is :" +
+    `https://circleci.com/api/v2/project/github/trevor-scheer/apollo-utils/${process.env.CIRCLE_BUILD_NUM}/artifacts`,
+);
 
 (async () => {
   const response = await fetch({
