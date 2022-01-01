@@ -34,6 +34,7 @@ jobs:
             echo "$artifacts" >> $BASH_ENV
             echo "EOF_ARTIFACTS" >> $BASH_ENV
             echo $STORED_ARTIFACTS
+            node ./scripts/pr-comment.mjs
       - run:
           command: node ./scripts/pr-comment.mjs
 
