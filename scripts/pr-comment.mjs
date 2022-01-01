@@ -54,7 +54,7 @@ const ghAuthed = request.defaults({
 
   console.log(comments.data);
 
-  const prId = comments.data.resource.id;
+  const prId = comments.data.data.resource.id;
 
   const newComment = await ghAuthed("POST /graphql", {
     query: `
@@ -67,7 +67,7 @@ const ghAuthed = request.defaults({
     variables: {
       input: {
         subjectId: prId,
-        body: "Hello World",
+        body: artifactLinks.join("\n"),
       }
     },
   });
