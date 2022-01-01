@@ -5,6 +5,11 @@ import { request } from "@octokit/request";
 const { CI_PULL_REQUEST, CIRCLE_BUILD_NUM, CIRCLE_TOKEN, GITHUB_TOKEN } =
   process.env;
 
+if (!CI_PULL_REQUEST) {
+  console.log("Not a pull request, skipping");
+  process.exit(0);
+}
+
 const ghAuthed = request.defaults({
   headers: {
     authorization: `token ${GITHUB_TOKEN}`,
