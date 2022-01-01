@@ -6,6 +6,7 @@ const { CI_PULL_REQUEST, CIRCLE_BUILD_NUM, CIRCLE_TOKEN, GITHUB_TOKEN } =
   process.env;
 
 if (!CI_PULL_REQUEST) {
+  console.log(CI_PULL_REQUEST);
   console.log('no PR');
   process.exit(0);
 }
