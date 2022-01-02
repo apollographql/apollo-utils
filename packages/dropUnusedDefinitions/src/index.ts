@@ -7,7 +7,7 @@ import { DocumentNode, separateOperations } from "graphql";
 // the client before sending to the server to save bandwidth and parsing time.)
 export function dropUnusedDefinitions(
   ast: DocumentNode,
-  operationName: string
+  operationName: string,
 ): DocumentNode {
   const separated = separateOperations(ast)[operationName];
   if (!separated) {
