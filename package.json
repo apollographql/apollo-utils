@@ -24,15 +24,9 @@
     "test": "jest --verbose",
     "watch": "tsc --build --watch"
   },
-  "dependencies": {
-    "@apollo/utils.createhash": "file:packages/createHash",
-    "@apollo/utils.dropunuseddefinitions": "file:packages/dropunuseddefinitions",
-    "@apollo/utils.isnodelike": "file:packages/isNodeLike",
-    "@apollo/utils.operationregistrysignature": "file:packages/operationRegistrySignature",
-    "@apollo/utils.printwithreducedwhitespace": "file:packages/printWithReducedWhitespace",
-    "@apollo/utils.sortast": "file:packages/sortAST",
-    "@apollo/utils.stripsensitiveliterals": "file:packages/stripSensitiveLiterals"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@changesets/cli": "2.19.0",
     "@jest/types": "27.4.2",
