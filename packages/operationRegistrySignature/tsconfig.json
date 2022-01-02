@@ -4,18 +4,24 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/**/*"],
-  "exclude": ["**/__tests__"],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "**/__tests__"
+  ],
   "references": [
     {
       "path": "../dropUnusedDefinitions"
     },
     {
-      "path": "../sortAST"
+      "path": "../printWithReducedWhitespace"
     },
     {
-      "path": "../printWithReducedWhitespace"
-    }
+      "path": "../stripSensitiveLiterals"
+    },
+    {
+      "path": "../sortAST"
+    },
   ]
-
 }
