@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@apollo/utils.isnodelike": "file:../isNodeLike",
+    "@apollo/utils.isnodelike": "^0.0.2",
     "sha.js": "^2.4.11"
   }
 }

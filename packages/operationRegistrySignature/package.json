@@ -24,9 +24,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@apollo/utils.dropunuseddefinitions": "file:../dropUnusedDefinitions",
-    "@apollo/utils.printwithreducedwhitespace": "file:../printWithReducedWhitespace",
-    "@apollo/utils.sortast": "file:../sortAST",
-    "@apollo/utils.stripsensitiveliterals": "file:../stripSensitiveLiterals"
+    "@apollo/utils.dropunuseddefinitions": "^0.0.0",
+    "@apollo/utils.printwithreducedwhitespace": "^0.0.0",
+    "@apollo/utils.sortast": "^0.0.0",
+    "@apollo/utils.stripsensitiveliterals": "^0.0.0"
   }
 }
