@@ -1,13 +1,13 @@
 {
-  "name": "@apollo/utils.createhash",
-  "version": "0.0.2",
-  "description": "Node-agnostic hashing utility",
+  "name": "@apollo/utils.dropunuseddefinitions",
+  "version": "0.0.0",
+  "description": "Drop unused definitions from a GraphQL document",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apollographql/apollo-utils.git",
-    "directory": "createHash/"
+    "directory": "dropUnusedDefinitions/"
   },
   "keywords": [
     "apollo",
@@ -23,8 +23,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "@apollo/utils.isnodelike": "file:../isNodeLike",
-    "sha.js": "^2.4.11"
+  "peerDependencies": {
+    "graphql": "14.x || 15.x || 16.x"
   }
 }
