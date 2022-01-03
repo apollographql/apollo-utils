@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - oss/install_specific_npm_version:
-          version: "8"
+          version: "7.20.2"
       - checkout
       - oss/npm_clean_install_with_caching
       - run:
@@ -30,7 +30,7 @@ jobs:
       - image: cimg/node:16.13
     steps:
       - oss/install_specific_npm_version:
-          version: "8"
+          version: "7.20.2"
       - checkout
       - oss/npm_clean_install_with_caching
       - run:
