@@ -30,6 +30,6 @@ jobs:
           # The default here is typically just `changeset version`, however a bug in npm workspaces
           # requires us to use an older version of npm for this particular update
           # ref: https://github.com/npm/cli/issues/3637
-          version: "npx --yes npm@7.20.2 install && npx changeset version"
+          version: npx --yes npm@7.20.2 install; npx changeset version;
         env:
           GITHUB_TOKEN: ${{ secrets.GGITHUB_TOKEN }}
