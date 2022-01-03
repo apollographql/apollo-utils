@@ -24,15 +24,12 @@ jobs:
       - name: Install Dependencies
         run: npm i
 
-        # The default here is typically just `changeset version`, however a bug in npm workspaces
-        # requires us to use an older version of npm for this particular update
-        # ref: https://github.com/npm/cli/issues/3637
-      - name: Install Dependencies
-        run: npm i -g npm@7.20.2
-
       - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
-          version: npm -v; npx changeset version;
+          # The default here is typically just `changeset version`, however a bug in npm workspaces
+          # requires us to use an older version of npm for this particular update
+          # ref: https://github.com/npm/cli/issues/3637
+          version: npm run changeset-version
         env:
           GITHUB_TOKEN: ${{ secrets.GGITHUB_TOKEN }}

@@ -21,7 +21,8 @@
     "lint-fix": "prettier --write .",
     "postinstall": "npm run build",
     "test": "jest --verbose",
-    "watch": "tsc --build --watch"
+    "watch": "tsc --build --watch",
+    "changeset-version": "npx npm@7.20.2 i; npx changeset version"
   },
   "workspaces": [
     "packages/*"
