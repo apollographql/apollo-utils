@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/utils.createhash",
+  "name": "@trevorscheer/utils.createhash",
   "version": "0.0.1",
   "description": "Node-agnostic hashing utility",
   "main": "dist/index.js",
