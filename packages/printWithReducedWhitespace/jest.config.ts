@@ -4,6 +4,6 @@ export default {
   ...baseConfig,
   displayName: {
     name: "printWithReducedWhitespace",
-    color: "pink",
+    color: "magenta",
   },
 };

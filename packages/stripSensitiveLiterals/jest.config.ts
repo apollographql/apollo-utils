@@ -4,6 +4,6 @@ export default {
   ...baseConfig,
   displayName: {
     name: "stripSensitiveLiterals",
-    color: "orange",
+    color: "green",
   },
 };
