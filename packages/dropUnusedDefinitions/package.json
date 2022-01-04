@@ -15,7 +15,7 @@
     "typescript",
     "node"
   ],
-  "author": "Apollo <packages@trevorscheergraphql.com>",
+  "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "engines": {
     "node": ">=12.13.0 <18.0"
