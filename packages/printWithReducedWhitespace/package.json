@@ -1,6 +1,6 @@
 {
   "name": "@trevorscheer/utils.printwithreducedwhitespace",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Print an AST with as little whitespace as possible",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
