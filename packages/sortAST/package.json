@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/utils.sortast",
+  "name": "@trevorscheer/utils.sortast",
   "version": "0.0.1",
   "description": "Sort AST nodes in a document alphabetically",
   "main": "dist/index.js",

@@ -1,8 +1,8 @@
 import type { DocumentNode } from "graphql";
-import { dropUnusedDefinitions } from "@apollo/utils.dropunuseddefinitions";
-import { printWithReducedWhitespace } from "@apollo/utils.printwithreducedwhitespace";
-import { sortAST } from "@apollo/utils.sortast";
-import { stripSensitiveLiterals } from "@apollo/utils.stripsensitiveliterals";
+import { dropUnusedDefinitions } from "@trevorscheer/utils.dropunuseddefinitions";
+import { printWithReducedWhitespace } from "@trevorscheer/utils.printwithreducedwhitespace";
+import { sortAST } from "@trevorscheer/utils.sortast";
+import { stripSensitiveLiterals } from "@trevorscheer/utils.stripsensitiveliterals";
 
 // The operation registry signature function consists of removing extra whitespace,
 // sorting the AST in a deterministic manner, potentially hiding string and numeric

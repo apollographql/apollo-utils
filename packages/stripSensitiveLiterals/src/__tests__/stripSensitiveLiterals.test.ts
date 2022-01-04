@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import { printWithReducedWhitespace } from "@apollo/utils.printwithreducedwhitespace";
+import { printWithReducedWhitespace } from "@trevorscheer/utils.printwithreducedwhitespace";
 import { stripSensitiveLiterals } from "..";
 
 describe("stripSensitiveLiterals", () => {

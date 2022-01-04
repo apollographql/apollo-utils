@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/utils.printwithreducedwhitespace",
+  "name": "@trevorscheer/utils.printwithreducedwhitespace",
   "version": "0.0.1",
   "description": "Print an AST with as little whitespace as possible",
   "main": "dist/index.js",

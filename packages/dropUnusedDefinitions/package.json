@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/utils.dropunuseddefinitions",
+  "name": "@trevorscheer/utils.dropunuseddefinitions",
   "version": "0.0.1",
   "description": "Drop unused definitions from a GraphQL document",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
     "typescript",
     "node"
   ],
-  "author": "Apollo <packages@apollographql.com>",
+  "author": "Apollo <packages@trevorscheergraphql.com>",
   "license": "MIT",
   "engines": {
     "node": ">=12.13.0 <18.0"
