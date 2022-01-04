@@ -21,6 +21,8 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: Ensure npm version 7.20.2
+        run: npm i -g npm@7.20.2
       - name: Install Dependencies
         run: npm i
 
