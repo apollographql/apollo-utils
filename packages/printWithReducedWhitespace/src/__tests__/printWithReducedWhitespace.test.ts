@@ -1,5 +1,5 @@
-import gql from 'graphql-tag';
-import { printWithReducedWhitespace } from '..';
+import gql from "graphql-tag";
+import { printWithReducedWhitespace } from "..";
 
 describe("printWithReducedWhitespace", () => {
   const cases = [
@@ -23,8 +23,8 @@ describe("printWithReducedWhitespace", () => {
         }
       `,
       output:
-        'query Foo($a:Int){user(name:"   tab->\\tyay"other:"apple\\n   bag\\ncat"){name}}'
-    }
+        'query Foo($a:Int){user(name:"   tab->\\tyay"other:"apple\\n   bag\\ncat"){name}}',
+    },
   ];
   cases.forEach(({ name, input, output }) => {
     test(name, () => {
