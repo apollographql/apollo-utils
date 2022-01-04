@@ -1,11 +1,11 @@
 ---
-"@apollo/utils.createhash": major
-"@apollo/utils.dropunuseddefinitions": major
-"@apollo/utils.isnodelike": major
-"@apollo/utils.operationregistrysignature": major
-"@apollo/utils.printwithreducedwhitespace": major
-"@apollo/utils.sortast": major
-"@apollo/utils.stripsensitiveliterals": major
+"@trevorscheer/utils.createhash": major
+"@trevorscheer/utils.dropunuseddefinitions": major
+"@trevorscheer/utils.isnodelike": major
+"@trevorscheer/utils.operationregistrysignature": major
+"@trevorscheer/utils.printwithreducedwhitespace": major
+"@trevorscheer/utils.sortast": major
+"@trevorscheer/utils.stripsensitiveliterals": major
 ---
 
 Initial release

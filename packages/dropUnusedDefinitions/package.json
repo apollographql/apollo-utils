@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/utils.dropunuseddefinitions",
+  "name": "@trevorscheer/utils.dropunuseddefinitions",
   "version": "0.0.1",
   "description": "Drop unused definitions from a GraphQL document",
   "main": "dist/index.js",
