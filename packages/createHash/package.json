@@ -1,6 +1,6 @@
 {
   "name": "@trevorscheer/utils.createhash",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Node-agnostic hashing utility",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@trevorscheer/utils.isnodelike": "^0.0.1",
+    "@trevorscheer/utils.isnodelike": "^1.0.0",
     "sha.js": "^2.4.11"
   }
 }
