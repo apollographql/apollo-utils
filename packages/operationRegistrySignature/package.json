@@ -1,6 +1,6 @@
 {
   "name": "@trevorscheer/utils.operationregistrysignature",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Generate a signature for the operation registry",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,9 +24,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@trevorscheer/utils.dropunuseddefinitions": "^0.0.1",
-    "@trevorscheer/utils.printwithreducedwhitespace": "^0.0.1",
-    "@trevorscheer/utils.sortast": "^0.0.1",
-    "@trevorscheer/utils.stripsensitiveliterals": "^0.0.1"
+    "@trevorscheer/utils.dropunuseddefinitions": "^1.0.0",
+    "@trevorscheer/utils.printwithreducedwhitespace": "^1.0.0",
+    "@trevorscheer/utils.sortast": "^1.0.0",
+    "@trevorscheer/utils.stripsensitiveliterals": "^1.0.0"
   }
 }
