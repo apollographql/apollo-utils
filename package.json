@@ -22,7 +22,7 @@
     "postinstall": "npm run build",
     "test": "jest --verbose",
     "watch": "tsc --build --watch",
-    "changeset-version": "npx npm@7.20.2 i; npx changeset version"
+    "changeset-publish": "changeset publish"
   },
   "workspaces": [
     "packages/*"
