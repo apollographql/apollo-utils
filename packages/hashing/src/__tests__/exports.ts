@@ -1,4 +1,4 @@
-import * as allExports from '..';
+import * as allExports from "..";
 
 it("exports hashing functions", () => {
   expect(Object.keys(allExports).length).toBe(2);
