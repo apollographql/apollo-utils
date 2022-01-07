@@ -1,9 +1,10 @@
-import gql from "graphql-tag";
+import gql, { disableFragmentWarnings } from "graphql-tag";
 import { operationRegistrySignature } from "..";
+
+disableFragmentWarnings();
 
 describe("operationRegistrySignature", () => {
   const cases = [
-    // Test cases borrowed from optics-agent-js.
     {
       name: "basic test",
       operationName: "",
