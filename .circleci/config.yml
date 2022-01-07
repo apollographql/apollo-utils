@@ -1,0 +1,88 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.0
+  oss: apollo/oss-ci-cd-tooling@0.0.20
+
+commands:
+  # These are the steps used for each version of Node which we're testing
+  # against.  Thanks to YAMLs inability to merge arrays (though it is able
+  # to merge objects), every version of Node must use the exact same steps,
+  # or these steps would need to be repeated in a version of Node that needs
+  # something different.  Probably best to avoid that, out of principle, though.
+  common_test_steps:
+    description: "Commands run on each Node.js job"
+    steps:
+      - oss/install_specific_npm_version:
+          version: "7.20.2"
+      - checkout
+      - oss/npm_clean_install_with_caching
+      - run:
+          command: npm test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: "reports/junit/"
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
+
+jobs:
+  NodeJS 14:
+    docker:
+      - image: cimg/node:14.16.1
+    steps:
+      - common_test_steps
+
+  NodeJS 16:
+    docker:
+      - image: cimg/node:16.13
+    steps:
+      - common_test_steps
+
+  NodeJS 17:
+    docker:
+      - image: cimg/node:17.3
+    steps:
+      - common_test_steps
+
+  Pack Monorepo:
+    description: "Pack and upload artifacts"
+    docker:
+      - image: cimg/node:16.13
+    steps:
+      - oss/install_specific_npm_version:
+          version: "7.20.2"
+      - checkout
+      - oss/npm_clean_install_with_caching
+      - run:
+          command: npm run monorepo-pack
+      - store_artifacts:
+          path: ./artifacts/
+          destination: ./
+      - run:
+          name: Gather artifact links and post PR comment
+          when: on_success
+          command: node ./scripts/pr-comment.mjs
+
+  Lint:
+    docker:
+      - image: cimg/node:16.13
+    steps:
+      - oss/install_specific_npm_version:
+          version: "7.20.2"
+      - checkout
+      - oss/npm_clean_install_with_caching
+      - run:
+          command: npm run lint
+workflows:
+  test:
+    jobs:
+      - NodeJS 14
+      - NodeJS 16
+      - NodeJS 17
+  pack:
+    jobs:
+      - Pack Monorepo
+  lint:
+    jobs:
+      - Lint

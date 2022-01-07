@@ -1,0 +1,25 @@
+# installed Node modules
+node_modules/
+# compiled output
+dist/
+
+# This Lerna-based monorepo is intended to be `npm install`'d from the root
+# of the monorepo.  The root `package-lock.json` is the source of truth for the
+# entire monorepo. While running `npm install` in individual packages might
+# work in some cases, it can produce a `package-lock.json` in those directories
+# that would break the Lerna monorepo experience for Lerna, other developers,
+# and the workflows that are built into this repository's CI workflows.
+**/package-lock.json
+!/package-lock.json
+
+# TypeScript incremental compilation cache
+tsconfig.tsbuildinfo
+
+# NPM error output debug logs
+npm-debug.log*
+
+# Mac OS
+.DS_Store
+
+# Generated tarballs
+artifacts/
