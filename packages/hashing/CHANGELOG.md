@@ -1,4 +1,4 @@
-# @trevorscheer/utils.createhash
+# @trevorscheer/utils.hashing
 
 ## 1.0.0
 ### Major Changes

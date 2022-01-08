@@ -5,7 +5,7 @@
   "files": [],
   "include": [],
   "references": [
-    { "path": "packages/createHash" },
+    { "path": "packages/hashing" },
     { "path": "packages/dropUnusedDefinitions" },
     { "path": "packages/isNodeLike" },
     { "path": "packages/operationRegistrySignature" },
