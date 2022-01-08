@@ -45,25 +45,6 @@ jobs:
     steps:
       - common_test_steps
 
-  Pack Monorepo:
-    description: "Pack and upload artifacts"
-    docker:
-      - image: cimg/node:16.13
-    steps:
-      - oss/install_specific_npm_version:
-          version: "7.20.2"
-      - checkout
-      - oss/npm_clean_install_with_caching
-      - run:
-          command: npm run monorepo-pack
-      - store_artifacts:
-          path: ./artifacts/
-          destination: ./
-      - run:
-          name: Gather artifact links and post PR comment
-          when: on_success
-          command: node ./scripts/pr-comment.mjs
-
   Lint:
     docker:
       - image: cimg/node:16.13
@@ -80,9 +61,6 @@ workflows:
       - NodeJS 14
       - NodeJS 16
       - NodeJS 17
-  pack:
-    jobs:
-      - Pack Monorepo
   lint:
     jobs:
       - Lint
