@@ -29,7 +29,7 @@ commands:
 jobs:
   NodeJS 14:
     docker:
-      - image: cimg/node:14.16.1
+      - image: cimg/node:14.18.2
     steps:
       - common_test_steps
 
