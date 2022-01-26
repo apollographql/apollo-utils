@@ -32,7 +32,7 @@
     "@types/jest": "27.4.0",
     "@types/lodash.sortby": "4.7.6",
     "@types/node": "16.11.19",
-    "graphql": "16.2.0",
+    "graphql": "16.3.0",
     "graphql-tag": "2.12.6",
     "jest": "27.4.7",
     "prettier": "2.5.1",
