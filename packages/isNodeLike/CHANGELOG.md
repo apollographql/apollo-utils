@@ -1,4 +1,4 @@
-# @trevorscheer/utils.isnodelike
+# @apollo/utils.isnodelike
 
 ## 1.0.0
 ### Major Changes

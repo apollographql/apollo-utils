@@ -1,5 +1,5 @@
 {
-  "name": "@trevorscheer/utils.operationregistrysignature",
+  "name": "@apollo/utils.operationregistrysignature",
   "version": "1.0.0",
   "description": "Generate a signature for the operation registry",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
     "typescript",
     "node"
   ],
-  "author": "Apollo <packages@trevorscheergraphql.com>",
+  "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "engines": {
     "node": ">=12.13.0 <18.0"
@@ -24,9 +24,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@trevorscheer/utils.dropunuseddefinitions": "^1.0.0",
-    "@trevorscheer/utils.printwithreducedwhitespace": "^1.0.0",
-    "@trevorscheer/utils.sortast": "^1.0.0",
-    "@trevorscheer/utils.stripsensitiveliterals": "^1.0.0"
+    "@apollo/utils.dropunuseddefinitions": "^1.0.0",
+    "@apollo/utils.printwithreducedwhitespace": "^1.0.0",
+    "@apollo/utils.sortast": "^1.0.0",
+    "@apollo/utils.stripsensitiveliterals": "^1.0.0"
   }
 }

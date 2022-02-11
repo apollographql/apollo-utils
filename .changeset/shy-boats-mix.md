@@ -1,5 +1,5 @@
 ---
-"@trevorscheer/utils.hashing": minor
+"@apollo/utils.hashing": minor
 ---
 
 Add operationHash function

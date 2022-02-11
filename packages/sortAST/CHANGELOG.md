@@ -1,4 +1,4 @@
-# @trevorscheer/utils.sortast
+# @apollo/utils.sortast
 
 ## 1.0.0
 ### Major Changes

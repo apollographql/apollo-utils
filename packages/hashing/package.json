@@ -1,5 +1,5 @@
 {
-  "name": "@trevorscheer/utils.hashing",
+  "name": "@apollo/utils.hashing",
   "version": "1.0.0",
   "description": "Node-agnostic hashing utility",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
     "typescript",
     "node"
   ],
-  "author": "Apollo <packages@trevorscheergraphql.com>",
+  "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "engines": {
     "node": ">=12.13.0 <18.0"
@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@trevorscheer/utils.isnodelike": "^1.0.0",
+    "@apollo/utils.isnodelike": "^1.0.0",
     "sha.js": "^2.4.11"
   }
 }

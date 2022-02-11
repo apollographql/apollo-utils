@@ -1,4 +1,4 @@
-import { isNodeLike } from "@trevorscheer/utils.isnodelike";
+import { isNodeLike } from "@apollo/utils.isnodelike";
 
 export function createHash(kind: string): import("crypto").Hash {
   if (isNodeLike) {

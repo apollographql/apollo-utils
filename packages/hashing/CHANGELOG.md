@@ -1,4 +1,4 @@
-# @trevorscheer/utils.hashing
+# @apollo/utils.hashing
 
 ## 1.0.0
 ### Major Changes
@@ -8,4 +8,4 @@
 ### Patch Changes
 
 - Updated dependencies [615ae74]
-  - @trevorscheer/utils.isnodelike@1.0.0
+  - @apollo/utils.isnodelike@1.0.0

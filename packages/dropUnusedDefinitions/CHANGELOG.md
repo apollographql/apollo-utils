@@ -1,4 +1,4 @@
-# @trevorscheer/utils.dropunuseddefinitions
+# @apollo/utils.dropunuseddefinitions
 
 ## 1.0.0
 ### Major Changes

@@ -1,4 +1,4 @@
-# @trevorscheer/utils.operationregistrysignature
+# @apollo/utils.operationregistrysignature
 
 ## 1.0.0
 ### Major Changes
@@ -8,7 +8,7 @@
 ### Patch Changes
 
 - Updated dependencies [615ae74]
-  - @trevorscheer/utils.dropunuseddefinitions@1.0.0
-  - @trevorscheer/utils.printwithreducedwhitespace@1.0.0
-  - @trevorscheer/utils.sortast@1.0.0
-  - @trevorscheer/utils.stripsensitiveliterals@1.0.0
+  - @apollo/utils.dropunuseddefinitions@1.0.0
+  - @apollo/utils.printwithreducedwhitespace@1.0.0
+  - @apollo/utils.sortast@1.0.0
+  - @apollo/utils.stripsensitiveliterals@1.0.0
