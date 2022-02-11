@@ -2,6 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "target": "es2019",
+    "types": ["node"],
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -19,6 +20,8 @@
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
+    "importsNotUsedAsValues": "error",
     "lib": ["es2019"],
     "baseUrl": "."
   }

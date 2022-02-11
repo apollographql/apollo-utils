@@ -5,12 +5,7 @@
   "files": [],
   "include": [],
   "references": [
-    { "path": "packages/hashing" },
-    { "path": "packages/dropUnusedDefinitions" },
-    { "path": "packages/isNodeLike" },
-    { "path": "packages/operationRegistrySignature" },
-    { "path": "packages/printWithReducedWhitespace" },
-    { "path": "packages/sortAST" },
-    { "path": "packages/stripSensitiveLiterals" }
+    { "path": "tsconfig.build.json" },
+    { "path": "tsconfig.test.json" }
   ]
 }

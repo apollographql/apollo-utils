@@ -5,6 +5,5 @@
     "outDir": "dist"
   },
   "include": ["src/**/*"],
-  "exclude": ["**/__tests__"],
-  "references": []
+  "exclude": ["**/__tests__"]
 }
