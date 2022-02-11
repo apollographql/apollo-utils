@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.hashing",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Node-agnostic hashing utility",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
