@@ -1,8 +1,6 @@
 {
   "extends": "../../../../tsconfig.test.base",
-  "include": [
-    "**/*"
-  ],
+  "include": ["**/*"],
   "references": [
     { "path": "../../" },
     { "path": "../../../dropUnusedDefinitions" },
