@@ -29,25 +29,25 @@ commands:
 jobs:
   NodeJS 14:
     docker:
-      - image: cimg/node:17.3.1
+      - image: cimg/node:17.5.0
     steps:
       - common_test_steps
 
   NodeJS 16:
     docker:
-      - image: cimg/node:17.3
+      - image: cimg/node:17.5
     steps:
       - common_test_steps
 
   NodeJS 17:
     docker:
-      - image: cimg/node:17.3
+      - image: cimg/node:17.5
     steps:
       - common_test_steps
 
   Lint:
     docker:
-      - image: cimg/node:17.3
+      - image: cimg/node:17.5
     steps:
       - oss/install_specific_npm_version:
           version: "7.20.2"
