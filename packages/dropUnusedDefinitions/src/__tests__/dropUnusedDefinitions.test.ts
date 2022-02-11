@@ -1,5 +1,4 @@
 import { print, parse } from "graphql";
-
 import { dropUnusedDefinitions } from "..";
 
 describe("dropUnusedDefinitions", () => {

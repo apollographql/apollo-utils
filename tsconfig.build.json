@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    { "path": "packages/dropUnusedDefinitions" },
+    { "path": "packages/hashing" },
+    { "path": "packages/operationRegistrySignature" },
+    { "path": "packages/printWithReducedWhitespace" },
+    { "path": "packages/stripSensitiveLiterals" }
+  ]
+}

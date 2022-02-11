@@ -15,7 +15,7 @@
   },
   "scripts": {
     "clean": "git clean -dfqX",
-    "build": "tsc --build",
+    "build": "tsc --build tsconfig.build.json",
     "lint": "prettier --check .",
     "lint-fix": "prettier --write .",
     "postinstall": "npm run build",
