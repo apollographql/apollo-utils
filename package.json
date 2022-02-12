@@ -21,7 +21,8 @@
     "postinstall": "npm run build",
     "test": "jest --verbose",
     "watch": "tsc --build --watch",
-    "changeset-publish": "changeset publish"
+    "changeset-publish": "changeset publish",
+    "install-with-npm-8.5": "npm i -g npm@^8.5.0 && npm i"
   },
   "workspaces": [
     "packages/*"
