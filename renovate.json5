@@ -19,5 +19,9 @@
       "matchPackageNames": ["@types/node"],
       "allowedVersions": "12.x"
     },
+    {
+      "matchPackageNames": ["graphql"],
+      "automerge": false,
+    }
   ],
 }
