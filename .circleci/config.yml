@@ -51,7 +51,7 @@ jobs:
     steps:
       - common_test_steps
   
-  GraphQL v14 (backcompat):
+  GraphQL v14 - backcompat:
     docker:
       - image: cimg/node:16.14.0
     steps:
@@ -70,7 +70,7 @@ jobs:
       - store_artifacts:
           path: reports/junit
 
-  GraphQL v15 (backcompat):
+  GraphQL v15 - backcompat:
     docker:
       - image: cimg/node:16.14.0
     steps:
@@ -106,8 +106,8 @@ workflows:
       - NodeJS 14
       - NodeJS 16
       - NodeJS 17
-      - GraphQL v14 (backcompat)
-      - GraphQL v15 (backcompat)
+      - GraphQL v14 - backcompat
+      - GraphQL v15 - backcompat
   lint:
     jobs:
       - Lint
