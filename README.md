@@ -13,8 +13,8 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## Introducing a new package
 
 1. Run `npm init -w packages/<myNewPackage>` and follow the prompts. If you're unsure of description, author, or other fields in the `package.json` file, please refer to a neighbor package's `package.json` for inspiration.
-2. Add appropriate entries for your package to the `tsconfig.build.json` and `tsconfig.test.json` files
-3. Create a `src/index.ts` file which is home to your top-level exports
+2. Add appropriate entries for your package to the `tsconfig.build.json` and `tsconfig.test.json` files.
+3. Create a `src/index.ts` file which is home to your top-level exports.
 4. Create a `src/__tests__` folder. Test files should be added here (and use the `.test.ts` suffix).
 5. Copy the following files from a neighbor package and adjust appropriately (if necessary):
   * `.npmignore`
