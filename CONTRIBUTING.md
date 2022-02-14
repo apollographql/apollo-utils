@@ -8,11 +8,11 @@ Oh, and if you haven't already, sign up for the [Apollo community forum](https:/
 
 Here are some ways to contribute to the project, from easiest to most difficult:
 
-* [Reporting bugs](#reporting-bugs)
-* [Responding to issues](#responding-to-issues)
-* [Small bug fixes](#small-bug-fixes)
-* [Suggesting features](#suggesting-features)
-* [Big pull requests](#big-prs)
+- [Reporting bugs](#reporting-bugs)
+- [Responding to issues](#responding-to-issues)
+- [Small bug fixes](#small-bug-fixes)
+- [Suggesting features](#suggesting-features)
+- [Big pull requests](#big-prs)
 
 ## Issues
 
@@ -52,8 +52,8 @@ Once there is a consensus on the need for a new feature, proceed as listed below
 
 This includes:
 
-* Big bug fixes
-* New features
+- Big bug fixes
+- New features
 
 For significant changes to a repository, it’s important to settle on a design before starting on the implementation. This way, we can make sure that major improvements get the care and attention they deserve. Since big changes can be risky and might not always get merged, it’s good to reduce the amount of possible wasted effort by agreeing on an implementation design/plan first.
 
