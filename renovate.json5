@@ -22,6 +22,11 @@
     {
       "matchPackageNames": ["graphql"],
       "automerge": false,
+    },
+    {
+      "matchPackageNames": ["cimg/node"],
+      // We want renovate to leave majors alone, else it'll upgrade even the node matrix images
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "lockFileMaintenance", "rollback", "bump"]
     }
   ],
 }
