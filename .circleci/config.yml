@@ -27,6 +27,12 @@ commands:
           path: reports/junit
 
 jobs:
+  NodeJS 12:
+    docker:
+      - image: cimg/node:12.22.10
+    steps:
+      - common_test_steps
+
   NodeJS 14:
     docker:
       - image: cimg/node:17.5.0
@@ -35,19 +41,19 @@ jobs:
 
   NodeJS 16:
     docker:
-      - image: cimg/node:17.5
+      - image: cimg/node:17.5.0
     steps:
       - common_test_steps
 
   NodeJS 17:
     docker:
-      - image: cimg/node:17.5
+      - image: cimg/node:17.5.0
     steps:
       - common_test_steps
 
   Lint:
     docker:
-      - image: cimg/node:17.5
+      - image: cimg/node:17.5.0
     steps:
       - oss/install_specific_npm_version:
           version: "8.5.0"
@@ -58,6 +64,7 @@ jobs:
 workflows:
   test:
     jobs:
+      - NodeJS 12
       - NodeJS 14
       - NodeJS 16
       - NodeJS 17
