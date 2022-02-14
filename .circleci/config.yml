@@ -35,13 +35,13 @@ jobs:
 
   NodeJS 14:
     docker:
-      - image: cimg/node:14.18.0
+      - image: cimg/node:14.19.0
     steps:
       - common_test_steps
 
   NodeJS 16:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:16.14.0
     steps:
       - common_test_steps
 
@@ -50,6 +50,44 @@ jobs:
       - image: cimg/node:17.5.0
     steps:
       - common_test_steps
+  
+  GraphQL v14 (backcompat):
+    docker:
+      - image: cimg/node:16.14.0
+    steps:
+      - oss/install_specific_npm_version:
+          version: "8.5.0"
+      - checkout
+      - oss/npm_clean_install_with_caching
+      - run:
+          command: npm i -D graphql@14
+      - run:
+          command: npm test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: "reports/junit/"
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
+
+  GraphQL v15 (backcompat):
+    docker:
+      - image: cimg/node:16.14.0
+    steps:
+      - oss/install_specific_npm_version:
+          version: "8.5.0"
+      - checkout
+      - oss/npm_clean_install_with_caching
+      - run:
+          command: npm i -D graphql@15
+      - run:
+          command: npm test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: "reports/junit/"
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
 
   Lint:
     docker:
@@ -68,6 +106,8 @@ workflows:
       - NodeJS 14
       - NodeJS 16
       - NodeJS 17
+      - GraphQL v14 (backcompat)
+      - GraphQL v15 (backcompat)
   lint:
     jobs:
       - Lint
