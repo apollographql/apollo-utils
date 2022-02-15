@@ -50,7 +50,7 @@ jobs:
       - image: cimg/node:17.5.0
     steps:
       - common_test_steps
-  
+
   GraphQL v14 - backcompat:
     docker:
       - image: cimg/node:16.14.0
@@ -61,7 +61,7 @@ jobs:
       - run:
           command: npm i -D graphql@14
       - oss/npm_clean_install_with_caching
-      
+
   GraphQL v15 - backcompat:
     docker:
       - image: cimg/node:16.14.0
