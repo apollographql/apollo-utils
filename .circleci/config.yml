@@ -51,6 +51,28 @@ jobs:
     steps:
       - common_test_steps
 
+  GraphQL v14 - backcompat:
+    docker:
+      - image: cimg/node:16.14.0
+    steps:
+      - oss/install_specific_npm_version:
+          version: "8.5.0"
+      - checkout
+      - run:
+          command: npm i -D graphql@14
+      - oss/npm_clean_install_with_caching
+
+  GraphQL v15 - backcompat:
+    docker:
+      - image: cimg/node:16.14.0
+    steps:
+      - oss/install_specific_npm_version:
+          version: "8.5.0"
+      - checkout
+      - run:
+          command: npm i -D graphql@15
+      - oss/npm_clean_install_with_caching
+
   Lint:
     docker:
       - image: cimg/node:17.5.0
@@ -68,6 +90,8 @@ workflows:
       - NodeJS 14
       - NodeJS 16
       - NodeJS 17
+      - GraphQL v14 - backcompat
+      - GraphQL v15 - backcompat
   lint:
     jobs:
       - Lint
