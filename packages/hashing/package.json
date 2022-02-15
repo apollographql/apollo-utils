@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.hashing",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Node-agnostic hashing utilities",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@apollo/utils.isnodelike": "^0.0.0",
+    "@apollo/utils.isnodelike": "^0.1.0",
     "sha.js": "^2.4.11"
   }
 }
