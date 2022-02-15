@@ -32,7 +32,7 @@
     "@jest/types": "27.5.1",
     "@types/jest": "27.4.0",
     "@types/lodash.sortby": "4.7.6",
-    "@types/node": "12.20.45",
+    "@types/node": "12.20.46",
     "graphql": "16.3.0",
     "graphql-tag": "2.12.6",
     "jest": "27.5.1",
