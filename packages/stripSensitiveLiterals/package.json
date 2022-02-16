@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.stripsensitiveliterals",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Remove literals from an AST which might contain PII (strings and numbers)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
