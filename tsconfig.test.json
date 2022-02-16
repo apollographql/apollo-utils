@@ -6,7 +6,7 @@
   "include": [],
   "references": [
     { "path": "packages/dropUnusedDefinitions/src/__tests__" },
-    { "path": "packages/hashing/src/__tests__" },
+    { "path": "packages/createHash/src/__tests__" },
     { "path": "packages/operationRegistrySignature/src/__tests__" },
     { "path": "packages/printWithReducedWhitespace/src/__tests__" },
     { "path": "packages/stripSensitiveLiterals/src/__tests__" }

@@ -1,13 +1,13 @@
 {
-  "name": "@apollo/utils.hashing",
+  "name": "@apollo/utils.createhash",
   "version": "0.0.0",
-  "description": "Node-agnostic hashing utilities",
+  "description": "Node-agnostic hashing utility",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apollographql/apollo-utils.git",
-    "directory": "hashing/"
+    "directory": "createHash/"
   },
   "keywords": [
     "apollo",
