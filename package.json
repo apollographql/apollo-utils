@@ -28,7 +28,7 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@changesets/cli": "2.20.0",
+    "@changesets/cli": "2.21.0",
     "@jest/types": "27.5.1",
     "@types/jest": "27.4.0",
     "@types/lodash.sortby": "4.7.6",
