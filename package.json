@@ -30,7 +30,7 @@
   "devDependencies": {
     "@changesets/cli": "2.21.0",
     "@jest/types": "27.5.1",
-    "@types/jest": "27.4.0",
+    "@types/jest": "27.4.1",
     "@types/lodash.sortby": "4.7.6",
     "@types/node": "12.20.46",
     "graphql": "16.3.0",
