@@ -31,5 +31,4 @@ jobs:
         with:
           publish: npm run changeset-publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GGITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
