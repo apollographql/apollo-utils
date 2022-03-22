@@ -9,6 +9,7 @@
   "enabledManagers": ["npm"],
   "postUpdateOptions": ["npmDedupe"],
   "prCreation": "immediate",
+  "schedule": null,
   "packageRules": [
     // Bunch up all non-major dependencies into a single PR.  In the common case
     // where the upgrades apply cleanly, this causes less noise and is resolved faster
