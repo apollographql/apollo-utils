@@ -31,7 +31,7 @@ SOFTWARE.
 /**
  * Represents a generic logger that could be a simple console, bunyan etc.
  */
- export interface Logger {
+export interface Logger {
   debug(message?: any, ...optionalParams: any[]): void;
   info(message?: any, ...optionalParams: any[]): void;
   warn(message?: any, ...optionalParams: any[]): void;
