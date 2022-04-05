@@ -126,7 +126,9 @@ describe("Logger interface compatibility", () => {
       }
     })();
 
-    const winstonLogger = winston.createLogger({ level: "debug" }).add(transport);
+    const winstonLogger = winston
+      .createLogger({ level: "debug" })
+      .add(transport);
 
     // type checks Logger interface compatibility
     const logger: Logger = winstonLogger;
@@ -174,4 +176,4 @@ describe("Logger interface incompatibility", () => {
       warn: jest.fn(),
     };
   });
-})
+});
