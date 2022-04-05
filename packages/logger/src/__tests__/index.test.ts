@@ -9,18 +9,23 @@ import type { Logger } from "..";
 const LOWEST_LOG_LEVEL = "debug";
 const KNOWN_DEBUG_MESSAGE = "This is a debug message";
 
-// For typechecking the logger in question's compatibility
-// with the Logger interface.
-interface HasLogger {
-  logger: Logger;
-}
-
 describe("Logger interface compatibility", () => {
+  it("with console", () => {
+    const sink = jest.spyOn(console, "debug");
+
+    // type checks Logger interface compatibility
+    const logger: Logger = console;
+
+    logger.debug(KNOWN_DEBUG_MESSAGE);
+
+    expect(sink).toHaveBeenCalledWith(KNOWN_DEBUG_MESSAGE);
+  });
+
   it("with loglevel", () => {
     const sink = jest.fn();
-    const logger = loglevel.getLogger("test-logger-loglevel");
+    const logLevelLogger = loglevel.getLogger("test-logger-loglevel");
 
-    logger.methodFactory =
+    logLevelLogger.methodFactory =
       (_methodName, level): loglevel.LoggingMethod =>
       (message) =>
         sink({ level, message });
@@ -28,12 +33,12 @@ describe("Logger interface compatibility", () => {
     // The `setLevel` method must be called after overwriting `methodFactory`.
     // This is an intentional API design pattern of the loglevel package:
     // https://www.npmjs.com/package/loglevel#writing-plugins
-    logger.setLevel(loglevel.levels.DEBUG);
+    logLevelLogger.setLevel(loglevel.levels.DEBUG);
 
     // type checks Logger interface compatibility
-    const hasLogger: HasLogger = { logger };
+    const logger: Logger = logLevelLogger;
 
-    hasLogger.logger.debug(KNOWN_DEBUG_MESSAGE);
+    logger.debug(KNOWN_DEBUG_MESSAGE);
 
     expect(sink).toHaveBeenCalledWith({
       level: loglevel.levels.DEBUG,
@@ -61,13 +66,13 @@ describe("Logger interface compatibility", () => {
       },
     });
 
-    const logger = log4js.getLogger();
-    logger.level = LOWEST_LOG_LEVEL;
+    const log4jsLogger = log4js.getLogger();
+    log4jsLogger.level = LOWEST_LOG_LEVEL;
 
     // type checks Logger interface compatibility
-    const hasLogger: HasLogger = { logger };
+    const logger: Logger = log4jsLogger;
 
-    hasLogger.logger.debug(KNOWN_DEBUG_MESSAGE);
+    logger.debug(KNOWN_DEBUG_MESSAGE);
 
     expect(sink).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -84,7 +89,7 @@ describe("Logger interface compatibility", () => {
     const writable = new PassThrough();
     writable.on("data", (data) => sink(JSON.parse(data.toString())));
 
-    const logger = bunyan.createLogger({
+    const bunyanLogger = bunyan.createLogger({
       name: "test-logger-bunyan",
       streams: [
         {
@@ -95,9 +100,9 @@ describe("Logger interface compatibility", () => {
     });
 
     // type checks Logger interface compatibility
-    const hasLogger: HasLogger = { logger };
+    const logger: Logger = bunyanLogger;
 
-    hasLogger.logger.debug(KNOWN_DEBUG_MESSAGE);
+    logger.debug(KNOWN_DEBUG_MESSAGE);
 
     expect(sink).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -121,12 +126,12 @@ describe("Logger interface compatibility", () => {
       }
     })();
 
-    const logger = winston.createLogger({ level: "debug" }).add(transport);
+    const winstonLogger = winston.createLogger({ level: "debug" }).add(transport);
 
     // type checks Logger interface compatibility
-    const hasLogger: HasLogger = { logger };
+    const logger: Logger = winstonLogger;
 
-    hasLogger.logger.debug(KNOWN_DEBUG_MESSAGE);
+    logger.debug(KNOWN_DEBUG_MESSAGE);
 
     expect(sink).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -136,3 +141,37 @@ describe("Logger interface compatibility", () => {
     );
   });
 });
+
+describe("Logger interface incompatibility", () => {
+  it("missing methods", () => {
+    // @ts-ignore - logger unused
+    let logger: Logger;
+    // @ts-expect-error
+    logger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    };
+
+    // @ts-expect-error
+    logger = {
+      debug: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    };
+
+    // @ts-expect-error
+    logger = {
+      debug: jest.fn(),
+      info: jest.fn(),
+      error: jest.fn(),
+    };
+
+    // @ts-expect-error
+    logger = {
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+    };
+  });
+})
