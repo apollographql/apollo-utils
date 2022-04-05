@@ -24,6 +24,7 @@ const logger = log4js.getLogger();
 ```
 
 ## loglevel
+
 ```
 const logger = loglevel.getLogger();
 ```
