@@ -1,7 +1,9 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@1.6.3/schema.json",
-  "changelog": "@changesets/cli/changelog",
-  "commit": false,
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "apollographql/apollo-utils" }
+  ],  "commit": false,
   "linked": [],
   "access": "restricted",
   "baseBranch": "main",

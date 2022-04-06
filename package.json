@@ -28,6 +28,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.22.0",
     "@jest/types": "27.5.1",
     "@types/bunyan": "1.8.8",
