@@ -1,5 +1,5 @@
 {
-  "name": "apollo-utils",
+  "name": "apollo-utils-monorepo",
   "private": "true",
   "description": "Monorepo for Apollo and GraphQL-related utilities packages",
   "keywords": [
