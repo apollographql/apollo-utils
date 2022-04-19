@@ -33,7 +33,7 @@
     "@jest/types": "27.5.1",
     "@types/bunyan": "1.8.8",
     "@types/jest": "27.4.1",
-    "@types/lodash.sortby": "4.7.6",
+    "@types/lodash.sortby": "4.7.7",
     "@types/node": "12.20.48",
     "bunyan": "1.8.15",
     "graphql": "16.3.0",
