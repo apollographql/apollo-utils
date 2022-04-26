@@ -23,3 +23,6 @@ npm-debug.log*
 
 # Generated tarballs
 artifacts/
+
+# Volta binaries (when using direnv/.envrc)
+.volta

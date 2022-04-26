@@ -1,97 +1,84 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.0.0
-  oss: apollo/oss-ci-cd-tooling@0.0.20
+  node: circleci/node@5.0.2
 
 commands:
-  # These are the steps used for each version of Node which we're testing
-  # against.  Thanks to YAMLs inability to merge arrays (though it is able
-  # to merge objects), every version of Node must use the exact same steps,
-  # or these steps would need to be repeated in a version of Node that needs
-  # something different.  Probably best to avoid that, out of principle, though.
-  common_test_steps:
-    description: "Commands run on each Node.js job"
+  install-volta:
+    description: Install volta to manage Node/npm versions
     steps:
-      - oss/install_specific_npm_version:
-          version: "8.5.0"
-      - checkout
-      - oss/npm_clean_install_with_caching
       - run:
-          command: npm test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: "reports/junit/"
-      - store_test_results:
-          path: reports/junit
-      - store_artifacts:
-          path: reports/junit
+          name: Install volta
+          # Teach the volta installer to update Circle's special env
+          # file instead of the default.
+          command: |
+            curl https://get.volta.sh | PROFILE="$BASH_ENV" bash
+
+  setup-node:
+    parameters:
+      node-version:
+        type: string
+        default: ""
+    steps:
+      - install-volta
+      - checkout
+      - when:
+          condition: << parameters.node-version >>
+          steps:
+            - run: volta pin node@<< parameters.node-version >>
+      - run: node --version
+      - run: npm --version
+      - node/install-packages
 
 jobs:
-  NodeJS 12:
+  NodeJS:
+    parameters:
+      node-version:
+        type: string
     docker:
-      - image: cimg/node:12.22.10
+      - image: cimg/base:stable
     steps:
-      - common_test_steps
-
-  NodeJS 14:
-    docker:
-      - image: cimg/node:14.18.0
-    steps:
-      - common_test_steps
-
-  NodeJS 16:
-    docker:
-      - image: cimg/node:16.13.1
-    steps:
-      - common_test_steps
-
-  NodeJS 17:
-    docker:
-      - image: cimg/node:17.5.0
-    steps:
-      - common_test_steps
+      - setup-node:
+          node-version: <<parameters.node-version>>
+      - run: npm run test:ci
+      - store_test_results:
+          path: junit.xml
 
   GraphQL v14 - backcompat:
     docker:
-      - image: cimg/node:16.14.0
+      - image: cimg/base:stable
     steps:
-      - oss/install_specific_npm_version:
-          version: "8.5.0"
-      - checkout
+      - setup-node
       - run:
           command: npm i -D graphql@14
-      - oss/npm_clean_install_with_caching
 
   GraphQL v15 - backcompat:
     docker:
-      - image: cimg/node:16.14.0
+      - image: cimg/base:stable
     steps:
-      - oss/install_specific_npm_version:
-          version: "8.5.0"
-      - checkout
+      - setup-node
       - run:
           command: npm i -D graphql@15
-      - oss/npm_clean_install_with_caching
 
-  Lint:
+  Prettier:
     docker:
-      - image: cimg/node:17.5.0
+      - image: cimg/base:stable
     steps:
-      - oss/install_specific_npm_version:
-          version: "8.5.0"
-      - checkout
-      - oss/npm_clean_install_with_caching
-      - run:
-          command: npm run lint
+      - setup-node
+      - run: npm run prettier-check
+
 workflows:
-  test:
+  version: 2
+  Build:
     jobs:
-      - NodeJS 12
-      - NodeJS 14
-      - NodeJS 16
-      - NodeJS 17
+      - NodeJS:
+          name: NodeJS << matrix.node-version >>
+          matrix:
+            parameters:
+              node-version:
+                - "14"
+                - "16"
+                - "18"
       - GraphQL v14 - backcompat
       - GraphQL v15 - backcompat
-  lint:
-    jobs:
-      - Lint
+      - Prettier
