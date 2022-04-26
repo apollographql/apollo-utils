@@ -18,14 +18,14 @@ commands:
     parameters:
       node-version:
         type: string
-        default: ''
+        default: ""
     steps:
       - install-volta
       - checkout
       - when:
           condition: << parameters.node-version >>
           steps:
-          - run: volta pin node@<< parameters.node-version >>
+            - run: volta pin node@<< parameters.node-version >>
       - run: node --version
       - run: npm --version
       - node/install-packages
@@ -36,7 +36,7 @@ jobs:
       node-version:
         type: string
     docker:
-    - image: cimg/base:stable
+      - image: cimg/base:stable
     steps:
       - setup-node:
           node-version: <<parameters.node-version>>
@@ -46,7 +46,7 @@ jobs:
 
   GraphQL v14 - backcompat:
     docker:
-    - image: cimg/base:stable
+      - image: cimg/base:stable
     steps:
       - setup-node
       - run:
@@ -54,7 +54,7 @@ jobs:
 
   GraphQL v15 - backcompat:
     docker:
-    - image: cimg/base:stable
+      - image: cimg/base:stable
     steps:
       - setup-node
       - run:
@@ -62,7 +62,7 @@ jobs:
 
   Prettier:
     docker:
-    - image: cimg/base:stable
+      - image: cimg/base:stable
     steps:
       - setup-node
       - run: npm run prettier-check
