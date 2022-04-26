@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.operationregistrysignature",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Generate a signature for the operation registry",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,9 +24,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@apollo/utils.dropunuseddefinitions": "^1.0.0",
-    "@apollo/utils.printwithreducedwhitespace": "^1.0.0",
-    "@apollo/utils.sortast": "^1.0.0",
-    "@apollo/utils.stripsensitiveliterals": "^1.0.0"
+    "@apollo/utils.dropunuseddefinitions": "^1.1.0",
+    "@apollo/utils.printwithreducedwhitespace": "^1.1.0",
+    "@apollo/utils.sortast": "^1.1.0",
+    "@apollo/utils.stripsensitiveliterals": "^1.1.0"
   }
 }
