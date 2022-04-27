@@ -35,7 +35,7 @@
     "@types/bunyan": "1.8.8",
     "@types/jest": "27.4.1",
     "@types/lodash.sortby": "4.7.7",
-    "@types/node": "12.20.49",
+    "@types/node": "12.20.50",
     "bunyan": "1.8.15",
     "graphql": "16.4.0",
     "graphql-tag": "2.12.6",
@@ -51,7 +51,7 @@
     "winston-transport": "4.5.0"
   },
   "volta": {
-    "node": "16.14.2",
+    "node": "16.15.0",
     "npm": "8.7.0"
   }
 }
