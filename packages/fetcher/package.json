@@ -1,0 +1,22 @@
+{
+  "name": "@apollo/utils.fetcher",
+  "version": "0.0.0",
+  "description": "Minimal web-style fetch TypeScript typings",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apollographql/apollo-utils.git",
+    "directory": "fetcher/"
+  },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "typescript",
+    "node"
+  ],
+  "author": "Apollo <packages@apollographql.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}

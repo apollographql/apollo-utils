@@ -7,6 +7,7 @@
   "references": [
     { "path": "packages/createHash" },
     { "path": "packages/dropUnusedDefinitions" },
+    { "path": "packages/fetcher" },
     { "path": "packages/isNodeLike" },
     { "path": "packages/logger" },
     { "path": "packages/operationRegistrySignature" },
