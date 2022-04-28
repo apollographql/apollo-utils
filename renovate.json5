@@ -26,6 +26,11 @@
       "matchPackageNames": ["@types/node"],
       "allowedVersions": "12.x"
     },
+    // node-fetch v3 only ships as ESM. So let's stay on v2.
+    {
+      "matchPackageNames": ["node-fetch", "@types/node-fetch"],
+      "allowedVersions": "2.x"
+    },
     {
       "matchPackageNames": ["graphql"],
       "automerge": false,
