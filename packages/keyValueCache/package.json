@@ -1,0 +1,22 @@
+{
+  "name": "@apollo/utils.keyvaluecache",
+  "version": "0.0.0",
+  "description": "Minimal key-value cache interface",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apollographql/apollo-utils.git",
+    "directory": "packages/keyValueCache/"
+  },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "typescript",
+    "node"
+  ],
+  "author": "Apollo <packages@apollographql.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}

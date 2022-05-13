@@ -5,9 +5,11 @@
   "files": [],
   "include": [],
   "references": [
+    { "path": "packages/apolloKeyv/src/__tests__" },
     { "path": "packages/createHash/src/__tests__" },
     { "path": "packages/dropUnusedDefinitions/src/__tests__" },
     { "path": "packages/fetcher/src/__tests__" },
+    { "path": "packages/keyValueCache/src/__tests__" },
     { "path": "packages/logger/src/__tests__" },
     { "path": "packages/operationRegistrySignature/src/__tests__" },
     { "path": "packages/printWithReducedWhitespace/src/__tests__" },

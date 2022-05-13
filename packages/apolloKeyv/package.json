@@ -1,0 +1,26 @@
+{
+  "name": "@apollo/utils.apollokeyv",
+  "version": "0.0.0",
+  "description": "Keyv wrapper implementing Apollo's KeyValueCache interface",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apollographql/apollo-utils.git",
+    "directory": "packages/apolloKeyv/"
+  },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "typescript",
+    "node"
+  ],
+  "author": "Apollo <packages@apollographql.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@apollo/utils.keyvaluecache": "^0.0.0",
+    "keyv": "^4.2.8"
+  }
+}
