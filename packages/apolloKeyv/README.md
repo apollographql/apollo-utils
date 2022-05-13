@@ -7,16 +7,17 @@ The `ApolloKeyv` class is a simple wrapper for `Keyv` which implements the `KeyV
 Here's an example of using a Redis store for your ApolloServer cache:
 
 Install the necessary packages:
+
 ```bash
 npm install @apollo/utils.apollokeyv keyv @keyv/redis
 ```
 
 ```ts
-import {ApolloServer} from '@apollo/server';
-import {ApolloKeyv} from '@apollo/utils.apollokeyv';
-import Keyv from 'keyv';
+import { ApolloServer } from "@apollo/server";
+import { ApolloKeyv } from "@apollo/utils.apollokeyv";
+import Keyv from "keyv";
 
 new ApolloServer({
-  cache: new ApolloKeyv(new Keyv('redis://...')),
+  cache: new ApolloKeyv(new Keyv("redis://...")),
 });
 ```
