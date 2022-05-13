@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/__tests__"],
+  "references": [
+    {
+      "path": "../dropUnusedDefinitions"
+    },
+    {
+      "path": "../printWithReducedWhitespace"
+    },
+    {
+      "path": "../removeAliases"
+    },
+    {
+      "path": "../sortAST"
+    }
+  ]
+}

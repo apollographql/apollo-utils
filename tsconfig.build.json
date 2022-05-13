@@ -8,11 +8,14 @@
     { "path": "packages/createHash" },
     { "path": "packages/dropUnusedDefinitions" },
     { "path": "packages/fetcher" },
+    { "path": "packages/hideLiterals" },
     { "path": "packages/isNodeLike" },
     { "path": "packages/logger" },
     { "path": "packages/operationRegistrySignature" },
     { "path": "packages/printWithReducedWhitespace" },
+    { "path": "packages/removeAliases" },
     { "path": "packages/sortAST" },
-    { "path": "packages/stripSensitiveLiterals" }
+    { "path": "packages/stripSensitiveLiterals" },
+    { "path": "packages/usageReportingSignature" }
   ]
 }
