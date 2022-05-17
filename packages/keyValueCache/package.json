@@ -18,5 +18,8 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "lru-cache": "^7.10.1"
   }
 }
