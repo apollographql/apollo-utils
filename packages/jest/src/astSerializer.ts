@@ -1,8 +1,7 @@
 import { ASTNode, print } from "graphql";
-import type { NewPlugin } from "pretty-format";
 import { isNode } from "graphql/language/ast";
 
-const astSerializer: NewPlugin = {
+export const astSerializer = {
   test(value: any) {
     return isNode(value);
   },
@@ -11,5 +10,3 @@ const astSerializer: NewPlugin = {
     return print(value);
   },
 };
-
-export { astSerializer };
