@@ -7,6 +7,6 @@ For example, the following operation is no longer valid once the alias is remove
 ```graphql
 query {
   x(a: 1)
-  alias: x(a:2)
+  alias: x(a: 2)
 }
 ```

@@ -10,7 +10,7 @@
 // "signature".
 //
 // This module combines several AST transformations to create its signature:
-// 
+//
 // - dropUnusedDefinitions, which removes operations and fragments that aren't
 //   going to be used in execution
 // - stripSensitiveLiterals, which replaces all numeric and string literals as
