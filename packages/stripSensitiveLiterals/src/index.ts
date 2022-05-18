@@ -12,7 +12,7 @@ import { visit } from "graphql";
 // Hide sensitive string and numeric literals. Optionally hide list and object literals with the option `hideListAndObjectLiterals: true`.
 export function stripSensitiveLiterals(
   ast: DocumentNode,
-  options: { hideListAndObjectLiterals: boolean } = {
+  options: { hideListAndObjectLiterals?: boolean } = {
     hideListAndObjectLiterals: false,
   },
 ): DocumentNode {

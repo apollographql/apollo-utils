@@ -68,6 +68,32 @@ describe("stripSensitiveLiterals", () => {
     `);
   });
 
+  it("strips only numeric and string literals with empty (but defined) configuration", () => {
+    expect(stripSensitiveLiterals(document, {})).toMatchInlineSnapshot(`
+      query Foo($b: Int, $a: Boolean) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
+          ...Bar
+          ... on User {
+            hello
+            bee
+          }
+          tz
+          aliased: name
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
+        }
+      }
+
+      fragment Bar on User {
+        age @skip(if: $a)
+        ...Nested
+      }
+
+      fragment Nested on User {
+        blah
+      }
+    `);
+  });
+
   it("strips only numeric and string literals with hideListAndObjectLiterals: false", () => {
     expect(
       stripSensitiveLiterals(document, { hideListAndObjectLiterals: false }),
