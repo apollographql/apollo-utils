@@ -21,7 +21,7 @@
     "postinstall": "npm run build",
     "test": "jest --verbose",
     "test:ci": "jest --coverage --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
-    "watch": "tsc --build --watch",
+    "watch": "npm run build -- --watch",
     "changeset-publish": "changeset publish",
     "install-with-npm-8.5": "npm i -g npm@^8.5.0 && npm i"
   },
