@@ -6,8 +6,8 @@ import {
   TypeInfo,
   visit,
   visitWithTypeInfo,
-} from 'graphql';
-import { ReferencedFieldsForType } from 'apollo-reporting-protobuf';
+} from "graphql";
+import { ReferencedFieldsForType } from "apollo-reporting-protobuf";
 
 export interface OperationDerivedData {
   signature: string;
@@ -35,12 +35,12 @@ export function calculateReferencedFieldsByType({
   // documents rather than fields if we wanted to improve that.
   const documentSeparatedByOperation = separateOperations(document);
   const filteredDocument =
-    documentSeparatedByOperation[resolvedOperationName ?? ''];
+    documentSeparatedByOperation[resolvedOperationName ?? ""];
   if (!filteredDocument) {
     // This shouldn't happen because we only should call this function on
     // properly executable documents.
     throw Error(
-      `shouldn't happen: operation '${resolvedOperationName ?? ''}' not found`,
+      `shouldn't happen: operation '${resolvedOperationName ?? ""}' not found`,
     );
   }
   const typeInfo = new TypeInfo(schema);

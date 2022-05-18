@@ -1,6 +1,6 @@
-import { buildASTSchema, DocumentNode, validate } from 'graphql';
-import gql from 'graphql-tag';
-import { calculateReferencedFieldsByType } from '..';
+import { buildASTSchema, DocumentNode, validate } from "graphql";
+import gql from "graphql-tag";
+import { calculateReferencedFieldsByType } from "..";
 
 const schema = buildASTSchema(gql`
   type Query {
@@ -38,8 +38,8 @@ function validateAndCalculate({
   });
 }
 
-describe('calculateReferencedFieldsByType', () => {
-  it('basic', () => {
+describe("calculateReferencedFieldsByType", () => {
+  it("basic", () => {
     expect(
       validateAndCalculate({
         document: gql`
@@ -60,7 +60,7 @@ describe('calculateReferencedFieldsByType', () => {
     `);
   });
 
-  it('aliases use actual field name', () => {
+  it("aliases use actual field name", () => {
     expect(
       validateAndCalculate({
         document: gql`
@@ -81,7 +81,7 @@ describe('calculateReferencedFieldsByType', () => {
     `);
   });
 
-  it('multiple operations and fragments', () => {
+  it("multiple operations and fragments", () => {
     expect(
       validateAndCalculate({
         document: gql`
@@ -104,7 +104,7 @@ describe('calculateReferencedFieldsByType', () => {
             y
           }
         `,
-        resolvedOperationName: 'Q1',
+        resolvedOperationName: "Q1",
       }),
     ).toMatchInlineSnapshot(`
       Object {
@@ -125,7 +125,7 @@ describe('calculateReferencedFieldsByType', () => {
     `);
   });
 
-  it('interfaces', () => {
+  it("interfaces", () => {
     expect(
       validateAndCalculate({
         document: gql`
@@ -154,7 +154,7 @@ describe('calculateReferencedFieldsByType', () => {
     `);
   });
 
-  it('interface with fragment', () => {
+  it("interface with fragment", () => {
     expect(
       validateAndCalculate({
         document: gql`
@@ -193,7 +193,7 @@ describe('calculateReferencedFieldsByType', () => {
   });
 });
 
-it('interface with fragment that uses interface field', () => {
+it("interface with fragment that uses interface field", () => {
   expect(
     validateAndCalculate({
       document: gql`
@@ -228,7 +228,7 @@ it('interface with fragment that uses interface field', () => {
   `);
 });
 
-it('using field both with interface and object should work', () => {
+it("using field both with interface and object should work", () => {
   expect(
     validateAndCalculate({
       document: gql`
@@ -266,7 +266,7 @@ it('using field both with interface and object should work', () => {
   `);
 });
 
-it('using field multiple times (same level or otherwise) de-dupes', () => {
+it("using field multiple times (same level or otherwise) de-dupes", () => {
   expect(
     validateAndCalculate({
       document: gql`
