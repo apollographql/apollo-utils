@@ -28,6 +28,7 @@
     "@apollo/utils.hideliterals": "^0.0.0",
     "@apollo/utils.printwithreducedwhitespace": "^1.1.0",
     "@apollo/utils.removealiases": "0.0.0",
-    "@apollo/utils.sortast": "^1.1.0"
+    "@apollo/utils.sortast": "^1.1.0",
+    "apollo-reporting-protobuf": "^3.3.1"
   }
 }

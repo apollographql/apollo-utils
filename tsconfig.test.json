@@ -14,6 +14,6 @@
     { "path": "packages/printWithReducedWhitespace/src/__tests__" },
     { "path": "packages/removeAliases/src/__tests__" },
     { "path": "packages/stripSensitiveLiterals/src/__tests__" },
-    { "path": "packages/usageReportingSignature/src/__tests__" }
+    { "path": "packages/usageReporting/src/__tests__" }
   ]
 }

@@ -16,6 +16,6 @@
     { "path": "packages/removeAliases" },
     { "path": "packages/sortAST" },
     { "path": "packages/stripSensitiveLiterals" },
-    { "path": "packages/usageReportingSignature" }
+    { "path": "packages/usageReporting" }
   ]
 }
