@@ -1,7 +1,7 @@
 ---
-"@apollo/utils.calculatereferencedfieldsbytype": major
-"@apollo/utils.hideliterals": major
+"@apollo/utils.jest": major
 "@apollo/utils.removealiases": major
+"@apollo/utils.stripsensitiveliterals": minor
 "@apollo/utils.usagereportingsignature": major
 ---
 

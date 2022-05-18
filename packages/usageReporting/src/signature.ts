@@ -23,15 +23,14 @@
 //
 // - dropUnusedDefinitions, which removes operations and fragments that aren't
 //   going to be used in execution
-// - hideLiterals, which replaces all numeric and string literals as well as
+// - stripSensitiveLiterals, which replaces all numeric and string literals as well as
 //   list and object input values with "empty" values
 // - removeAliases, which removes field aliasing from the query
 // - sortAST, which sorts the children of most multi-child nodes consistently
 // - printWithReducedWhitespace, a variant on graphql-js's 'print' which gets
 //   rid of unneeded whitespace
 //
-// defaultUsageReportingSignature consists of applying all of these building
-// blocks.
+// usageReportingSignature consists of applying all of these building blocks.
 //
 // Historical note: the default signature algorithm of the Go engineproxy
 // performed all of the above operations, and Apollo's servers then re-ran a
@@ -49,9 +48,8 @@
 // the signature algorithm are now up to the reporting agent. That said, not all
 // Studio features will work properly if your signature function changes the
 // signature in unexpected ways.
-
 import { dropUnusedDefinitions } from "@apollo/utils.dropunuseddefinitions";
-import { hideLiterals } from "@apollo/utils.hideliterals";
+import { stripSensitiveLiterals } from "@apollo/utils.stripsensitiveliterals";
 import { printWithReducedWhitespace } from "@apollo/utils.printwithreducedwhitespace";
 import { removeAliases } from "@apollo/utils.removealiases";
 import { sortAST } from "@apollo/utils.sortast";
@@ -63,7 +61,11 @@ export function usageReportingSignature(
 ): string {
   return printWithReducedWhitespace(
     sortAST(
-      removeAliases(hideLiterals(dropUnusedDefinitions(ast, operationName))),
+      removeAliases(
+        stripSensitiveLiterals(dropUnusedDefinitions(ast, operationName), {
+          hideListAndObjectLiterals: true,
+        }),
+      ),
     ),
   );
 }

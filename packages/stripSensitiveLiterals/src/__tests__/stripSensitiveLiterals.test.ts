@@ -1,111 +1,126 @@
 import gql from "graphql-tag";
-import { printWithReducedWhitespace } from "@apollo/utils.printwithreducedwhitespace";
 import { stripSensitiveLiterals } from "..";
 
+import { astSerializer } from "@apollo/utils.jest";
+
+expect.addSnapshotSerializer(astSerializer);
+
+const document = gql`
+  query Foo($b: Int, $a: Boolean) {
+    user(
+      name: "hello"
+      age: 5
+      pct: 0.4
+      lst: ["a", "b", "c"]
+      obj: { a: "a", b: 1 }
+    ) {
+      ...Bar
+      ... on User {
+        hello
+        bee
+      }
+      tz
+      aliased: name
+      withInputs(
+        str: "hi"
+        int: 2
+        flt: 0.3
+        lst: ["", "", ""]
+        obj: { q: "", s: 0 }
+      )
+    }
+  }
+
+  fragment Bar on User {
+    age @skip(if: $a)
+    ...Nested
+  }
+
+  fragment Nested on User {
+    blah
+  }
+`;
+
 describe("stripSensitiveLiterals", () => {
-  const cases = [
-    {
-      name: "full test",
-      input: gql`
-        query Foo($b: Int, $a: Boolean) {
-          user(
-            name: "hello"
-            age: 5
-            pct: 0.4
-            lst: ["a", "b", "c"]
-            obj: { a: "a", b: 1 }
-          ) {
-            ...Bar
-            ... on User {
-              hello
-              bee
-            }
-            tz
-            aliased: name
-            withInputs(
-              str: "hi"
-              int: 2
-              flt: 0.3
-              lst: ["", "", ""]
-              obj: { q: "", s: 0 }
-            )
+  it("strips only numeric and string literals with default configuration", () => {
+    expect(stripSensitiveLiterals(document)).toMatchInlineSnapshot(`
+      query Foo($b: Int, $a: Boolean) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
+          ...Bar
+          ... on User {
+            hello
+            bee
           }
+          tz
+          aliased: name
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
         }
+      }
 
-        fragment Bar on User {
-          age @skip(if: $a)
-          ...Nested
-        }
+      fragment Bar on User {
+        age @skip(if: $a)
+        ...Nested
+      }
 
-        fragment Nested on User {
-          blah
-        }
-      `,
-      output:
-        'query Foo($b:Int,$a:Boolean){user(name:"",age:0,pct:0,lst:["","",""],obj:{a:"",b:0}){...Bar...on User{hello bee}tz aliased:name ' +
-        'withInputs(str:"",int:0,flt:0,lst:["","",""],obj:{q:"",s:0})}}' +
-        "fragment Bar on User{age@skip(if:$a)...Nested}fragment Nested on User{blah}",
-    },
-  ];
-  cases.forEach(({ name, input, output }) => {
-    test(name, () => {
-      expect(printWithReducedWhitespace(stripSensitiveLiterals(input))).toEqual(
-        output,
-      );
-    });
+      fragment Nested on User {
+        blah
+      }
+    `);
   });
-});
 
-describe("hideLiterals", () => {
-  const cases = [
-    {
-      name: "full test",
-      input: gql`
-        query Foo($b: Int, $a: Boolean) {
-          user(
-            name: "hello"
-            age: 5
-            pct: 0.4
-            lst: ["a", "b", "c"]
-            obj: { a: "a", b: 1 }
-          ) {
-            ...Bar
-            ... on User {
-              hello
-              bee
-            }
-            tz
-            aliased: name
-            withInputs(
-              str: "hi"
-              int: 2
-              flt: 0.3
-              lst: ["", "", ""]
-              obj: { q: "", s: 0 }
-            )
+  it("strips only numeric and string literals with hideListAndObjectLiterals: false", () => {
+    expect(
+      stripSensitiveLiterals(document, { hideListAndObjectLiterals: false }),
+    ).toMatchInlineSnapshot(`
+      query Foo($b: Int, $a: Boolean) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
+          ...Bar
+          ... on User {
+            hello
+            bee
           }
+          tz
+          aliased: name
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
         }
+      }
 
-        fragment Bar on User {
-          age @skip(if: $a)
-          ...Nested
-        }
+      fragment Bar on User {
+        age @skip(if: $a)
+        ...Nested
+      }
 
-        fragment Nested on User {
-          blah
+      fragment Nested on User {
+        blah
+      }
+    `);
+  });
+
+  it("strips all literals with hideListAndObjectLiterals: true", () => {
+    expect(
+      stripSensitiveLiterals(document, { hideListAndObjectLiterals: true }),
+    ).toMatchInlineSnapshot(`
+      query Foo($b: Int, $a: Boolean) {
+        user(name: "", age: 0, pct: 0, lst: [], obj: {}) {
+          ...Bar
+          ... on User {
+            hello
+            bee
+          }
+          tz
+          aliased: name
+          withInputs(str: "", int: 0, flt: 0, lst: [], obj: {})
         }
-      `,
-      output:
-        'query Foo($b:Int,$a:Boolean){user(name:"",age:0,pct:0,lst:[],obj:{}){...Bar...on User{hello bee}tz aliased:name ' +
-        'withInputs(str:"",int:0,flt:0,lst:[],obj:{})}}' +
-        "fragment Bar on User{age@skip(if:$a)...Nested}fragment Nested on User{blah}",
-    },
-  ];
-  cases.forEach(({ name, input, output }) => {
-    test(name, () => {
-      expect(
-        printWithReducedWhitespace(stripSensitiveLiterals(input, true)),
-      ).toEqual(output);
-    });
+      }
+
+      fragment Bar on User {
+        age @skip(if: $a)
+        ...Nested
+      }
+
+      fragment Nested on User {
+        blah
+      }
+    `);
   });
 });

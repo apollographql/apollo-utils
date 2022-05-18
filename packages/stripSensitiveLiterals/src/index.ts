@@ -9,22 +9,24 @@ import type {
 } from "graphql";
 import { visit } from "graphql";
 
-// In the same spirit as the similarly named `hideLiterals` function, only
-// hide sensitive (string and numeric) literals.
+// Hide sensitive string and numeric literals. Optionally hide list and object literals with the option `hideListAndObjectLiterals: true`.
 export function stripSensitiveLiterals(
   ast: DocumentNode,
-  hideListAndObjectLiterals: boolean = false,
+  options: { hideListAndObjectLiterals: boolean } = {
+    hideListAndObjectLiterals: false,
+  },
 ): DocumentNode {
-  const listAndObjectVisitorIfEnabled: ASTVisitor = hideListAndObjectLiterals
-    ? {
-        ListValue(node: ListValueNode): ListValueNode {
-          return { ...node, values: [] };
-        },
-        ObjectValue(node: ObjectValueNode): ObjectValueNode {
-          return { ...node, fields: [] };
-        },
-      }
-    : {};
+  const listAndObjectVisitorIfEnabled: ASTVisitor =
+    options.hideListAndObjectLiterals
+      ? {
+          ListValue(node: ListValueNode): ListValueNode {
+            return { ...node, values: [] };
+          },
+          ObjectValue(node: ObjectValueNode): ObjectValueNode {
+            return { ...node, fields: [] };
+          },
+        }
+      : {};
 
   return visit(ast, {
     IntValue(node): IntValueNode {
