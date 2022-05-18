@@ -9,7 +9,7 @@
     { "path": "packages/dropUnusedDefinitions" },
     { "path": "packages/fetcher" },
     { "path": "packages/isNodeLike" },
-    { "path": "packages/jest" },
+    { "path": "packages/jestGraphQLASTSerializer" },
     { "path": "packages/logger" },
     { "path": "packages/operationRegistrySignature" },
     { "path": "packages/printWithReducedWhitespace" },

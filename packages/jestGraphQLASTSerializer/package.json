@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/utils.jest",
+  "name": "@apollo/utils.jest-graphql-ast-serializer",
   "version": "0.0.0",
   "description": "Jest utilities",
   "main": "dist/index.js",
@@ -7,11 +7,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apollographql/apollo-utils.git",
-    "directory": "packages/jest/"
+    "directory": "packages/jestGraphQLASTSerializer/"
   },
   "keywords": [
     "apollo",
     "graphql",
+    "jest",
     "typescript",
     "node"
   ],
@@ -22,5 +23,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "graphql": "14.x || 15.x || 16.x"
   }
 }

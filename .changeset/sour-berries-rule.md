@@ -1,5 +1,5 @@
 ---
-"@apollo/utils.jest": major
+"@apollo/utils.jest-graphql-ast-serializer": major
 "@apollo/utils.removealiases": major
 "@apollo/utils.stripsensitiveliterals": minor
 "@apollo/utils.usagereportingsignature": major

@@ -1,9 +1,9 @@
 import gql from "graphql-tag";
 import { stripSensitiveLiterals } from "..";
 
-import { astSerializer } from "@apollo/utils.jest";
+import graphQLASTSerializer from "@apollo/utils.jest-graphql-ast-serializer";
 
-expect.addSnapshotSerializer(astSerializer);
+expect.addSnapshotSerializer(graphQLASTSerializer);
 
 const document = gql`
   query Foo($b: Int, $a: Boolean) {
