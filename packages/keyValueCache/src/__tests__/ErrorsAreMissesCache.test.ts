@@ -47,9 +47,10 @@ describe("ErrorsAreMissesCache", () => {
 
     await errorsAreMisses.set("key", "foo");
     expect(mockCache.set).toHaveBeenCalledWith("key", "foo", undefined);
-
     await errorsAreMisses.set("keyWithTTL", "foo", { ttl: 1000 });
-    expect(mockCache.set).toHaveBeenCalledWith("keyTTL", "foo", { ttl: 1000 });
+    expect(mockCache.set).toHaveBeenLastCalledWith("keyWithTTL", "foo", {
+      ttl: 1000,
+    });
 
     await errorsAreMisses.delete("key");
     expect(mockCache.delete).toHaveBeenCalledWith("key");
