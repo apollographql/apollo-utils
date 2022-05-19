@@ -8,9 +8,12 @@
     { "path": "packages/createHash/src/__tests__" },
     { "path": "packages/dropUnusedDefinitions/src/__tests__" },
     { "path": "packages/fetcher/src/__tests__" },
+    { "path": "packages/jestGraphQLASTSerializer/src/__tests__" },
     { "path": "packages/logger/src/__tests__" },
     { "path": "packages/operationRegistrySignature/src/__tests__" },
     { "path": "packages/printWithReducedWhitespace/src/__tests__" },
-    { "path": "packages/stripSensitiveLiterals/src/__tests__" }
+    { "path": "packages/removeAliases/src/__tests__" },
+    { "path": "packages/stripSensitiveLiterals/src/__tests__" },
+    { "path": "packages/usageReporting/src/__tests__" }
   ]
 }
