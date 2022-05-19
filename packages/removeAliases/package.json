@@ -1,13 +1,13 @@
 {
-  "name": "@apollo/utils.stripsensitiveliterals",
-  "version": "1.2.0",
-  "description": "Remove literals from an AST which might contain PII (strings and numbers, and optionally lists and objects)",
+  "name": "@apollo/utils.removealiases",
+  "version": "1.0.0",
+  "description": "Remove aliases from a GraphQL document",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apollographql/apollo-utils.git",
-    "directory": "stripSensitiveLiterals/"
+    "directory": "packages/removeAliases/"
   },
   "keywords": [
     "apollo",

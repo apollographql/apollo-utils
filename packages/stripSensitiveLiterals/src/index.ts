@@ -1,13 +1,33 @@
-import {
+import type {
+  ASTVisitor,
   DocumentNode,
   FloatValueNode,
   IntValueNode,
+  ListValueNode,
+  ObjectValueNode,
   StringValueNode,
-  visit,
 } from "graphql";
-// In the same spirit as the similarly named `hideLiterals` function, only
-// hide sensitive (string and numeric) literals.
-export function stripSensitiveLiterals(ast: DocumentNode): DocumentNode {
+import { visit } from "graphql";
+
+// Hide sensitive string and numeric literals. Optionally hide list and object literals with the option `hideListAndObjectLiterals: true`.
+export function stripSensitiveLiterals(
+  ast: DocumentNode,
+  options: { hideListAndObjectLiterals?: boolean } = {
+    hideListAndObjectLiterals: false,
+  },
+): DocumentNode {
+  const listAndObjectVisitorIfEnabled: ASTVisitor =
+    options.hideListAndObjectLiterals
+      ? {
+          ListValue(node: ListValueNode): ListValueNode {
+            return { ...node, values: [] };
+          },
+          ObjectValue(node: ObjectValueNode): ObjectValueNode {
+            return { ...node, fields: [] };
+          },
+        }
+      : {};
+
   return visit(ast, {
     IntValue(node): IntValueNode {
       return { ...node, value: "0" };
@@ -18,5 +38,6 @@ export function stripSensitiveLiterals(ast: DocumentNode): DocumentNode {
     StringValue(node): StringValueNode {
       return { ...node, value: "", block: false };
     },
+    ...listAndObjectVisitorIfEnabled,
   });
 }
