@@ -11,11 +11,15 @@ export class ApolloKeyv<V = string> implements KeyValueCache<V> {
     this.keyv = keyv ?? new Keyv<V>();
   }
 
-  async get(key: string) {
+  async get(key: string): Promise<V | undefined> {
     return this.keyv.get(key);
   }
 
-  async set(key: string, value: V, opts?: KeyValueCacheSetOptions) {
+  async set(
+    key: string,
+    value: V,
+    opts?: KeyValueCacheSetOptions,
+  ): Promise<void> {
     // Maybe an unnecessary precaution, just being careful with 0 here. Keyv
     // currently handles 0 as `undefined`. Also `NaN` is typeof `number`
     if (typeof opts?.ttl === "number" && !Number.isNaN(opts.ttl)) {
@@ -25,15 +29,15 @@ export class ApolloKeyv<V = string> implements KeyValueCache<V> {
     }
   }
 
-  async delete(key: string) {
+  async delete(key: string): Promise<boolean> {
     return this.keyv.delete(key);
   }
 
-  async clear() {
+  async clear(): Promise<void> {
     return this.keyv.clear();
   }
 
-  async has(key: string) {
+  async has(key: string): Promise<boolean> {
     return this.keyv.has(key);
   }
 }

@@ -3,4 +3,4 @@
 "@apollo/utils.keyvaluecache": major
 ---
 
-Introduce KV cache interface and Keyv adapter
+Introduce package which extracts `KeyValueCache`, `PrefixingKeyValueCache`, and `InMemoryLRUCache` from Apollo Server and adds a separate Keyv adapter which implements the `KeyValueCache` interface.

@@ -5,7 +5,7 @@ describe("InMemoryLRUCache", () => {
 
   it("can set and get", async () => {
     await cache.set("hello", "world");
-    
+
     expect(await cache.get("hello")).toEqual("world");
     expect(await cache.get("missing")).toEqual(undefined);
   });
@@ -13,7 +13,7 @@ describe("InMemoryLRUCache", () => {
   it("can set and delete", async () => {
     await cache.set("hello2", "world");
     expect(await cache.get("hello2")).toEqual("world");
-    
+
     await cache.delete("hello2");
     expect(await cache.get("hello2")).toEqual(undefined);
   });
@@ -36,7 +36,7 @@ describe("InMemoryLRUCache", () => {
   it("does not expire when ttl is null", async () => {
     await cache.set("forever", "yours", { ttl: null });
     expect(await cache.get("forever")).toEqual("yours");
-    
+
     await sleep(1000);
     expect(await cache.get("forever")).toEqual("yours");
   });
