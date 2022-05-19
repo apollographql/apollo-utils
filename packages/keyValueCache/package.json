@@ -20,6 +20,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@apollo/utils.logger": "^1.0.0",
     "lru-cache": "^7.10.1"
   }
 }

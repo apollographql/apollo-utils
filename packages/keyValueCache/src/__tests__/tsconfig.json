@@ -1,5 +1,12 @@
 {
   "extends": "../../../../tsconfig.test.base",
   "include": ["**/*"],
-  "references": [{ "path": "../../" }]
+  "references": [
+    {
+      "path": "../../"
+    },
+    {
+      "path": "../../../logger"
+    }
+  ]
 }
