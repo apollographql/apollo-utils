@@ -13,6 +13,7 @@ npm install @apollo/utils.keyvadapter keyv @keyv/redis
 ```
 
 In Apollo Server v3:
+
 ```ts
 import { ApolloServer } from "apollo-server";
 import { KeyvAdapter } from "@apollo/utils.keyvadapter";
@@ -24,6 +25,7 @@ new ApolloServer({
 ```
 
 In Apollo Server v4:
+
 ```ts
 import { ApolloServer } from "@apollo/server";
 import { KeyvAdapter } from "@apollo/utils.keyvadapter";
