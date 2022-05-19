@@ -8,4 +8,4 @@ export interface KeyValueCache<V = string> {
 }
 ```
 
-This interface defines a minimally-compatible cache intended for (but not limited to) use by Apollo Server. It is notably implemented by `ApolloKeyv` from the `@apollo/utils.apollokeyv` package. (`ApolloKeyv` in conjunction with a `Keyv` is probably more interesting to you unless you're actually building a cache!)
+This interface defines a minimally-compatible cache intended for (but not limited to) use by Apollo Server. It is notably implemented by `KeyvAdapter` from the `@apollo/utils.keyvadapter` package. (`KeyvAdapter` in conjunction with a `Keyv` is probably more interesting to you unless you're actually building a cache!)

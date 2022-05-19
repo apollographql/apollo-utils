@@ -1,74 +1,67 @@
 import type { KeyValueCache } from "@apollo/utils.keyvaluecache";
 import Keyv from "keyv";
 import { expectType } from "ts-expect";
-import { ApolloKeyv } from "..";
+import { KeyvAdapter } from "..";
 
-describe("ApolloKeyv", () => {
+describe("KeyvAdapter", () => {
   it("implements KeyValueCache", () => {
-    expectType<KeyValueCache<string>>(new ApolloKeyv<string>());
+    expectType<KeyValueCache<string>>(new KeyvAdapter<string>());
   });
 
   it("defaults to `string` type", () => {
-    // TS will actually over-infer the type of ApolloKeyv without this
+    // TS will actually over-infer the type of KeyvAdapter without this
     // intermediate variable (demonstrated more clearly in the next test).
-    const apolloKeyv = new ApolloKeyv();
-    expectType<KeyValueCache<string>>(apolloKeyv);
+    const keyvAdapter = new KeyvAdapter();
+    expectType<KeyValueCache<string>>(keyvAdapter);
   });
 
   it("defaults to `string` type, incompatible with `number` type", () => {
-    const apolloKeyv = new ApolloKeyv();
+    const keyvAdapter = new KeyvAdapter();
     // @ts-expect-error
-    expectType<KeyValueCache<number>>(apolloKeyv);
+    expectType<KeyValueCache<number>>(keyvAdapter);
   });
 
   it("infers type from keyv argument", () => {
     const numberKeyv = new Keyv<number>();
-    expectType<KeyValueCache<number>>(new ApolloKeyv(numberKeyv));
+    expectType<KeyValueCache<number>>(new KeyvAdapter(numberKeyv));
   });
 
   describe("Keyv methods", () => {
     let keyv: Keyv<number>;
-    let cache: ApolloKeyv<number>;
+    let keyvAdapter: KeyvAdapter<number>;
 
     beforeEach(async () => {
       keyv = new Keyv<number>();
-      cache = new ApolloKeyv(keyv);
+      keyvAdapter = new KeyvAdapter(keyv);
 
       // start with a populated cache for testing the methods
-      await cache.set("foo", 1);
+      await keyvAdapter.set("foo", 1);
     });
 
     it("set", async () => {
       const setSpy = jest.spyOn(keyv, "set");
-      await cache.set("bar", 1);
+      await keyvAdapter.set("bar", 1);
       expect(setSpy).toHaveBeenCalledWith("bar", 1);
     });
 
     it("set with ttl (in SECONDS)", async () => {
       const setSpy = jest.spyOn(keyv, "set");
-      await cache.set("bar", 1, { ttl: 1 });
+      await keyvAdapter.set("bar", 1, { ttl: 1 });
       expect(setSpy).toHaveBeenCalledWith("bar", 1, 1000);
     });
 
     it("get", async () => {
       const getSpy = jest.spyOn(keyv, "get");
-      const result = await cache.get("foo");
+      const result = await keyvAdapter.get("foo");
       expect(result).toBe(1);
       expect(getSpy).toHaveBeenCalledWith("foo");
     });
 
     it("delete", async () => {
       const deleteSpy = jest.spyOn(keyv, "delete");
-      const result = await cache.delete("foo");
+      const result = await keyvAdapter.delete("foo");
       expect(result).toBeTruthy();
       expect(deleteSpy).toHaveBeenCalledWith("foo");
-    });
-
-    it("has", async () => {
-      const hasSpy = jest.spyOn(keyv, "has");
-      const result = await cache.has("foo");
-      expect(result).toBeTruthy();
-      expect(hasSpy).toHaveBeenCalledWith("foo");
     });
   });
 });

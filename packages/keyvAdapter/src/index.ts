@@ -4,7 +4,7 @@ import type {
 } from "@apollo/utils.keyvaluecache";
 import Keyv from "keyv";
 
-export class ApolloKeyv<V = string> implements KeyValueCache<V> {
+export class KeyvAdapter<V = string> implements KeyValueCache<V> {
   private readonly keyv: Keyv<V>;
 
   constructor(keyv?: Keyv<V>) {
@@ -31,13 +31,5 @@ export class ApolloKeyv<V = string> implements KeyValueCache<V> {
 
   async delete(key: string): Promise<boolean> {
     return this.keyv.delete(key);
-  }
-
-  async clear(): Promise<void> {
-    return this.keyv.clear();
-  }
-
-  async has(key: string): Promise<boolean> {
-    return this.keyv.has(key);
   }
 }

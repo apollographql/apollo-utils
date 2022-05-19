@@ -1,12 +1,12 @@
 {
-  "name": "@apollo/utils.apollokeyv",
+  "name": "@apollo/utils.keyvadapter",
   "version": "0.0.0",
-  "description": "Keyv wrapper implementing Apollo's KeyValueCache interface",
+  "description": "Keyv adapter implementing Apollo's KeyValueCache interface",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apollographql/apollo-utils.git",
-    "directory": "packages/apolloKeyv/"
+    "directory": "packages/keyvAdapter/"
   },
   "keywords": [
     "apollo",

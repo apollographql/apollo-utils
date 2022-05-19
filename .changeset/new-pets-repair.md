@@ -1,5 +1,5 @@
 ---
-"@apollo/utils.apollokeyv": major
+"@apollo/utils.keyv": major
 "@apollo/utils.keyvaluecache": major
 ---
 
