@@ -42,7 +42,7 @@
     "graphql-tag": "2.12.6",
     "jest": "28.1.0",
     "jest-junit": "13.2.0",
-    "log4js": "6.4.7",
+    "log4js": "6.5.0",
     "loglevel": "1.8.0",
     "make-fetch-happen": "10.1.5",
     "node-fetch": "2.6.7",
