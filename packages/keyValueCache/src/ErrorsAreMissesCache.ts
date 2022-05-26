@@ -13,7 +13,7 @@ export class ErrorsAreMissesCache<V = string> implements KeyValueCache<V> {
 
   async get(key: string): Promise<V | undefined> {
     try {
-      return (await this.cache.get(key));
+      return await this.cache.get(key);
     } catch (e) {
       if (this.logger) {
         if (e instanceof Error) {
