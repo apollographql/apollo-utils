@@ -17,8 +17,8 @@ This class wraps `lru-cache` and implements the `KeyValueCache` interface. It ac
 ```ts
 const cache = new InMemoryLRUCache({
   // create a larger-than-default `LRUCache`
-  maxSize: Math.pow(2, 20) * 50
-})
+  maxSize: Math.pow(2, 20) * 50,
+});
 ```
 
 # PrefixingKeyValueCache
@@ -27,7 +27,7 @@ This class wraps a `KeyValueCache` in order to provide a specified prefix for ke
 
 ```ts
 const cache = new InMemoryLRUCache();
-const prefixedCache = new PrefixingKeyValueCache(cache, 'apollo:');
+const prefixedCache = new PrefixingKeyValueCache(cache, "apollo:");
 ```
 
 # ErrorsAreMissesCache
@@ -35,11 +35,14 @@ const prefixedCache = new PrefixingKeyValueCache(cache, 'apollo:');
 This class wraps a `KeyValueCache` in order to provide error tolerance for caches which connect via a client like Redis. In the event that there's an _error_, this wrapper will treat it as a cache miss (and log the error instead, if a `logger` is provided).
 
 An example usage (which makes use of the `keyv` Redis client and our `KeyvAdapter`) would look something like this:
-```ts
-import Keyv from 'keyv';
-import { KeyvAdapter } from '@apollo/utils.keyvadapter';
-import { ErrorsAreMissesCache } from '@apollo/utils.keyvaluecache';
 
-const redisCache = new Keyv('redis://user:pass@localhost:6379');
-const faultTolerantCache = new ErrorsAreMissesCache(new KeyvAdapter(redisCache));
+```ts
+import Keyv from "keyv";
+import { KeyvAdapter } from "@apollo/utils.keyvadapter";
+import { ErrorsAreMissesCache } from "@apollo/utils.keyvaluecache";
+
+const redisCache = new Keyv("redis://user:pass@localhost:6379");
+const faultTolerantCache = new ErrorsAreMissesCache(
+  new KeyvAdapter(redisCache),
+);
 ```

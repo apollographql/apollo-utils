@@ -1,5 +1,3 @@
-
-
 import type { KeyValueCache } from "./KeyValueCache";
 import type { Logger } from "@apollo/utils.logger";
 
