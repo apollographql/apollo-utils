@@ -36,11 +36,8 @@ export class InMemoryLRUCache<T = string> implements KeyValueCache<T> {
   }
 
   keys() {
-    const keys = [];
-    for (const key of this.cache.keys()) {
-      keys.push(key);
-    }
-    return keys;
+    // LRUCache.keys() returns a generator (we just want an array)
+    return [...this.cache.keys()];
   }
 }
 
