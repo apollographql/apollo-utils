@@ -1,16 +1,19 @@
-// This cache wraps a KeyValueCache and returns undefined for any errors thrown
-// by the underlying cache. You can also provide a logger to log errors to.
+
 
 import type { KeyValueCache } from "./KeyValueCache";
 import type { Logger } from "@apollo/utils.logger";
 
+/**
+ * This cache wraps a KeyValueCache and returns undefined (a cache miss) for any
+ * errors thrown by the underlying cache. You can also provide a logger to
+ * capture these errors rather than just swallow them.
+ */
 export class ErrorsAreMissesCache<V = string> implements KeyValueCache<V> {
   constructor(private cache: KeyValueCache<V>, private logger?: Logger) {}
 
   async get(key: string): Promise<V | undefined> {
     try {
-      const result = await this.cache.get(key);
-      return result;
+      return (await this.cache.get(key));
     } catch (e) {
       if (this.logger) {
         if (e instanceof Error) {
