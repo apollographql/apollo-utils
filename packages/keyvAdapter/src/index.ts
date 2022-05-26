@@ -23,9 +23,9 @@ export class KeyvAdapter<V = string> implements KeyValueCache<V> {
     // Maybe an unnecessary precaution, just being careful with 0 here. Keyv
     // currently handles 0 as `undefined`. Also `NaN` is typeof `number`
     if (typeof opts?.ttl === "number" && !Number.isNaN(opts.ttl)) {
-      this.keyv.set(key, value, opts.ttl * 1000);
+      await this.keyv.set(key, value, opts.ttl * 1000);
     } else {
-      this.keyv.set(key, value);
+      await this.keyv.set(key, value);
     }
   }
 
