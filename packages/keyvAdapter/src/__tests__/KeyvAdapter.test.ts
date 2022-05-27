@@ -50,6 +50,26 @@ describe("KeyvAdapter", () => {
       expect(setSpy).toHaveBeenCalledWith("bar", 1, 1000);
     });
 
+    it("correctly awaits `set` call", async () => {
+      let storeSetCalled = false;
+      const store = {
+        set: async () => {
+          await new Promise<void>((resolve) => setImmediate(() => resolve()));
+          storeSetCalled = true;
+        },
+        get: async () => 1,
+        delete: async () => true,
+        clear: async () => {},
+        has: () => true,
+      };
+
+      keyv = new Keyv({ store });
+      keyvAdapter = new KeyvAdapter(keyv);
+
+      await keyvAdapter.set("bar", 1);
+      expect(storeSetCalled).toBe(true);
+    });
+
     it("get", async () => {
       const getSpy = jest.spyOn(keyv, "get");
       const result = await keyvAdapter.get("foo");
