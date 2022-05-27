@@ -9,6 +9,8 @@
     { "path": "packages/dropUnusedDefinitions/src/__tests__" },
     { "path": "packages/fetcher/src/__tests__" },
     { "path": "packages/jestGraphQLASTSerializer/src/__tests__" },
+    { "path": "packages/keyvAdapter/src/__tests__" },
+    { "path": "packages/keyValueCache/src/__tests__" },
     { "path": "packages/logger/src/__tests__" },
     { "path": "packages/operationRegistrySignature/src/__tests__" },
     { "path": "packages/printWithReducedWhitespace/src/__tests__" },

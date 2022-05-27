@@ -10,6 +10,8 @@
     { "path": "packages/fetcher" },
     { "path": "packages/isNodeLike" },
     { "path": "packages/jestGraphQLASTSerializer" },
+    { "path": "packages/keyvAdapter" },
+    { "path": "packages/keyValueCache" },
     { "path": "packages/logger" },
     { "path": "packages/operationRegistrySignature" },
     { "path": "packages/printWithReducedWhitespace" },
