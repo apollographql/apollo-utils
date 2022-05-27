@@ -1,5 +1,11 @@
 # @apollo/utils.keyvaluecache
 
+## 1.0.1
+
+### Patch Changes
+
+- [#106](https://github.com/apollographql/apollo-utils/pull/106) [`0b3fe0a`](https://github.com/apollographql/apollo-utils/commit/0b3fe0ac4d11bb5a2ac42f7c099b200a296756f1) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Add missing entry points for new caching packages
+
 ## 1.0.0
 
 ### Major Changes
