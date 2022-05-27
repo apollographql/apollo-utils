@@ -2,6 +2,7 @@
   "name": "@apollo/utils.keyvaluecache",
   "version": "1.0.0",
   "description": "Minimal key-value cache interface",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
