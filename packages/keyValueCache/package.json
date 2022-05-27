@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.keyvaluecache",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Minimal key-value cache interface",
   "types": "dist/index.d.ts",
   "repository": {
