@@ -31,7 +31,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.22.0",
-    "@jest/types": "28.1.0",
+    "@jest/types": "28.1.1",
     "@types/bunyan": "1.8.8",
     "@types/jest": "28.1.1",
     "@types/lodash.sortby": "4.7.7",
@@ -42,7 +42,7 @@
     "bunyan": "1.8.15",
     "graphql": "16.5.0",
     "graphql-tag": "2.12.6",
-    "jest": "28.1.0",
+    "jest": "28.1.1",
     "jest-junit": "13.2.0",
     "log4js": "6.5.2",
     "loglevel": "1.8.0",
