@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apollographql/apollo-utils.git",
-    "directory": "isNodeLike/"
+    "directory": "packages/isNodeLike/"
   },
   "keywords": [
     "apollo",
