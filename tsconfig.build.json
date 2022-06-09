@@ -18,6 +18,7 @@
     { "path": "packages/removeAliases" },
     { "path": "packages/sortAST" },
     { "path": "packages/stripSensitiveLiterals" },
-    { "path": "packages/usageReporting" }
+    { "path": "packages/usageReporting" },
+    { "path": "packages/withRequired" }
   ]
 }
