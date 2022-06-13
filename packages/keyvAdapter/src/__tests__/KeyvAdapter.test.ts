@@ -70,7 +70,15 @@ describe("KeyvAdapter", () => {
       expect(storeSetCalled).toBe(true);
     });
 
-    it("get", async () => {
+    it("get (batching enabled - default)", async () => {
+      const getSpy = jest.spyOn(keyv, "get");
+      const result = await keyvAdapter.get("foo");
+      expect(result).toBe(1);
+      expect(getSpy).toHaveBeenCalledWith(["foo"]);
+    });
+
+    it("get (batching disabled)", async () => {
+      const keyvAdapter = new KeyvAdapter(keyv, { disableBatchReads: true });
       const getSpy = jest.spyOn(keyv, "get");
       const result = await keyvAdapter.get("foo");
       expect(result).toBe(1);
