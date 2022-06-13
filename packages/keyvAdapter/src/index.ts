@@ -6,7 +6,7 @@ import Keyv from "keyv";
 import Dataloader from "dataloader";
 
 interface KeyvAdapterOptions {
-  disableBatchReads?: boolean
+  disableBatchReads?: boolean;
 }
 
 export class KeyvAdapter<V = string> implements KeyValueCache<V> {
