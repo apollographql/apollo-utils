@@ -3,16 +3,32 @@ import type {
   KeyValueCacheSetOptions,
 } from "@apollo/utils.keyvaluecache";
 import Keyv from "keyv";
+import DataLoader from "dataloader";
+
+interface KeyvAdapterOptions {
+  disableBatchReads?: boolean;
+}
 
 export class KeyvAdapter<V = string> implements KeyValueCache<V> {
   private readonly keyv: Keyv<V>;
+  private readonly dataLoader: DataLoader<string, V | undefined> | undefined;
 
-  constructor(keyv?: Keyv<V>) {
+  constructor(keyv?: Keyv<V>, options?: KeyvAdapterOptions) {
     this.keyv = keyv ?? new Keyv<V>();
+    this.dataLoader = options?.disableBatchReads
+      ? undefined
+      : new DataLoader(
+          (keys) =>
+            // @ts-expect-error Typings error in `keyv`, see: https://github.com/jaredwray/keyv/pull/359
+            this.keyv.get([...keys]),
+          // We're not actually using `DataLoader` for its caching
+          // capabilities, we're only interested in batching functionality
+          { cache: false },
+        );
   }
 
   async get(key: string): Promise<V | undefined> {
-    return this.keyv.get(key);
+    return this.dataLoader ? this.dataLoader.load(key) : this.keyv.get(key);
   }
 
   async set(

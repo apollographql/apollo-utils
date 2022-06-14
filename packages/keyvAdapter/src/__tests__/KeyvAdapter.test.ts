@@ -1,5 +1,5 @@
 import type { KeyValueCache } from "@apollo/utils.keyvaluecache";
-import Keyv from "keyv";
+import Keyv, { type Store } from "keyv";
 import { expectType } from "ts-expect";
 import { KeyvAdapter } from "..";
 
@@ -70,11 +70,48 @@ describe("KeyvAdapter", () => {
       expect(storeSetCalled).toBe(true);
     });
 
-    it("get", async () => {
+    it("get (batching enabled - default)", async () => {
+      const getSpy = jest.spyOn(keyv, "get");
+      const result = await keyvAdapter.get("foo");
+      expect(result).toBe(1);
+      expect(getSpy).toHaveBeenCalledWith(["foo"]);
+    });
+
+    it("get (batching disabled)", async () => {
+      const keyvAdapter = new KeyvAdapter(keyv, { disableBatchReads: true });
       const getSpy = jest.spyOn(keyv, "get");
       const result = await keyvAdapter.get("foo");
       expect(result).toBe(1);
       expect(getSpy).toHaveBeenCalledWith("foo");
+    });
+
+    it("multiple `get`s are batched", async () => {
+      const storeWithGetMany: Store<number> = new (class extends Map<
+        string,
+        number
+      > {
+        getMany = jest.fn((keys: string[]) => keys.map((key) => this.get(key)));
+      })();
+      const keyv = new Keyv({ store: storeWithGetMany });
+      const keyvAdapter = new KeyvAdapter(keyv);
+
+      await keyvAdapter.set("foo", 1);
+      await keyvAdapter.set("bar", 2);
+
+      const getSpy = jest.spyOn(keyv, "get");
+      const results = await Promise.all([
+        keyvAdapter.get("foo"),
+        keyvAdapter.get("bar"),
+      ]);
+      expect(results).toEqual([1, 2]);
+
+      // @ts-expect-error - `Store.getMany` doesn't exist in Keyv types, even as an optional
+      // see https://github.com/jaredwray/keyv/pull/362
+      expect(keyv["opts"]["store"]["getMany"]).toHaveBeenCalledWith([
+        "keyv:foo",
+        "keyv:bar",
+      ]);
+      expect(getSpy).toHaveBeenCalledWith(["foo", "bar"]);
     });
 
     it("delete", async () => {

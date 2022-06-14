@@ -35,3 +35,20 @@ new ApolloServer({
   cache: new KeyvAdapter(new Keyv("redis://...")),
 });
 ```
+
+## Options
+
+### disableBatchReads <boolean>
+
+By default, `KeyvAdapter` will use [`DataLoader`'s batching functionality](https://github.com/graphql/dataloader#batching) in order to request a list of keys when possible.
+
+- If your `Keyv.store` implements `getMany`, this will be called with the list of keys aggregated by `DataLoader`.
+- If your `Keyv.store` does not implement `getMany`, `get` will be called in parallel for each key (awaiting a `Promise.all()`).
+
+`Redis.Cluster` from `ioredis` does not support `mget` (and thus, `store.getMany` is broken in this case), so batching should be disabled like so:
+
+```ts
+new ApolloServer({
+  cache: new KeyvAdapter(new Keyv("redis://..."), { disableBatchReads: true }),
+});
+```
