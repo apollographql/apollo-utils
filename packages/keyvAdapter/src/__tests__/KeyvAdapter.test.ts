@@ -99,7 +99,10 @@ describe("KeyvAdapter", () => {
       await keyvAdapter.set("bar", 2);
 
       const getSpy = jest.spyOn(keyv, "get");
-      const results = await Promise.all([keyvAdapter.get("foo"), keyvAdapter.get("bar")]);
+      const results = await Promise.all([
+        keyvAdapter.get("foo"),
+        keyvAdapter.get("bar"),
+      ]);
       expect(results).toEqual([1, 2]);
 
       // @ts-expect-error - `Store.getMany` doesn't exist in Keyv types, even as an optional
