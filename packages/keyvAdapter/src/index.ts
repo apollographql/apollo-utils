@@ -3,7 +3,7 @@ import type {
   KeyValueCacheSetOptions,
 } from "@apollo/utils.keyvaluecache";
 import Keyv from "keyv";
-import Dataloader from "dataloader";
+import DataLoader from "dataloader";
 
 interface KeyvAdapterOptions {
   disableBatchReads?: boolean;
@@ -11,13 +11,13 @@ interface KeyvAdapterOptions {
 
 export class KeyvAdapter<V = string> implements KeyValueCache<V> {
   private readonly keyv: Keyv<V>;
-  private readonly dataloader: Dataloader<string, V | undefined> | undefined;
+  private readonly dataLoader: DataLoader<string, V | undefined> | undefined;
 
   constructor(keyv?: Keyv<V>, options?: KeyvAdapterOptions) {
     this.keyv = keyv ?? new Keyv<V>();
-    this.dataloader = options?.disableBatchReads
+    this.dataLoader = options?.disableBatchReads
       ? undefined
-      : new Dataloader(
+      : new DataLoader(
           (keys) =>
             // @ts-expect-error Typings error in `keyv`, see: https://github.com/jaredwray/keyv/pull/359
             this.keyv.get([...keys]),
@@ -26,7 +26,7 @@ export class KeyvAdapter<V = string> implements KeyValueCache<V> {
   }
 
   async get(key: string): Promise<V | undefined> {
-    return this.dataloader ? this.dataloader.load(key) : this.keyv.get(key);
+    return this.dataLoader ? this.dataLoader.load(key) : this.keyv.get(key);
   }
 
   async set(
