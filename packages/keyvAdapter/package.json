@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.keyvadapter",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Keyv adapter implementing Apollo's KeyValueCache interface",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
