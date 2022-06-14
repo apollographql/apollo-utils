@@ -90,7 +90,7 @@ describe("KeyvAdapter", () => {
         string,
         number
       > {
-        getMany = jest.fn((keys: string[]) => keys.map(this.get));
+        getMany = jest.fn((keys: string[]) => keys.map((key) => this.get(key)));
       })();
       const keyv = new Keyv({ store: storeWithGetMany });
       const keyvAdapter = new KeyvAdapter(keyv);
