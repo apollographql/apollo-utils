@@ -1,5 +1,5 @@
 import type { KeyValueCache } from "@apollo/utils.keyvaluecache";
-import Keyv, { Store } from "keyv";
+import Keyv, { type Store } from "keyv";
 import { expectType } from "ts-expect";
 import { KeyvAdapter } from "..";
 
