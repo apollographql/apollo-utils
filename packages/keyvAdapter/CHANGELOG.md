@@ -1,5 +1,11 @@
 # @apollo/utils.keyvadapter
 
+## 1.1.0
+
+### Minor Changes
+
+- [#122](https://github.com/apollographql/apollo-utils/pull/122) [`ed4c0a1`](https://github.com/apollographql/apollo-utils/commit/ed4c0a11cb3146e624109261d0b6b7260da132c8) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Support batch reads via Keyv's multi-key `get` function overload. Allow for users to opt out of this behavior via the `disableBatchReads` option.
+
 ## 1.0.1
 
 ### Patch Changes
