@@ -33,7 +33,7 @@
     "@changesets/cli": "2.23.0",
     "@jest/types": "28.1.1",
     "@types/bunyan": "1.8.8",
-    "@types/jest": "28.1.1",
+    "@types/jest": "28.1.2",
     "@types/lodash.sortby": "4.7.7",
     "@types/lru-cache": "7.10.10",
     "@types/make-fetch-happen": "9.0.2",
