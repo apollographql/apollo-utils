@@ -42,7 +42,7 @@
     "bunyan": "1.8.15",
     "graphql": "16.5.0",
     "graphql-tag": "2.12.6",
-    "jest": "28.1.1",
+    "jest": "28.1.2",
     "jest-junit": "14.0.0",
     "log4js": "6.5.2",
     "loglevel": "1.8.0",
