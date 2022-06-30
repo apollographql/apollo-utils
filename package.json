@@ -33,7 +33,7 @@
     "@changesets/cli": "2.23.0",
     "@jest/types": "28.1.1",
     "@types/bunyan": "1.8.8",
-    "@types/jest": "28.1.3",
+    "@types/jest": "28.1.4",
     "@types/lodash.sortby": "4.7.7",
     "@types/lru-cache": "7.10.10",
     "@types/make-fetch-happen": "9.0.2",
@@ -54,7 +54,7 @@
     "ts-node": "10.8.1",
     "typescript": "4.7.4",
     "undici": "5.5.1",
-    "winston": "3.8.0",
+    "winston": "3.8.1",
     "winston-transport": "4.5.0"
   },
   "volta": {
