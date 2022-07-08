@@ -1,4 +1,4 @@
-import type { Fetcher } from "..";
+import type { AbortableFetcher, Fetcher } from "..";
 import nodeFetch from "node-fetch";
 import makeFetchHappen from "make-fetch-happen";
 import { fetch as undiciFetch } from "undici";
@@ -16,4 +16,14 @@ it("make-fetch-happen is a Fetcher", () => {
 
 it("undici is a Fetcher", () => {
   isAFetcher(undiciFetch);
+});
+
+function isAbortableFetcher(_fetcher: AbortableFetcher) {}
+
+it("make-fetch-happen is an AbortableFetcher", () => {
+  isAbortableFetcher(makeFetchHappen);
+});
+
+it("undici is an AbortableFetcher", () => {
+  isAbortableFetcher(undiciFetch);
 });
