@@ -40,7 +40,7 @@ export interface FetcherHeaders extends Iterable<[string, string]> {
   [Symbol.iterator](): Iterator<[string, string]>;
 }
 
-export type Fetcher = (
+export type BaseFetcher = (
   url: string,
   // We explicitly do not allow you to pass in a Request object here, because
   // not all implementations recognize "foreign" Request objects.
@@ -57,3 +57,5 @@ export type AbortableFetcher = (
   // not all implementations recognize "foreign" Request objects.
   init?: AbortableFetcherRequestInit,
 ) => Promise<FetcherResponse>;
+
+export type Fetcher = BaseFetcher | AbortableFetcher;
