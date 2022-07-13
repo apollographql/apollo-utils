@@ -20,9 +20,6 @@
   "engines": {
     "node": ">=12.13.0"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "@apollo/utils.isnodelike": "^1.1.0",
     "sha.js": "^2.4.11"

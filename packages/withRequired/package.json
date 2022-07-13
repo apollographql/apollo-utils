@@ -15,8 +15,5 @@
     "node"
   ],
   "author": "Apollo <packages@apollographql.com>",
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  }
+  "license": "MIT"
 }
