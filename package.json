@@ -36,7 +36,7 @@
     "@types/jest": "28.1.5",
     "@types/lodash.sortby": "4.7.7",
     "@types/lru-cache": "7.10.10",
-    "@types/make-fetch-happen": "9.0.2",
+    "@types/make-fetch-happen": "10.0.0",
     "@types/node": "12.20.55",
     "@types/node-fetch": "2.6.2",
     "bunyan": "1.8.15",
