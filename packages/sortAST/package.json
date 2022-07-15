@@ -20,9 +20,6 @@
   "engines": {
     "node": ">=12.13.0"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "lodash.sortby": "^4.7.0"
   },

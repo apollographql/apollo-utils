@@ -20,9 +20,6 @@
   "engines": {
     "node": ">=12.13.0"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "peerDependencies": {
     "graphql": "14.x || 15.x || 16.x"
   }

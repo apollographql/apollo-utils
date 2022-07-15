@@ -19,8 +19,5 @@
   "license": "MIT",
   "engines": {
     "node": ">=12.13.0"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }

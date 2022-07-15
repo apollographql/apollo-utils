@@ -17,9 +17,6 @@
   ],
   "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "@apollo/utils.keyvaluecache": "^1.0.1",
     "dataloader": "^2.1.0",
