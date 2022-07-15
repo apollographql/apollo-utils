@@ -9,12 +9,16 @@ interface KeyvAdapterOptions {
   disableBatchReads?: boolean;
 }
 
-export class KeyvAdapter<V = string> implements KeyValueCache<V> {
-  private readonly keyv: Keyv<V>;
+export class KeyvAdapter<
+  V = string,
+  O extends Record<string, any> = Record<string, unknown>,
+> implements KeyValueCache<V>
+{
+  private readonly keyv: Keyv<V, O>;
   private readonly dataLoader: DataLoader<string, V | undefined> | undefined;
 
-  constructor(keyv?: Keyv<V>, options?: KeyvAdapterOptions) {
-    this.keyv = keyv ?? new Keyv<V>();
+  constructor(keyv?: Keyv<V, O>, options?: KeyvAdapterOptions) {
+    this.keyv = keyv ?? new Keyv<V, O>();
     this.dataLoader = options?.disableBatchReads
       ? undefined
       : new DataLoader(

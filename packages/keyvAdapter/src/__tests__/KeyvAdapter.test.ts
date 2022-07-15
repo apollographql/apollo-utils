@@ -26,6 +26,44 @@ describe("KeyvAdapter", () => {
     expectType<KeyValueCache<number>>(new KeyvAdapter(numberKeyv));
   });
 
+  it("Keyv class generics `Option`", () => {
+    interface RedisOption {
+      sentinels: {
+        port?: number;
+        host?: string;
+        family?: number;
+      }[];
+    }
+    const keyv = new Keyv<string, RedisOption>({
+      sentinels: [],
+    });
+    const keyvAdapter = new KeyvAdapter<string, RedisOption>(keyv);
+    expectType<KeyvAdapter<string, RedisOption>>(keyvAdapter);
+  });
+
+  it("Keyv class generics `Option` default", () => {
+    const keyv = new Keyv<string>({
+      sentinels: [],
+    });
+    const keyvAdapter = new KeyvAdapter<string>(keyv);
+    expectType<KeyvAdapter<string, Record<string, unknown>>>(keyvAdapter);
+  });
+
+  it("Keyv class generics with incompatible `Option`", () => {
+    interface Option {
+      sentinels: {
+        port?: number;
+        host?: string;
+        family?: number;
+      }[];
+    }
+    const keyv = new Keyv<string, Option>({
+      sentinels: [],
+    });
+    // @ts-expect-error
+    new KeyvAdapter<string>(keyv);
+  });
+
   describe("Keyv methods", () => {
     let keyv: Keyv<number>;
     let keyvAdapter: KeyvAdapter<number>;
