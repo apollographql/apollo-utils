@@ -1,5 +1,11 @@
 # @apollo/utils.keyvadapter
 
+## 1.1.1
+
+### Patch Changes
+
+- [#153](https://github.com/apollographql/apollo-utils/pull/153) [`4a7a886`](https://github.com/apollographql/apollo-utils/commit/4a7a8864a8c83bac1787fb59a1be45fcbf334c84) Thanks [@hoonoh](https://github.com/hoonoh)! - Adds typescript class generics to match Keyv class generics.
+
 ## 1.1.0
 
 ### Minor Changes
