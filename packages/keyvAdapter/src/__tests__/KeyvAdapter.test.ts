@@ -41,6 +41,14 @@ describe("KeyvAdapter", () => {
     expectType<KeyvAdapter<string, RedisOption>>(keyvAdapter);
   });
 
+  it("Keyv class generics `Option` default", () => {
+    const keyv = new Keyv<string>({
+      sentinels: [],
+    });
+    const keyvAdapter = new KeyvAdapter<string>(keyv);
+    expectType<KeyvAdapter<string, Record<string, unknown>>>(keyvAdapter);
+  });
+
   it("Keyv class generics with incompatible `Option`", () => {
     interface Option {
       sentinels: {
