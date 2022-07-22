@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 export interface FetcherRequestInit {
   method?: string;
   // We explicitly do not allow you to pass in a Headers (or FetcherHeaders)
@@ -39,9 +40,22 @@ export interface FetcherHeaders extends Iterable<[string, string]> {
   [Symbol.iterator](): Iterator<[string, string]>;
 }
 
-export type Fetcher = (
+export type BaseFetcher = (
   url: string,
   // We explicitly do not allow you to pass in a Request object here, because
   // not all implementations recognize "foreign" Request objects.
   init?: FetcherRequestInit,
 ) => Promise<FetcherResponse>;
+
+export interface AbortableFetcherRequestInit extends FetcherRequestInit {
+  signal?: AbortSignal;
+}
+
+export type AbortableFetcher = (
+  url: string,
+  // We explicitly do not allow you to pass in a Request object here, because
+  // not all implementations recognize "foreign" Request objects.
+  init?: AbortableFetcherRequestInit,
+) => Promise<FetcherResponse>;
+
+export type Fetcher = BaseFetcher | AbortableFetcher;
