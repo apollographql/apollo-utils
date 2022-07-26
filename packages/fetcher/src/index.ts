@@ -1,3 +1,7 @@
+import type { AbortSignal } from "./external";
+
+export { AbortSignal };
+
 export interface FetcherRequestInit {
   method?: string;
   // We explicitly do not allow you to pass in a Headers (or FetcherHeaders)
@@ -46,83 +50,8 @@ export type BaseFetcher = (
   init?: FetcherRequestInit,
 ) => Promise<FetcherResponse>;
 
-// Copy-pasta'd from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/1c864f0d125f04d205c92408bfd18d15ef616c08/types/node-fetch/externals.d.ts#L5
-export interface AbortSignal {
-  // Adding these makes things spec-compliant, but causes type errors for node-fetch
-  // readonly reason: any;
-  // throwIfAborted(): void;
-
-  aborted: boolean;
-
-  addEventListener: (
-    type: "abort",
-    listener: (this: AbortSignal, event: any) => any,
-    options?:
-      | boolean
-      | {
-          capture?: boolean | undefined;
-          once?: boolean | undefined;
-          passive?: boolean | undefined;
-        },
-  ) => void;
-
-  removeEventListener: (
-    type: "abort",
-    listener: (this: AbortSignal, event: any) => any,
-    options?:
-      | boolean
-      | {
-          capture?: boolean | undefined;
-        },
-  ) => void;
-
-  dispatchEvent: (event: any) => boolean;
-
-  onabort: null | ((this: AbortSignal, event: any) => any);
-}
-
-// AbortSignal, but with modifications for Undici
-export interface UndiciAbortSignal {
-  aborted: boolean;
-
-  // Additions to AbortSignal, which are spec-compliant. Adding these in the base
-  // AbortSignal causes problems for node-fetch
-  readonly reason: any;
-  throwIfAborted(): void;
-
-  addEventListener: (
-    type: "abort",
-    listener: (this: UndiciAbortSignal, event: any) => any,
-    options?:
-      | boolean
-      | {
-          // These params should be `param?: boolean | undefined` but that causes type errors
-          // since Undici defines them like below. Adding this as a union to the existing AbortSignal.addEventListener
-          // causes the compiler to get confused and choose the wrong type definition. See TypeScript docs on
-          // `exactOptionalPropertyTypes` for more info https://www.typescriptlang.org/tsconfig#exactOptionalPropertyTypes
-          capture?: boolean;
-          once?: boolean;
-          passive?: boolean;
-        },
-  ) => void;
-
-  removeEventListener: (
-    type: "abort",
-    listener: (this: UndiciAbortSignal, event: any) => any,
-    options?:
-      | boolean
-      | {
-          capture?: boolean;
-        },
-  ) => void;
-
-  dispatchEvent: (event: any) => boolean;
-
-  onabort: null | ((this: UndiciAbortSignal, event: any) => any);
-}
-
 export interface AbortableFetcherRequestInit extends FetcherRequestInit {
-  signal?: AbortSignal & UndiciAbortSignal;
+  signal?: AbortSignal;
 }
 
 export type AbortableFetcher = (
