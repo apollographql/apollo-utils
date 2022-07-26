@@ -1,4 +1,3 @@
-/// <reference lib="dom" />
 export interface FetcherRequestInit {
   method?: string;
   // We explicitly do not allow you to pass in a Headers (or FetcherHeaders)
@@ -46,6 +45,37 @@ export type BaseFetcher = (
   // not all implementations recognize "foreign" Request objects.
   init?: FetcherRequestInit,
 ) => Promise<FetcherResponse>;
+
+// Copy-pasta'd from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/1c864f0d125f04d205c92408bfd18d15ef616c08/types/node-fetch/externals.d.ts#L5
+export interface AbortSignal {
+  aborted: boolean;
+
+  addEventListener: (
+    type: "abort",
+    listener: (this: AbortSignal, event: any) => any,
+    options?:
+      | boolean
+      | {
+          capture?: boolean | undefined;
+          once?: boolean | undefined;
+          passive?: boolean | undefined;
+        },
+  ) => void;
+
+  removeEventListener: (
+    type: "abort",
+    listener: (this: AbortSignal, event: any) => any,
+    options?:
+      | boolean
+      | {
+          capture?: boolean | undefined;
+        },
+  ) => void;
+
+  dispatchEvent: (event: any) => boolean;
+
+  onabort: null | ((this: AbortSignal, event: any) => any);
+}
 
 export interface AbortableFetcherRequestInit extends FetcherRequestInit {
   signal?: AbortSignal;
