@@ -82,7 +82,7 @@ export interface AbortSignal {
 }
 
 // AbortSignal, but with modifications for Undici
-export interface UndiciAbortSignal extends AbortSignal {
+export interface UndiciAbortSignal {
   aborted: boolean;
 
   // Additions to AbortSignal, which are spec-compliant. Adding these in the base
