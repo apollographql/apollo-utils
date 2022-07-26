@@ -49,6 +49,7 @@ export type BaseFetcher = (
 // Copy-pasta'd from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/1c864f0d125f04d205c92408bfd18d15ef616c08/types/node-fetch/externals.d.ts#L5
 export interface AbortSignal {
   aborted: boolean;
+  readonly reason: any;
 
   addEventListener: (
     type: "abort",
@@ -75,6 +76,8 @@ export interface AbortSignal {
   dispatchEvent: (event: any) => boolean;
 
   onabort: null | ((this: AbortSignal, event: any) => any);
+
+  throwIfAborted(): void;
 }
 
 export interface AbortableFetcherRequestInit extends FetcherRequestInit {

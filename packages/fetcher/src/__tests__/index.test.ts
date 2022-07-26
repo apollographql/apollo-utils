@@ -25,5 +25,6 @@ it("make-fetch-happen is an AbortableFetcher", () => {
 });
 
 it("undici is an AbortableFetcher", () => {
+  // @ts-expect-error
   isAbortableFetcher(undiciFetch);
 });
