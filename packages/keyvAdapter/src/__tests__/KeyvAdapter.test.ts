@@ -128,7 +128,9 @@ describe("KeyvAdapter", () => {
         string,
         number
       > {
-        getMany = jest.fn((keys: string[]) => keys.map((key) => this.get(key)));
+        getMany = jest.fn((keys: string[]) =>
+          keys.map((key) => ({ value: this.get(key)!, expires: 0 })),
+        );
       })();
       const keyv = new Keyv({ store: storeWithGetMany });
       const keyvAdapter = new KeyvAdapter(keyv);
@@ -143,8 +145,6 @@ describe("KeyvAdapter", () => {
       ]);
       expect(results).toEqual([1, 2]);
 
-      // @ts-expect-error - `Store.getMany` doesn't exist in Keyv types, even as an optional
-      // see https://github.com/jaredwray/keyv/pull/362
       expect(keyv["opts"]["store"]["getMany"]).toHaveBeenCalledWith([
         "keyv:foo",
         "keyv:bar",
