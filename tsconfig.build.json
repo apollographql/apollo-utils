@@ -5,6 +5,7 @@
   "files": [],
   "include": [],
   "references": [
+    { "path": "packages/cache-control-types" },
     { "path": "packages/createHash" },
     { "path": "packages/dropUnusedDefinitions" },
     { "path": "packages/fetcher" },
