@@ -145,11 +145,62 @@ describe("KeyvAdapter", () => {
       ]);
       expect(results).toEqual([1, 2]);
 
-      expect(keyv["opts"]["store"]["getMany"]).toHaveBeenCalledWith([
-        "keyv:foo",
-        "keyv:bar",
-      ]);
+      const getManySpy = keyv["opts"]["store"]["getMany"];
+      expect(getManySpy).toHaveBeenCalledTimes(1);
+      expect(getManySpy).toHaveBeenCalledWith(["keyv:foo", "keyv:bar"]);
       expect(getSpy).toHaveBeenCalledWith(["foo", "bar"]);
+    });
+
+    it("batching with falsey values and requesting non-existent keys works", async () => {
+      const storeWithGetMany: Store<string> = new (class extends Map<
+        string,
+        string
+      > {
+        getMany = jest.fn((keys: string[]) => keys.map((key) => this.get(key)));
+      })();
+      const keyv = new Keyv({ store: storeWithGetMany });
+      const keyvAdapter = new KeyvAdapter(keyv);
+
+      // @ts-ignore
+      await keyvAdapter.set("null", null);
+      // @ts-ignore
+      await keyvAdapter.set("undefined", undefined);
+      // @ts-ignore
+      await keyvAdapter.set("false", false);
+      // @ts-ignore
+      await keyvAdapter.set("zero", 0);
+      // @ts-ignore
+      await keyvAdapter.set("emptystring", "");
+
+      const getSpy = jest.spyOn(keyv, "get");
+      const results = await Promise.all([
+        keyvAdapter.get("null"),
+        keyvAdapter.get("undefined"),
+        keyvAdapter.get("false"),
+        keyvAdapter.get("zero"),
+        keyvAdapter.get("emptystring"),
+        keyvAdapter.get("nonexistentKey"),
+      ]);
+      expect(results).toEqual([null, undefined, false, 0, "", undefined]);
+
+      const getManySpy = keyv["opts"]["store"]["getMany"];
+      expect(getManySpy).toHaveBeenCalledTimes(1);
+      expect(getManySpy).toHaveBeenCalledWith([
+        "keyv:null",
+        "keyv:undefined",
+        "keyv:false",
+        "keyv:zero",
+        "keyv:emptystring",
+        "keyv:nonexistentKey",
+      ]);
+      expect(getSpy).toHaveBeenCalledWith([
+        "null",
+        "undefined",
+        "false",
+        "zero",
+        "emptystring",
+        "nonexistentKey",
+      ]);
     });
 
     it("delete", async () => {
