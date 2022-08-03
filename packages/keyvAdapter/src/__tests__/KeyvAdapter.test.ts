@@ -203,6 +203,34 @@ describe("KeyvAdapter", () => {
       ]);
     });
 
+    it("store returns an invalid length", async () => {
+      const storeWithGetMany: Store<string> = new (class extends Map<
+        string,
+        string
+      > {
+        // if the client returns an array length that is not equal to the number
+        // of keys then DataLoader throws
+        getMany = jest.fn((_keys: string[]) => []);
+      })();
+      const keyv = new Keyv({ store: storeWithGetMany });
+      const keyvAdapter = new KeyvAdapter(keyv);
+
+      await keyvAdapter.set("foo", "1");
+      await keyvAdapter.set("bar", "2");
+
+      const getSpy = jest.spyOn(keyv, "get");
+      const results = await Promise.all([
+        keyvAdapter.get("foo"),
+        keyvAdapter.get("bar"),
+      ]);
+      expect(results).toEqual(["1", "2"]);
+
+      const getManySpy = keyv["opts"]["store"]["getMany"];
+      expect(getManySpy).toHaveBeenCalledTimes(1);
+      expect(getManySpy).toHaveBeenCalledWith(["keyv:foo", "keyv:bar"]);
+      expect(getSpy).toHaveBeenCalledWith(["foo", "bar"]);
+    });
+
     it("delete", async () => {
       const deleteSpy = jest.spyOn(keyv, "delete");
       const result = await keyvAdapter.delete("foo");
