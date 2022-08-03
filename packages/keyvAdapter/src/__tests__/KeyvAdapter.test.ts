@@ -124,18 +124,18 @@ describe("KeyvAdapter", () => {
     });
 
     it("multiple `get`s are batched", async () => {
-      const storeWithGetMany: Store<number> = new (class extends Map<
+      const storeWithGetMany: Store<string> = new (class extends Map<
         string,
-        number
+        string
       > {
-        getMany = jest.fn((keys: string[]) =>
-          keys.map((key) => ({ value: this.get(key)!, expires: 0 })),
-        );
+        getMany = jest.fn((keys: string[]) => keys.map((key) => this.get(key)));
       })();
       const keyv = new Keyv({ store: storeWithGetMany });
       const keyvAdapter = new KeyvAdapter(keyv);
 
+      // @ts-ignore
       await keyvAdapter.set("foo", 1);
+      // @ts-ignore
       await keyvAdapter.set("bar", 2);
 
       const getSpy = jest.spyOn(keyv, "get");
