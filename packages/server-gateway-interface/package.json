@@ -26,6 +26,6 @@
     "@apollo/usage-reporting-protobuf": "^4.0.0-alpha.1"
   },
   "peerDependencies": {
-    "graphql": "^16.5.0"
+    "graphql": "14.x || 15.x || 16.x"
   }
 }
