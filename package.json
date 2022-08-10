@@ -19,8 +19,9 @@
     "prettier-check": "prettier --check .",
     "prettier-fix": "prettier --write .",
     "postinstall": "npm run build",
+    "pretest": "tsc --build tsconfig.json",
     "test": "jest --verbose",
-    "test:ci": "jest --coverage --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
+    "test:ci": "npm test -- --coverage --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
     "watch": "npm run build -- --watch",
     "changeset-publish": "changeset publish",
     "install-with-npm-8.5": "npm i -g npm@^8.5.0 && npm i"
