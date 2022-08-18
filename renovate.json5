@@ -32,6 +32,12 @@
     {
       "matchPackageNames": ["graphql"],
       "automerge": false,
-    }
+    },
+    // pin lru-cache until AbortSignal typings issue is addressed
+    // https://github.com/isaacs/node-lru-cache/pull/247#issuecomment-1204481394
+    {
+      "matchPackageNames": ["lru-cache"],
+      "allowedVersions": "^7.10.1 - 7.13.1"
+    },
   ],
 }
