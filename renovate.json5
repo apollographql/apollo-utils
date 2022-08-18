@@ -8,8 +8,6 @@
   // https://github.com/apollographql/federation/blob/fcd4f28ad719ee7f210f9c7a1daa8d152f28d5c2/renovate.json5#L21-L34
   "enabledManagers": ["npm"],
   "postUpdateOptions": ["npmDedupe"],
-  "prCreation": "immediate",
-  "schedule": null,
   "packageRules": [
     // Bunch up all non-major dependencies into a single PR.  In the common case
     // where the upgrades apply cleanly, this causes less noise and is resolved faster
