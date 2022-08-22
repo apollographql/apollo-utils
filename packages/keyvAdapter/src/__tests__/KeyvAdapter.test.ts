@@ -95,7 +95,7 @@ describe("KeyvAdapter", () => {
           await new Promise<void>((resolve) => setImmediate(() => resolve()));
           storeSetCalled = true;
         },
-        get: async () => 1,
+        get: async () => "abc",
         delete: async () => true,
         clear: async () => {},
         has: () => true,
@@ -124,9 +124,9 @@ describe("KeyvAdapter", () => {
     });
 
     it("multiple `get`s are batched", async () => {
-      const storeWithGetMany: Store<number> = new (class extends Map<
+      const storeWithGetMany: Store<string> = new (class extends Map<
         string,
-        number
+        string
       > {
         getMany = jest.fn((keys: string[]) => keys.map((key) => this.get(key)));
       })();
@@ -143,8 +143,6 @@ describe("KeyvAdapter", () => {
       ]);
       expect(results).toEqual([1, 2]);
 
-      // @ts-expect-error - `Store.getMany` doesn't exist in Keyv types, even as an optional
-      // see https://github.com/jaredwray/keyv/pull/362
       expect(keyv["opts"]["store"]["getMany"]).toHaveBeenCalledWith([
         "keyv:foo",
         "keyv:bar",
