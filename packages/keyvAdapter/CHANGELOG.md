@@ -1,5 +1,11 @@
 # @apollo/utils.keyvadapter
 
+## 1.1.2
+
+### Patch Changes
+
+- [#189](https://github.com/apollographql/apollo-utils/pull/189) [`191572b`](https://github.com/apollographql/apollo-utils/commit/191572b2bf59e9942f874ce52e8a11d80bc08c98) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Upgrade keyv dependency which incorporates a bugfix for getMany
+
 ## 1.1.1
 
 ### Patch Changes
