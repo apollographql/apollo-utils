@@ -58,7 +58,7 @@
     "winston-transport": "4.5.0"
   },
   "volta": {
-    "node": "16.17.0",
+    "node": "16.17.1",
     "npm": "8.19.2"
   }
 }
