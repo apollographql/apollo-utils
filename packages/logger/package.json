@@ -2,6 +2,7 @@
   "name": "@apollo/utils.logger",
   "version": "1.0.0",
   "description": "Generic logger interface",
+  "main": "",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
