@@ -5,7 +5,6 @@
   "files": [],
   "include": [],
   "references": [
-    { "path": "packages/cache-control-types" },
     { "path": "packages/createHash" },
     { "path": "packages/dropUnusedDefinitions" },
     { "path": "packages/fetcher" },
@@ -17,7 +16,6 @@
     { "path": "packages/operationRegistrySignature" },
     { "path": "packages/printWithReducedWhitespace" },
     { "path": "packages/removeAliases" },
-    { "path": "packages/server-gateway-interface" },
     { "path": "packages/sortAST" },
     { "path": "packages/stripSensitiveLiterals" },
     { "path": "packages/usageReporting" },
