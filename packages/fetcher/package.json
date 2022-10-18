@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.fetcher",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Minimal web-style fetch TypeScript typings",
   "main": "",
   "types": "dist/index.d.ts",
