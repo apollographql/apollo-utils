@@ -7,6 +7,7 @@ than its usage reporting signature counterpart. This is used to generate a
 signature used by Apollo's operation registry to identify operations.
 
 ## Usage
+
 ```ts
 import { operationRegistrySignature } from "@apollo/utils.operationregistrysignature";
 

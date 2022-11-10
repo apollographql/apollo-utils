@@ -7,6 +7,7 @@ If the provided operation name doesn't match any operation in the document,
 `dropUnusedDefinitions` will return the original document.
 
 ## Usage
+
 ```ts
 import { dropUnusedDefinitions } from "@apollo/utils.dropunuseddefinitions";
 
