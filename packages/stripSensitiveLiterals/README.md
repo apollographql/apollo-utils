@@ -9,11 +9,13 @@ variables instead!
 ```ts
 import { stripSensitiveLiterals } from "@apollo/utils.stripsensitiveliterals";
 
-stripSensitiveLiterals(parse(`#graphql
+stripSensitiveLiterals(
+  parse(`#graphql
   query User {
     user(name: "Ada Lovelace", age: 31, ids: ["1", "2", "3"]) 
   }
-`));
+`),
+);
 /**
   query User {
     user(name: "", age: 0, ids: ["", "", ""]) 

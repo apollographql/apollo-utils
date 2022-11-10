@@ -10,5 +10,5 @@ import { isNodeLike } from "@apollo/utils.isnodelike";
 
 if (isNodeLike) {
   require("fs").readFileSync("foo");
-};
+}
 ```
