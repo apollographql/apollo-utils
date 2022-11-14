@@ -7,7 +7,7 @@ import {
   visit,
   visitWithTypeInfo,
 } from "graphql";
-import { ReferencedFieldsForType } from "apollo-reporting-protobuf";
+import { ReferencedFieldsForType } from "@apollo/usage-reporting-protobuf";
 
 export interface OperationDerivedData {
   signature: string;

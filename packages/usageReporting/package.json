@@ -21,12 +21,12 @@
     "node": ">=12.13.0"
   },
   "dependencies": {
+    "@apollo/usage-reporting-protobuf": "^4.0.0",
     "@apollo/utils.dropunuseddefinitions": "^1.1.0",
     "@apollo/utils.stripsensitiveliterals": "^1.2.0",
     "@apollo/utils.printwithreducedwhitespace": "^1.1.0",
     "@apollo/utils.removealiases": "1.0.0",
-    "@apollo/utils.sortast": "^1.1.0",
-    "apollo-reporting-protobuf": "^3.3.1"
+    "@apollo/utils.sortast": "^1.1.0"
   },
   "peerDependencies": {
     "graphql": "14.x || 15.x || 16.x"
