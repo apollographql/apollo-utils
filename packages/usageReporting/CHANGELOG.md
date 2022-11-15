@@ -1,5 +1,11 @@
 # @apollo/utils.usagereporting
 
+## 1.0.1
+
+### Patch Changes
+
+- [#219](https://github.com/apollographql/apollo-utils/pull/219) [`e8f8188`](https://github.com/apollographql/apollo-utils/commit/e8f81881959e1a1043ce452a51613ba17ad5de32) Thanks [@SimenB](https://github.com/SimenB)! - Migrate from `apollo-reporting-protobuf` to `@apollo/usage-reporting-protobuf`
+
 ## 1.0.0
 
 ### Major Changes
