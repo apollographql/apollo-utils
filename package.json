@@ -11,7 +11,7 @@
   "license": "MIT",
   "engines": {
     "node": ">=14",
-    "npm": ">7 <=9"
+    "npm": ">=8"
   },
   "scripts": {
     "clean": "git clean -dfqX",

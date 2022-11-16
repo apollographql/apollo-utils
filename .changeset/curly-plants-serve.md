@@ -16,4 +16,4 @@
 "@apollo/utils.withrequired": major
 ---
 
-Drop support for Node.js v12, all packages now require >=14
+Drop support for Node.js v12; all packages now require Node.js version >=14.
