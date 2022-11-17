@@ -16,5 +16,8 @@
     "node"
   ],
   "author": "Apollo <packages@apollographql.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  }
 }

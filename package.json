@@ -10,8 +10,8 @@
   "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=12.13.0",
-    "npm": ">=7 <9"
+    "node": ">=14",
+    "npm": ">=8"
   },
   "scripts": {
     "clean": "git clean -dfqX",
