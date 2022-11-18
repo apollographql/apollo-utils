@@ -1,10 +1,11 @@
+import type FormData from 'form-data';
 export interface FetcherRequestInit {
   method?: string;
   // We explicitly do not allow you to pass in a Headers (or FetcherHeaders)
   // object here, because not all implementations recognize "foreign" Headers
   // objects.
   headers?: Record<string, string>;
-  body?: string | Buffer;
+  body?: string | Buffer | FormData;
 
   // A provided `signal` should be an object created by a class named
   // `AbortSignal` (the constructor name is checked by some implementations like
