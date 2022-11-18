@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.jest-graphql-ast-serializer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A Jest snapshot serializer for GraphQL ASTs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
