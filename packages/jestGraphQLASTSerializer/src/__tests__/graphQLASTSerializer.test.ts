@@ -29,7 +29,7 @@ describe("graphQLASTSerializer", () => {
       // @ts-expect-error
       graphQLASTSerializer.serialize(invalidAST),
     ).toThrowErrorMatchingInlineSnapshot(
-      `"Invalid AST Node: { kind: \\"invalid\\" }."`,
+      `"Invalid AST Node: { kind: "invalid" }."`,
     );
   });
 });
