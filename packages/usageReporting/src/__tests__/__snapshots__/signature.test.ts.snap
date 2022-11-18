@@ -10,7 +10,7 @@ exports[`usageReportingSignature fragment 1`] = `"fragment Bar on User{asd}{user
 
 exports[`usageReportingSignature fragments in various order 1`] = `"fragment Bar on User{asd}{user{name...Bar}}"`;
 
-exports[`usageReportingSignature full test 1`] = `"fragment Bar on User{age@skip(if:$a)...Nested}fragment Nested on User{blah}query Foo($a:Boolean,$b:Int){user(age:0,name:\\"\\"){name tz...Bar...on User{bee hello}}}"`;
+exports[`usageReportingSignature full test 1`] = `"fragment Bar on User{age@skip(if:$a)...Nested}fragment Nested on User{blah}query Foo($a:Boolean,$b:Int){user(age:0,name:""){name tz...Bar...on User{bee hello}}}"`;
 
 exports[`usageReportingSignature with various argument types 1`] = `"query OpName($a:[[Boolean!]!],$b:EnumType,$c:Int!){user{name(apple:$a,bag:$b,cat:$c)}}"`;
 

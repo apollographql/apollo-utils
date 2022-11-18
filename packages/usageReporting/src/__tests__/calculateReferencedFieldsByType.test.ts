@@ -49,9 +49,9 @@ describe("calculateReferencedFieldsByType", () => {
         `,
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "Query": Object {
-          "fieldNames": Array [
+      {
+        "Query": {
+          "fieldNames": [
             "f1",
           ],
           "isInterface": false,
@@ -70,9 +70,9 @@ describe("calculateReferencedFieldsByType", () => {
         `,
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "Query": Object {
-          "fieldNames": Array [
+      {
+        "Query": {
+          "fieldNames": [
             "f1",
           ],
           "isInterface": false,
@@ -107,15 +107,15 @@ describe("calculateReferencedFieldsByType", () => {
         resolvedOperationName: "Q1",
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "A": Object {
-          "fieldNames": Array [
+      {
+        "A": {
+          "fieldNames": [
             "x",
           ],
           "isInterface": false,
         },
-        "Query": Object {
-          "fieldNames": Array [
+        "Query": {
+          "fieldNames": [
             "f1",
             "a",
           ],
@@ -137,15 +137,15 @@ describe("calculateReferencedFieldsByType", () => {
         `,
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "MyInterface": Object {
-          "fieldNames": Array [
+      {
+        "MyInterface": {
+          "fieldNames": [
             "x",
           ],
           "isInterface": true,
         },
-        "Query": Object {
-          "fieldNames": Array [
+        "Query": {
+          "fieldNames": [
             "myInterface",
           ],
           "isInterface": false,
@@ -169,21 +169,21 @@ describe("calculateReferencedFieldsByType", () => {
         `,
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "A": Object {
-          "fieldNames": Array [
+      {
+        "A": {
+          "fieldNames": [
             "y",
           ],
           "isInterface": false,
         },
-        "MyInterface": Object {
-          "fieldNames": Array [
+        "MyInterface": {
+          "fieldNames": [
             "x",
           ],
           "isInterface": true,
         },
-        "Query": Object {
-          "fieldNames": Array [
+        "Query": {
+          "fieldNames": [
             "myInterface",
           ],
           "isInterface": false,
@@ -211,15 +211,15 @@ it("interface with fragment that uses interface field", () => {
       `,
     }),
   ).toMatchInlineSnapshot(`
-    Object {
-      "A": Object {
-        "fieldNames": Array [
+    {
+      "A": {
+        "fieldNames": [
           "x",
         ],
         "isInterface": false,
       },
-      "Query": Object {
-        "fieldNames": Array [
+      "Query": {
+        "fieldNames": [
           "myInterface",
         ],
         "isInterface": false,
@@ -243,21 +243,21 @@ it("using field both with interface and object should work", () => {
       `,
     }),
   ).toMatchInlineSnapshot(`
-    Object {
-      "A": Object {
-        "fieldNames": Array [
+    {
+      "A": {
+        "fieldNames": [
           "x",
         ],
         "isInterface": false,
       },
-      "MyInterface": Object {
-        "fieldNames": Array [
+      "MyInterface": {
+        "fieldNames": [
           "x",
         ],
         "isInterface": true,
       },
-      "Query": Object {
-        "fieldNames": Array [
+      "Query": {
+        "fieldNames": [
           "myInterface",
         ],
         "isInterface": false,
@@ -281,15 +281,15 @@ it("using field multiple times (same level or otherwise) de-dupes", () => {
       `,
     }),
   ).toMatchInlineSnapshot(`
-    Object {
-      "A": Object {
-        "fieldNames": Array [
+    {
+      "A": {
+        "fieldNames": [
           "y",
         ],
         "isInterface": false,
       },
-      "Query": Object {
-        "fieldNames": Array [
+      "Query": {
+        "fieldNames": [
           "a",
         ],
         "isInterface": false,
