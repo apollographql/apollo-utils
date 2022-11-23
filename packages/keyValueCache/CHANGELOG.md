@@ -1,5 +1,12 @@
 # @apollo/utils.keyvaluecache
 
+## 2.0.1
+
+### Patch Changes
+
+- [#226](https://github.com/apollographql/apollo-utils/pull/226) [`bcf0981`](https://github.com/apollographql/apollo-utils/commit/bcf098168069df513fc3153c7c3abcc51f5a67e4) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Fix the version range specified for `lru-cache` which was previously invalid. Unpin the range now that we've dropped support for node@12
+  and this was originally a `@types/node@12` issue.
+
 ## 2.0.0
 
 ### Major Changes
