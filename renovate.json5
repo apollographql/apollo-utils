@@ -18,11 +18,11 @@
       "matchUpdateTypes": ["patch", "minor"],
       "groupSlug": "all-minor-patch",
     },
-    // We need to support Node v12, so we don't allow ourselves to use type definitions
-    // that would let us write v14-specific code.
+    // We need to support Node v14, so we don't allow ourselves to use type definitions
+    // that would let us write >v14-specific code.
     {
       "matchPackageNames": ["@types/node"],
-      "allowedVersions": "12.x"
+      "allowedVersions": "14.x"
     },
     // node-fetch v3 only ships as ESM. So let's stay on v2.
     {
@@ -32,12 +32,6 @@
     {
       "matchPackageNames": ["graphql"],
       "automerge": false,
-    },
-    // pin lru-cache until AbortSignal typings issue is addressed
-    // https://github.com/isaacs/node-lru-cache/pull/247#issuecomment-1204481394
-    {
-      "matchPackageNames": ["lru-cache"],
-      "allowedVersions": "^7.10.1 - 7.13.1"
     },
   ],
 }
