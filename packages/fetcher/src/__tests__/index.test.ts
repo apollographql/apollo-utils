@@ -10,6 +10,10 @@ import {
 } from "undici";
 import type { Fetcher } from "..";
 
+const [nodeMajor] = process.version
+  .slice(1) // remove 'v'
+  .split(".", 1)
+  .map(Number);
 
 // This "test suite" actually does all its work at compile time.
 describe("implements Fetcher", () => {
@@ -38,7 +42,9 @@ describe("Fetcher accepts FormData as a body", () => {
 
     nock("https://example.com")
       .post("/", (body) => {
-        expect(body).toMatch(`Content-Disposition: form-data; name="foo"\r\n\r\nbar`);
+        expect(body).toMatch(
+          `Content-Disposition: form-data; name="foo"\r\n\r\nbar`,
+        );
         return true;
       })
       .reply(200, "ok");
@@ -55,7 +61,9 @@ describe("Fetcher accepts FormData as a body", () => {
 
     nock("https://example.com")
       .post("/", (body) => {
-        expect(body).toMatch(`Content-Disposition: form-data; name="foo"\r\n\r\nbar`);
+        expect(body).toMatch(
+          `Content-Disposition: form-data; name="foo"\r\n\r\nbar`,
+        );
         return true;
       })
       .reply(200, "ok");
@@ -66,7 +74,7 @@ describe("Fetcher accepts FormData as a body", () => {
     });
   });
 
-  it("undici", async () => {
+  (nodeMajor! >= 16 ? it : it.skip)("undici", async () => {
     // We can't use nock with undici, but undici provides mocking utilities
     // https://github.com/nock/nock/issues/2183
     const agent = new MockAgent({ connections: 1 });
@@ -84,7 +92,7 @@ describe("Fetcher accepts FormData as a body", () => {
         body(body: any) {
           const bar = body.get("foo");
           return bar === "bar";
-        }
+        },
       })
       .reply(200, "ok");
 
@@ -103,7 +111,7 @@ describe("Fetcher accepts FormData as a body", () => {
 });
 
 // Ensures an active and clean nock before every test
-export function nockBeforeEach() {
+function nockBeforeEach() {
   if (!nock.isActive()) {
     nock.activate();
   }
@@ -114,7 +122,7 @@ export function nockBeforeEach() {
 
 // Ensures a test is complete (all expected requests were run) and a clean
 // global state after each test.
-export function nockAfterEach() {
+function nockAfterEach() {
   // unmock HTTP interceptor
   nock.restore();
   // effectively nock.isDone() but with more helpful messages in test failures

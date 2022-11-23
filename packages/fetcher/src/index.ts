@@ -1,4 +1,4 @@
-import type FormData from 'form-data';
+import type FormData from "form-data";
 export interface FetcherRequestInit {
   method?: string;
   // We explicitly do not allow you to pass in a Headers (or FetcherHeaders)
