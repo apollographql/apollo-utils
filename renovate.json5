@@ -37,7 +37,7 @@
     // https://github.com/isaacs/node-lru-cache/pull/247#issuecomment-1204481394
     {
       "matchPackageNames": ["lru-cache"],
-      "allowedVersions": "^7.10.1 - 7.13.1"
+      "allowedVersions": "7.10.1 - 7.13.1"
     },
   ],
 }
