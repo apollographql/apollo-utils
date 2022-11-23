@@ -32,49 +32,63 @@ describe("implements Fetcher", () => {
   });
 });
 
-describe("Fetcher accepts FormData as a body", () => {
+function mockRequestWithFormData() {
+  nock("https://example.com")
+    .post("/", (body) => {
+      expect(body).toMatch(
+        `Content-Disposition: form-data; name="foo"\r\n\r\nbar`,
+      );
+      return true;
+    })
+    .reply(200, "ok");
+}
+
+describe("Fetcher accepts FormData generic for body typing", () => {
   beforeEach(nockBeforeEach);
   afterEach(nockAfterEach);
-
-  it("node-fetch", async () => {
+  
+  it("no generic specified, no FormData allowed", async () => {
+    const fetcher: Fetcher = nodeFetch;
     const formData = new FormData();
     formData.append("foo", "bar");
 
-    nock("https://example.com")
-      .post("/", (body) => {
-        expect(body).toMatch(
-          `Content-Disposition: form-data; name="foo"\r\n\r\nbar`,
-        );
-        return true;
-      })
-      .reply(200, "ok");
+    mockRequestWithFormData();
 
-    await nodeFetch("https://example.com/", {
+    await fetcher("https://example.com/", {
+      method: "POST",
+      // @ts-expect-error
+      body: formData,
+    });
+  });
+
+  it("node-fetch", async () => {
+    const fetcher: Fetcher<FormData> = nodeFetch;
+    const formData = new FormData();
+    formData.append("foo", "bar");
+
+    mockRequestWithFormData();
+
+    await fetcher("https://example.com/", {
       method: "POST",
       body: formData,
     });
   });
 
   it("make-fetch-happen", async () => {
+    const fetcher: Fetcher<FormData> = makeFetchHappen;
     const formData = new FormData();
     formData.append("foo", "bar");
 
-    nock("https://example.com")
-      .post("/", (body) => {
-        expect(body).toMatch(
-          `Content-Disposition: form-data; name="foo"\r\n\r\nbar`,
-        );
-        return true;
-      })
-      .reply(200, "ok");
+    mockRequestWithFormData();
 
-    await makeFetchHappen("https://example.com/", {
+    await fetcher("https://example.com/", {
       method: "POST",
       body: formData,
     });
   });
 
   (nodeMajor! >= 16 ? it : it.skip)("undici", async () => {
+    const fetcher: Fetcher<UndiciFormData> = undiciFetch;
     // We can't use nock with undici, but undici provides mocking utilities
     // https://github.com/nock/nock/issues/2183
     const agent = new MockAgent({ connections: 1 });
@@ -100,7 +114,7 @@ describe("Fetcher accepts FormData as a body", () => {
     const formData = new UndiciFormData();
     formData.append("foo", "bar");
 
-    const result = await undiciFetch("https://example.com/", {
+    const result = await fetcher("https://example.com/", {
       method: "POST",
       body: formData,
     });
