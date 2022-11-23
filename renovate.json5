@@ -22,7 +22,7 @@
     // that would let us write v14-specific code.
     {
       "matchPackageNames": ["@types/node"],
-      "allowedVersions": "12.x"
+      "allowedVersions": "14.x"
     },
     // node-fetch v3 only ships as ESM. So let's stay on v2.
     {
