@@ -2,4 +2,4 @@
 "@apollo/utils.fetcher": minor
 ---
 
-Support `FormData` for `body` type on `Fetcher` interface
+Add a generic argument to `Fetcher` interface to support various `FormData` types for the `body` property
