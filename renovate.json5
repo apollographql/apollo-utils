@@ -18,8 +18,8 @@
       "matchUpdateTypes": ["patch", "minor"],
       "groupSlug": "all-minor-patch",
     },
-    // We need to support Node v12, so we don't allow ourselves to use type definitions
-    // that would let us write v14-specific code.
+    // We need to support Node v14, so we don't allow ourselves to use type definitions
+    // that would let us write >v14-specific code.
     {
       "matchPackageNames": ["@types/node"],
       "allowedVersions": "14.x"
