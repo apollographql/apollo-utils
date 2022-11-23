@@ -46,7 +46,7 @@ function mockRequestWithFormData() {
 describe("Fetcher accepts FormData generic for body typing", () => {
   beforeEach(nockBeforeEach);
   afterEach(nockAfterEach);
-  
+
   it("no generic specified, no FormData allowed", async () => {
     const fetcher: Fetcher = nodeFetch;
     const formData = new FormData();
