@@ -1,5 +1,11 @@
 # @apollo/utils.keyvaluecache
 
+## 1.0.2
+
+### Patch Changes
+
+- [#228](https://github.com/apollographql/apollo-utils/pull/228) [`7a33d34`](https://github.com/apollographql/apollo-utils/commit/7a33d345eda1909c3de1a81052e04848f2a95f5e) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Fix `lru-cache` dependency version range (previously invalid)
+
 ## 1.0.1
 
 ### Patch Changes
