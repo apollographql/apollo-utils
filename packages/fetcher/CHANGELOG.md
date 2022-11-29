@@ -1,5 +1,11 @@
 # @apollo/utils.fetcher
 
+## 2.1.0
+
+### Minor Changes
+
+- [#225](https://github.com/apollographql/apollo-utils/pull/225) [`7258f9e`](https://github.com/apollographql/apollo-utils/commit/7258f9e76261d746face61e4916eb7d2a3b76e09) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Add a generic argument to `Fetcher` interface to support various `FormData` types for the `body` property
+
 ## 2.0.0
 
 ### Major Changes
