@@ -1,10 +1,10 @@
-export interface FetcherRequestInit<TFormData = never> {
+export interface FetcherRequestInit {
   method?: string;
   // We explicitly do not allow you to pass in a Headers (or FetcherHeaders)
   // object here, because not all implementations recognize "foreign" Headers
   // objects.
   headers?: Record<string, string>;
-  body?: string | Buffer | TFormData;
+  body?: string | Buffer;
 
   // A provided `signal` should be an object created by a class named
   // `AbortSignal` (the constructor name is checked by some implementations like
@@ -73,9 +73,9 @@ export interface FetcherHeaders extends Iterable<[string, string]> {
   [Symbol.iterator](): Iterator<[string, string]>;
 }
 
-export type Fetcher<TFormData = never> = (
+export type Fetcher = (
   url: string,
   // We explicitly do not allow you to pass in a Request object here, because
   // not all implementations recognize "foreign" Request objects.
-  init?: FetcherRequestInit<TFormData>,
+  init?: FetcherRequestInit,
 ) => Promise<FetcherResponse>;
