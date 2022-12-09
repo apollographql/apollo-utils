@@ -1,5 +1,11 @@
 # @apollo/utils.keyvaluecache
 
+## 2.1.0
+
+### Minor Changes
+
+- [#236](https://github.com/apollographql/apollo-utils/pull/236) [`675409f`](https://github.com/apollographql/apollo-utils/commit/675409f5f1be6468940b786d6e772241768ccabc) Thanks [@glasser](https://github.com/glasser)! - New static methods `PrefixingKeyValueCache.cacheDangerouslyDoesNotNeedPrefixesForIsolation` and `PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation` allows you to opt a particular cache out of the prefixing done by a `PrefixingKeyValueCache`.
+
 ## 2.0.1
 
 ### Patch Changes
