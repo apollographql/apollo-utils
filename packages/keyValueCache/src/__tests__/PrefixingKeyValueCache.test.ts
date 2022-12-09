@@ -1,9 +1,5 @@
 import { InMemoryLRUCache } from "..";
-import {
-  prefixesAreUnnecessaryForIsolation,
-  PrefixesAreUnnecessaryForIsolationCache,
-  PrefixingKeyValueCache,
-} from "../PrefixingKeyValueCache";
+import { PrefixingKeyValueCache } from "../PrefixingKeyValueCache";
 
 describe("PrefixingKeyValueCache", () => {
   it("prefixes", async () => {
@@ -18,7 +14,9 @@ describe("PrefixingKeyValueCache", () => {
   it("PrefixesAreUnnecessaryForIsolationCache", async () => {
     const inner = new InMemoryLRUCache();
     const prefixesAreUnnecessaryForIsolationCache =
-      new PrefixesAreUnnecessaryForIsolationCache(inner);
+      PrefixingKeyValueCache.cacheDangerouslyDoesNotNeedPrefixesForIsolation(
+        inner,
+      );
     const prefixing = new PrefixingKeyValueCache(
       prefixesAreUnnecessaryForIsolationCache,
       "prefix:",
@@ -35,13 +33,17 @@ describe("PrefixingKeyValueCache", () => {
       expect(inner.keys().length).toBe(0);
     }
 
-    expect(prefixesAreUnnecessaryForIsolation(inner)).toBe(false);
     expect(
-      prefixesAreUnnecessaryForIsolation(
+      PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(inner),
+    ).toBe(false);
+    expect(
+      PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(
         prefixesAreUnnecessaryForIsolationCache,
       ),
     ).toBe(true);
     // This only detects caches where the "outermost" cache has the "prefixes unnecessary" label.
-    expect(prefixesAreUnnecessaryForIsolation(prefixing)).toBe(false);
+    expect(
+      PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(prefixing),
+    ).toBe(false);
   });
 });
