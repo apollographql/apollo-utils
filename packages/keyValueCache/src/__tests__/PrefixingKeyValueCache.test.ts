@@ -41,9 +41,8 @@ describe("PrefixingKeyValueCache", () => {
         prefixesAreUnnecessaryForIsolationCache,
       ),
     ).toBe(true);
-    // This only detects caches where the "outermost" cache has the "prefixes unnecessary" label.
     expect(
       PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(prefixing),
-    ).toBe(false);
+    ).toBe(true);
   });
 });
