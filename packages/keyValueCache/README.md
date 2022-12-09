@@ -30,6 +30,25 @@ const cache = new InMemoryLRUCache();
 const prefixedCache = new PrefixingKeyValueCache(cache, "apollo:");
 ```
 
+One reason to use this is if a single piece of software wants to use a cache for multiple features. For example, you can pass a `KeyValueCache` as the `cache` option to `@apollo/server`'s `ApolloServer` class; it provides this cache to plugins and other features as a default cache to use (if the user does not provide the specific plugin its own cache). Each feature uses `PrefixingKeyValueCache` with a different prefix to prevent different features from stomping on each others' data.
+
+However, if you are configuring one of those features explicitly, you may _not_ want this prefix to be added. In that case, you can wrap your cache in a cache returned by `PrefixingKeyValueCache.cacheDangerouslyDoesNotNeedPrefixesForIsolation`. The only difference between this cache and the cache that it wraps is that when it is passed directly to a `PrefixingKeyValueCache`, no prefix is applied.
+
+That is, let's say you are using a class that is implemented like this:
+
+```ts
+class SomePlugin {
+  private cache: KeyValueCache;
+  constructor(cache: KeyValueCache) {
+    this.cache = new PrefixingKeyValueCache(cache, "some:");
+  }
+}
+```
+
+If you set up your plugin as `new SomePlugin({ cache: myRedisCache })` then the plugin will add `some:` to all keys when interacting with your cache, but if you set it up as `new SomePlugin({ cache: PrefixingKeyValueCache.cacheDangerouslyDoesNotNeedPrefixesForIsolation(myRedisCache) })`, then the plugin will not apply its prefix. You should only do this if you feel confident that this feature's use of this cache will not overlap with another feature: perhaps this is the only feature you have configured to use this cache, or perhaps the feature provides suitable control over cache keys that you can ensure isolation without needing the plugin's prefix.
+
+Software like `ApolloServer` that passes a single `KeyValueCache` to several features should throw if a `PrefixesAreUnnecessaryForIsolationCache` is provided to it; it can check this condition with the static `PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation` method (which is safer than an `instanceof` check in case there are multiple copies of `@apollo/utils.keyvaluecache` installed).
+
 # ErrorsAreMissesCache
 
 This class wraps a `KeyValueCache` in order to provide error tolerance for caches which connect via a client like Redis. In the event that there's an _error_, this wrapper will treat it as a cache miss (and log the error instead, if a `logger` is provided).
