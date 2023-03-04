@@ -69,7 +69,7 @@ jobs:
 
   ESLint:
     docker:
-    - image: cimg/base:stable
+      - image: cimg/base:stable
     steps:
       - setup-node
       - run: npm run lint

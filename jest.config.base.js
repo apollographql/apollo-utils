@@ -1,4 +1,4 @@
-import { defaults } from 'jest-config';
+import { defaults } from "jest-config";
 
 export default {
   testEnvironment: "node",
@@ -22,4 +22,3 @@ export default {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
 };
-

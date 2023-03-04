@@ -8,10 +8,10 @@
 //
 // This script expects to be run from the project root (as `npm run` does).
 
-import path from 'path';
-import { writeFileSync } from 'fs';
-import rimraf from 'rimraf';
-import glob from 'glob';
+import path from "path";
+import { writeFileSync } from "fs";
+import rimraf from "rimraf";
+import glob from "glob";
 
 /**
  * @type Promise<boolean> | undefined
@@ -43,12 +43,12 @@ const runtimePackages = [
 // Tell Node what kinds of files the ".js" files in these subdirectories are.
 for (const dir of runtimePackages) {
   writeFileSync(
-    path.join('packages', dir, 'dist', 'esm', 'package.json'),
-    JSON.stringify({ type: 'module' }),
+    path.join("packages", dir, "dist", "esm", "package.json"),
+    JSON.stringify({ type: "module" }),
   );
   writeFileSync(
-    path.join('packages', dir, 'dist', 'cjs', 'package.json'),
-    JSON.stringify({ type: 'commonjs' }),
+    path.join("packages", dir, "dist", "cjs", "package.json"),
+    JSON.stringify({ type: "commonjs" }),
   );
 }
 

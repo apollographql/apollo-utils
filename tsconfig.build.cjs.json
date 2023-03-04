@@ -17,6 +17,6 @@
     { "path": "packages/removeAliases/tsconfig.cjs.json" },
     { "path": "packages/sortAST/tsconfig.cjs.json" },
     { "path": "packages/stripSensitiveLiterals/tsconfig.cjs.json" },
-    { "path": "packages/usageReporting/tsconfig.cjs.json" },
+    { "path": "packages/usageReporting/tsconfig.cjs.json" }
   ]
 }
