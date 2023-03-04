@@ -2,6 +2,7 @@
   "name": "@apollo/utils.withrequired",
   "version": "2.0.0",
   "description": "TypeScript utility type WithRequired",
+  "type": "module",
   "main": "",
   "types": "dist/index.d.ts",
   "repository": {

@@ -3,9 +3,9 @@
   "compilerOptions": {
     "noEmit": true,
     "types": ["node", "jest"],
-    // In tests, we use undici, whose .d.ts files assume @types/node v14
-    // or later (to use Blob from buffer, etc). For now we just won't
-    // type-check our test node_modules .d.ts files.
+    // In tests, we use undici, whose .d.ts files assume @types/node v18 or
+    // later (to use Blob from buffer, etc). For now we just won't type-check
+    // our test node_modules .d.ts files.
     "skipLibCheck": true
   }
 }

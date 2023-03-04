@@ -20,7 +20,9 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md)
 5. Copy the following files from a neighbor package and adjust appropriately (if necessary):
 
 - `.npmignore`
-- `jest.config.ts`
+- `jest.config.js`
 - `LICENSE`
 - `tsconfig.json`
 - `src/__tests__/tsconfig.json`
+
+# TODO - add notes about ESM/CJS config and type-only vs runtime packages

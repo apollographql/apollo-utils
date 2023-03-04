@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    // types-only packages shouldn't be listed here
+    { "path": "packages/createHash/tsconfig.cjs.json" },
+    { "path": "packages/dropUnusedDefinitions/tsconfig.cjs.json" },
+    { "path": "packages/isNodeLike/tsconfig.cjs.json" },
+    { "path": "packages/jestGraphQLASTSerializer/tsconfig.cjs.json" },
+    { "path": "packages/keyvAdapter/tsconfig.cjs.json" },
+    { "path": "packages/keyValueCache/tsconfig.cjs.json" },
+    { "path": "packages/operationRegistrySignature/tsconfig.cjs.json" },
+    { "path": "packages/printWithReducedWhitespace/tsconfig.cjs.json" },
+    { "path": "packages/removeAliases/tsconfig.cjs.json" },
+    { "path": "packages/sortAST/tsconfig.cjs.json" },
+    { "path": "packages/stripSensitiveLiterals/tsconfig.cjs.json" },
+    { "path": "packages/usageReporting/tsconfig.cjs.json" },
+  ]
+}

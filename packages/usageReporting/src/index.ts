@@ -1,6 +1,6 @@
-export { calculateReferencedFieldsByType } from "./calculateReferencedFieldsByType";
+export { calculateReferencedFieldsByType } from "./calculateReferencedFieldsByType.js";
 export type {
   OperationDerivedData,
   ReferencedFieldsByType,
-} from "./calculateReferencedFieldsByType";
-export { usageReportingSignature } from "./signature";
+} from "./calculateReferencedFieldsByType.js";
+export { usageReportingSignature } from "./signature.js";

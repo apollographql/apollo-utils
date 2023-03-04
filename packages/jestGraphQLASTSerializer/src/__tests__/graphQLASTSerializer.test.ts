@@ -1,5 +1,5 @@
 import { parse } from "graphql";
-import graphQLASTSerializer from "../../dist";
+import graphQLASTSerializer from "../index.js";
 
 describe("graphQLASTSerializer", () => {
   const ast = parse(`query Foo { test }`);

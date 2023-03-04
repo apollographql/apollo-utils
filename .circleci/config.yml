@@ -67,6 +67,13 @@ jobs:
       - setup-node
       - run: npm run prettier-check
 
+  ESLint:
+    docker:
+    - image: cimg/base:stable
+    steps:
+      - setup-node
+      - run: npm run lint
+
 workflows:
   version: 2
   Build:
@@ -82,3 +89,4 @@ workflows:
       - GraphQL v14 - backcompat
       - GraphQL v15 - backcompat
       - Prettier
+      - ESLint

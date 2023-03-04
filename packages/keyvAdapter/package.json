@@ -2,8 +2,17 @@
   "name": "@apollo/utils.keyvadapter",
   "version": "2.0.0",
   "description": "Keyv adapter implementing Apollo's KeyValueCache interface",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apollographql/apollo-utils.git",
