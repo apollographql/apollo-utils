@@ -1,5 +1,18 @@
 # @apollo/utils.keyvadapter
 
+## 2.0.1
+
+### Patch Changes
+
+- [#260](https://github.com/apollographql/apollo-utils/pull/260) [`957493f`](https://github.com/apollographql/apollo-utils/commit/957493f6fc128306125c9dbc2726aecc63461418) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Fix issue with KeyvAdapter where `Keyv.getMany` returns `undefined`,
+  causing `KeyvAdapter` to violate the `DataLoader` contract.
+
+  DataLoader always expects a `Promise<Array<V>>` having the same length
+  as the `keys` that were given to it. This problem stems from a
+  shortcoming of the `Keyv` typings, since it doesn't declare that a
+  `get([...keys])` can return a singular `undefined` (but it can in
+  the case of errors / `Store.getMany` can return a singular `undefined`).
+
 ## 2.0.0
 
 ### Major Changes
