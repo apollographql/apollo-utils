@@ -183,9 +183,7 @@ describe("KeyvAdapter", () => {
       const keyvAdapter = new KeyvAdapter(
         new Keyv({ store: new GetManyReturnsSingularUndefinedStore() }),
       );
-      await expect(keyvAdapter.get("abc")).rejects.toMatchInlineSnapshot(
-        `[TypeError: DataLoader must be constructed with a function which accepts Array<key> and returns Promise<Array<value>>, but the function did not return a Promise of an Array: undefined.]`,
-      );
+      await expect(keyvAdapter.get("abc")).resolves.toBeUndefined();
     });
   });
 });
