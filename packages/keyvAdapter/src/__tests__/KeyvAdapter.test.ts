@@ -157,4 +157,35 @@ describe("KeyvAdapter", () => {
       expect(deleteSpy).toHaveBeenCalledWith("foo");
     });
   });
+
+  describe("Dataloader implementation details", () => {
+    it("enforces the Dataloader contract (1:1 key to value)", async () => {
+      class GetManyReturnsSingularUndefinedStore implements Store<string> {
+        getMany(_keys: string[]) {
+          // really we would prefer an array of undefined of the length of
+          // _keys, but that isn't a contract that `Keyv` enforces
+          return undefined;
+        }
+        get() {
+          return "hello";
+        }
+        set() {
+          return;
+        }
+        delete() {
+          return true;
+        }
+        clear() {
+          return;
+        }
+      }
+
+      const keyvAdapter = new KeyvAdapter(
+        new Keyv({ store: new GetManyReturnsSingularUndefinedStore() }),
+      );
+      await expect(keyvAdapter.get("abc")).rejects.toMatchInlineSnapshot(
+        `[TypeError: DataLoader must be constructed with a function which accepts Array<key> and returns Promise<Array<value>>, but the function did not return a Promise of an Array: undefined.]`,
+      );
+    });
+  });
 });
