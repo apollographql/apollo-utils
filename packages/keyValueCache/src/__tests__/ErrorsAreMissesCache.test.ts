@@ -1,5 +1,5 @@
 import type { Logger } from "@apollo/utils.logger";
-import { ErrorsAreMissesCache } from "../ErrorsAreMissesCache";
+import { ErrorsAreMissesCache } from "../ErrorsAreMissesCache.js";
 import type { KeyValueCache } from "../KeyValueCache";
 
 describe("ErrorsAreMissesCache", () => {

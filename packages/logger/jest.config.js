@@ -1,9 +1,9 @@
-import baseConfig from "../../jest.config.base";
+import baseConfig from "../../jest.config.base.js";
 
 export default {
   ...baseConfig,
   displayName: {
-    name: "usageReporting",
+    name: "logger",
     color: "white",
   },
 };
