@@ -22,7 +22,13 @@ export class KeyvAdapter<
     this.dataLoader = options?.disableBatchReads
       ? undefined
       : new DataLoader(
-          (keys) => this.keyv.get([...keys]),
+          async (keys) => {
+            const result = await this.keyv.get([...keys]);
+            if (!result) {
+              return [...Array(keys.length)];
+            }
+            return result;
+          },
           // We're not actually using `DataLoader` for its caching
           // capabilities, we're only interested in batching functionality
           { cache: false },
