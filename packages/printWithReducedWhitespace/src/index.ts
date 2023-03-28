@@ -1,4 +1,4 @@
-import { visit, print, DocumentNode, StringValueNode } from "graphql";
+import { visit, print, type DocumentNode, type StringValueNode } from "graphql";
 // Like the graphql-js print function, but deleting whitespace wherever
 // feasible. Specifically, all whitespace (outside of string literals) is
 // reduced to at most one space, and even that space is removed anywhere except

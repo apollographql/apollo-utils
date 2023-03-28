@@ -1,4 +1,4 @@
-import { buildASTSchema, DocumentNode, validate } from "graphql";
+import { buildASTSchema, type DocumentNode, validate } from "graphql";
 import gql from "graphql-tag";
 import { calculateReferencedFieldsByType } from "..";
 

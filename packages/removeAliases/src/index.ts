@@ -5,7 +5,7 @@
 // validity as a GraphQL operation, for example:
 // { x(a: 1) alias: x(a:2) } (valid) will yield
 // { x(a:1) x(a:2) } (invalid)
-import { DocumentNode, FieldNode, visit } from "graphql";
+import { type DocumentNode, type FieldNode, visit } from "graphql";
 
 export function removeAliases(ast: DocumentNode): DocumentNode {
   return visit(ast, {

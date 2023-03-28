@@ -1,6 +1,6 @@
 import {
-  DocumentNode,
-  GraphQLSchema,
+  type DocumentNode,
+  type GraphQLSchema,
   isInterfaceType,
   separateOperations,
   TypeInfo,

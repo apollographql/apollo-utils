@@ -1,4 +1,4 @@
-import { ASTNode, print } from "graphql";
+import { type ASTNode, print } from "graphql";
 import { isNode } from "graphql/language/ast";
 
 // This is exported as a default so that it can (hopefully one day) be picked up
