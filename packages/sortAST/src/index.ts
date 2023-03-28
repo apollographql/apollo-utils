@@ -3,16 +3,16 @@
 // all of `lodash`.
 import {
   visit,
-  DocumentNode,
-  OperationDefinitionNode,
-  DirectiveNode,
-  FragmentDefinitionNode,
-  InlineFragmentNode,
-  FragmentSpreadNode,
-  FieldNode,
-  SelectionSetNode,
-  ArgumentNode,
-  VariableDefinitionNode,
+  type DocumentNode,
+  type OperationDefinitionNode,
+  type DirectiveNode,
+  type FragmentDefinitionNode,
+  type InlineFragmentNode,
+  type FragmentSpreadNode,
+  type FieldNode,
+  type SelectionSetNode,
+  type ArgumentNode,
+  type VariableDefinitionNode,
 } from "graphql";
 import sortBy from "lodash.sortby";
 

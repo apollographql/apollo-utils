@@ -67,6 +67,13 @@ jobs:
       - setup-node
       - run: npm run prettier-check
 
+  Lint:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - setup-node
+      - run: npm run lint
+
 workflows:
   version: 2
   Build:

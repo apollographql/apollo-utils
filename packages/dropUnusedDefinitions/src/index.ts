@@ -1,4 +1,4 @@
-import { DocumentNode, separateOperations } from "graphql";
+import { type DocumentNode, separateOperations } from "graphql";
 
 // A GraphQL query may contain multiple named operations, with the operation to
 // use specified separately by the client. This transformation drops unused
