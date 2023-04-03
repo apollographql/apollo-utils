@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.keyvaluecache",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Minimal key-value cache interface",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,7 +21,7 @@
     "node": ">=14"
   },
   "dependencies": {
-    "@apollo/utils.logger": "^2.0.0",
+    "@apollo/utils.logger": "^2.0.1",
     "lru-cache": "^7.14.1"
   }
 }

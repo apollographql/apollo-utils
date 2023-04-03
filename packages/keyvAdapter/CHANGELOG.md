@@ -1,5 +1,14 @@
 # @apollo/utils.keyvadapter
 
+## 2.0.2
+
+### Patch Changes
+
+- [#266](https://github.com/apollographql/apollo-utils/pull/266) [`ba46d81`](https://github.com/apollographql/apollo-utils/commit/ba46d817a97a6bad9b0ec6ff0720f01edc806091) Thanks [@renovate](https://github.com/apps/renovate)! - Start building packages with TypeScript v5, which should have no effect for consumers
+
+- Updated dependencies [[`ba46d81`](https://github.com/apollographql/apollo-utils/commit/ba46d817a97a6bad9b0ec6ff0720f01edc806091)]:
+  - @apollo/utils.keyvaluecache@2.1.1
+
 ## 2.0.1
 
 ### Patch Changes

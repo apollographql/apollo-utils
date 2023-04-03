@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.createhash",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Node-agnostic hashing utility",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,7 +21,7 @@
     "node": ">=14"
   },
   "dependencies": {
-    "@apollo/utils.isnodelike": "^2.0.0",
+    "@apollo/utils.isnodelike": "^2.0.1",
     "sha.js": "^2.4.11"
   }
 }

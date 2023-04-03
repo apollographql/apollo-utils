@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.logger",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Generic logger interface",
   "main": "",
   "types": "dist/index.d.ts",
