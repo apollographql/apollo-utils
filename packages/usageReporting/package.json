@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.usagereporting",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Generate a signature for Apollo usage reporting",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,11 +22,11 @@
   },
   "dependencies": {
     "@apollo/usage-reporting-protobuf": "^4.0.0",
-    "@apollo/utils.dropunuseddefinitions": "^2.0.0",
-    "@apollo/utils.stripsensitiveliterals": "^2.0.0",
-    "@apollo/utils.printwithreducedwhitespace": "^2.0.0",
-    "@apollo/utils.removealiases": "2.0.0",
-    "@apollo/utils.sortast": "^2.0.0"
+    "@apollo/utils.dropunuseddefinitions": "^2.0.1",
+    "@apollo/utils.stripsensitiveliterals": "^2.0.1",
+    "@apollo/utils.printwithreducedwhitespace": "^2.0.1",
+    "@apollo/utils.removealiases": "2.0.1",
+    "@apollo/utils.sortast": "^2.0.1"
   },
   "peerDependencies": {
     "graphql": "14.x || 15.x || 16.x"

@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.dropunuseddefinitions",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Drop unused definitions from a GraphQL document",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
