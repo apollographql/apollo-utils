@@ -18,7 +18,7 @@
   "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "dependencies": {
     "@apollo/usage-reporting-protobuf": "^4.0.0",
