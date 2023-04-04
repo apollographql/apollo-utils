@@ -5,10 +5,13 @@ const config: Config.InitialOptions = {
   preset: "ts-jest",
   testEnvironment: "node",
   roots: ["src"],
-  globals: {
-    "ts-jest": {
-      tsconfig: "<rootDir>/src/__tests__/tsconfig.json",
-    },
+  transform: {
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        tsconfig: "<rootDir>/src/__tests__/tsconfig.json",
+      },
+    ],
   },
 };
 

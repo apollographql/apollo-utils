@@ -2,10 +2,10 @@ import LRUCache from "lru-cache";
 import type { KeyValueCache, KeyValueCacheSetOptions } from "./KeyValueCache";
 
 // LRUCache wrapper to implement the KeyValueCache interface.
-export class InMemoryLRUCache<T = string> implements KeyValueCache<T> {
-  private cache: LRUCache<string, T>;
+export class InMemoryLRUCache<V extends string | {} = string> implements KeyValueCache<V> {
+  private cache: LRUCache<string, V>;
 
-  constructor(lruCacheOpts?: LRUCache.Options<string, T>) {
+  constructor(lruCacheOpts?: LRUCache.Options<string, V, any>) {
     this.cache = new LRUCache({
       sizeCalculation: InMemoryLRUCache.sizeCalculation,
       // Create ~about~ a 30MiB cache by default. Configurable by providing
@@ -19,7 +19,7 @@ export class InMemoryLRUCache<T = string> implements KeyValueCache<T> {
    * default size calculator for strings and serializable objects, else naively
    * return 1
    */
-  static sizeCalculation<T>(item: T) {
+  static sizeCalculation<V extends string | {}>(item: V) {
     if (typeof item === "string") {
       return item.length;
     }
@@ -30,7 +30,7 @@ export class InMemoryLRUCache<T = string> implements KeyValueCache<T> {
     return 1;
   }
 
-  async set(key: string, value: T, options?: KeyValueCacheSetOptions) {
+  async set(key: string, value: V, options?: KeyValueCacheSetOptions) {
     if (options?.ttl) {
       this.cache.set(key, value, { ttl: options.ttl * 1000 });
     } else {
