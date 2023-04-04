@@ -2,7 +2,9 @@ import LRUCache from "lru-cache";
 import type { KeyValueCache, KeyValueCacheSetOptions } from "./KeyValueCache";
 
 // LRUCache wrapper to implement the KeyValueCache interface.
-export class InMemoryLRUCache<V extends string | {} = string> implements KeyValueCache<V> {
+export class InMemoryLRUCache<V extends string | {} = string>
+  implements KeyValueCache<V>
+{
   private cache: LRUCache<string, V>;
 
   constructor(lruCacheOpts?: LRUCache.Options<string, V, any>) {

@@ -23,6 +23,6 @@
     "forceConsistentCasingInFileNames": true,
     "lib": ["es2021"],
     "baseUrl": ".",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   }
 }
