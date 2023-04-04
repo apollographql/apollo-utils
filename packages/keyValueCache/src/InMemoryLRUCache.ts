@@ -2,7 +2,7 @@ import LRUCache from "lru-cache";
 import type { KeyValueCache, KeyValueCacheSetOptions } from "./KeyValueCache";
 
 // LRUCache wrapper to implement the KeyValueCache interface.
-export class InMemoryLRUCache<V extends string | {} = string>
+export class InMemoryLRUCache<V extends {} = string>
   implements KeyValueCache<V>
 {
   private cache: LRUCache<string, V>;
@@ -21,7 +21,7 @@ export class InMemoryLRUCache<V extends string | {} = string>
    * default size calculator for strings and serializable objects, else naively
    * return 1
    */
-  static sizeCalculation<V extends string | {}>(item: V) {
+  static sizeCalculation<V extends {}>(item: V) {
     if (typeof item === "string") {
       return item.length;
     }
