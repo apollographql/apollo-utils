@@ -1,6 +1,6 @@
 {
   "name": "@apollo/utils.keyvadapter",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Keyv adapter implementing Apollo's KeyValueCache interface",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,7 +21,7 @@
     "node": ">=16"
   },
   "dependencies": {
-    "@apollo/utils.keyvaluecache": "^2.1.1",
+    "@apollo/utils.keyvaluecache": "^3.0.0",
     "dataloader": "^2.1.0",
     "keyv": "^4.4.0"
   }

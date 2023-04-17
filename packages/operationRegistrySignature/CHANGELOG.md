@@ -1,5 +1,19 @@
 # @apollo/utils.operationregistrysignature
 
+## 3.0.0
+
+### Major Changes
+
+- [#271](https://github.com/apollographql/apollo-utils/pull/271) [`4e85af0`](https://github.com/apollographql/apollo-utils/commit/4e85af042dda5d0c97048ef14861417d1d2488bd) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Drop support for Node.js v14
+
+### Patch Changes
+
+- Updated dependencies [[`4e85af0`](https://github.com/apollographql/apollo-utils/commit/4e85af042dda5d0c97048ef14861417d1d2488bd)]:
+  - @apollo/utils.printwithreducedwhitespace@3.0.0
+  - @apollo/utils.stripsensitiveliterals@3.0.0
+  - @apollo/utils.dropunuseddefinitions@3.0.0
+  - @apollo/utils.sortast@3.0.0
+
 ## 2.0.1
 
 ### Patch Changes
