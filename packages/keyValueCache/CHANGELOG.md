@@ -1,5 +1,25 @@
 # @apollo/utils.keyvaluecache
 
+## 3.0.0
+
+### Major Changes
+
+- [#271](https://github.com/apollographql/apollo-utils/pull/271) [`4e85af0`](https://github.com/apollographql/apollo-utils/commit/4e85af042dda5d0c97048ef14861417d1d2488bd) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Drop support for Node.js v14
+
+### Patch Changes
+
+- [#271](https://github.com/apollographql/apollo-utils/pull/271) [`4e85af0`](https://github.com/apollographql/apollo-utils/commit/4e85af042dda5d0c97048ef14861417d1d2488bd) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Update lru-cache dependency from v7.x to v9.x
+
+  The `InMemoryLRUCache` constructor accepts an `LRUCache.Options` object. This type has changed since v8.x, so you may need to update your usages accordingly.
+
+  The changes in the options typings aren't documented in the changelog; please look at the source below for specifics.
+
+  v7 options can be derived [here](https://github.com/isaacs/node-lru-cache/blob/7a6f529e2e7c1bc3c81f3ee996267ef2006de492/index.d.ts#L615).
+  v8-9 options can be derived [here](https://github.com/isaacs/node-lru-cache/blob/88bb31c82d418488a18f1663a2a6383853b632a1/src/index.ts#L763).
+
+- Updated dependencies [[`4e85af0`](https://github.com/apollographql/apollo-utils/commit/4e85af042dda5d0c97048ef14861417d1d2488bd)]:
+  - @apollo/utils.logger@3.0.0
+
 ## 2.1.1
 
 ### Patch Changes
