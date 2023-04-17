@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "composite": true,
-    "target": "es2019",
+    "target": "es2021",
     "types": ["node"],
     "module": "commonjs",
     "moduleResolution": "node",
@@ -21,7 +21,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es2019"],
-    "baseUrl": "."
+    "lib": ["es2021"],
+    "baseUrl": ".",
+    "skipLibCheck": true
   }
 }

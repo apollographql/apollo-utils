@@ -18,10 +18,10 @@
   "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=14"
+    "node": ">=16.14"
   },
   "dependencies": {
     "@apollo/utils.logger": "^2.0.1",
-    "lru-cache": "^7.14.1"
+    "lru-cache": "^9.0.3"
   }
 }
