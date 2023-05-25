@@ -1,0 +1,35 @@
+{
+  "name": "@apollo/generate-persisted-query-manifest",
+  "version": "0.0.0",
+  "description": "Creates a Persisted Query Manifest from an Apollo Client Web project",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "generate-persisted-query-manifest": "cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apollographql/apollo-utils.git",
+    "directory": "packages/generate-persisted-query-manifest/"
+  },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "typescript",
+    "node"
+  ],
+  "author": "Apollo <packages@apollographql.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {
+    "@graphql-tools/graphql-tag-pluck": "^8.0.0",
+    "glob": "^10.2.6",
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "@apollo/client": "^3.7.0",
+    "graphql": "14.x || 15.x || 16.x"
+  }
+}
