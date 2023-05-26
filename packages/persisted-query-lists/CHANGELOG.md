@@ -1,5 +1,11 @@
 # @apollo/persisted-query-lists
 
+## 1.0.0-alpha.1
+
+### Patch Changes
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`9b5c8d9`](https://github.com/apollographql/apollo-utils/commit/9b5c8d92e3f47b43c32b4b014428c49cc0b38219) Thanks [@glasser](https://github.com/glasser)! - Change createPersistedQueryManifestVerificationLink to load manifest asynchronously.
+
 ## 1.0.0-alpha.0
 
 ### Major Changes
