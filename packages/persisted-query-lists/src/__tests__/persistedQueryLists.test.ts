@@ -196,9 +196,7 @@ describe("persisted-query-lists", () => {
         };
 
         const link = createPersistedQueryManifestVerificationLink({
-          // Make the load truly async.
-          loadManifest: () =>
-            new Promise((resolve) => setTimeout(() => resolve(manifest), 1)),
+          loadManifest: () => Promise.resolve(manifest),
           ...options,
         }).concat(returnExtensionsAndContextLink);
 
@@ -347,10 +345,7 @@ describe("persisted-query-lists", () => {
     it("error loading manifest", async () => {
       const link = createPersistedQueryManifestVerificationLink({
         // Make the load truly async.
-        loadManifest: () =>
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("nope")), 1),
-          ),
+        loadManifest: () => Promise.reject(new Error("nope")),
       }).concat(returnExtensionsAndContextLink);
 
       await expect(
