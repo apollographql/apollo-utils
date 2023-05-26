@@ -2,6 +2,8 @@ import {
   generatePersistedQueryIdsAtRuntime,
   sortTopLevelDefinitions,
   generatePersistedQueryIdsFromManifest,
+  createPersistedQueryManifestVerificationLink,
+  CreatePersistedQueryManifestVerificationLinkOptions,
 } from "..";
 
 import {
@@ -168,6 +170,174 @@ describe("persisted-query-lists", () => {
                 f
               }"
           `);
+    });
+  });
+
+  describe("createPersistedQueryManifestVerificationLink", () => {
+    async function runAgainstLink(
+      options: Omit<
+        CreatePersistedQueryManifestVerificationLinkOptions,
+        "manifest"
+      >,
+      document: string,
+    ) {
+      const manifest = {
+        format: "apollo-persisted-query-manifest",
+        version: 1,
+        operations: [
+          {
+            id: "foobar-id",
+            name: "Foobar",
+            type: "query",
+            body: "query Foobar {\n  f\n}",
+          },
+        ],
+      };
+
+      const link = createPersistedQueryManifestVerificationLink({
+        manifest,
+        ...options,
+      }).concat(returnExtensionsAndContextLink);
+
+      return await toPromise(execute(link, { query: parse(document) }));
+    }
+
+    it("anonymous operation", async () => {
+      const onAnonymousOperation = jest.fn();
+      const onMultiOperationDocument = jest.fn();
+      const onNoOperationsDocument = jest.fn();
+      const onUnknownOperationName = jest.fn();
+      const onDifferentBody = jest.fn();
+      await runAgainstLink(
+        {
+          onAnonymousOperation,
+          onMultiOperationDocument,
+          onNoOperationsDocument,
+          onUnknownOperationName,
+          onDifferentBody,
+        },
+        "{ x }",
+      );
+      expect(onAnonymousOperation).toHaveBeenCalled();
+      expect(onMultiOperationDocument).not.toHaveBeenCalled();
+      expect(onNoOperationsDocument).not.toHaveBeenCalled();
+      expect(onUnknownOperationName).not.toHaveBeenCalled();
+      expect(onDifferentBody).not.toHaveBeenCalled();
+    });
+
+    it("multi-operation document", async () => {
+      const onAnonymousOperation = jest.fn();
+      const onMultiOperationDocument = jest.fn();
+      const onNoOperationsDocument = jest.fn();
+      const onUnknownOperationName = jest.fn();
+      const onDifferentBody = jest.fn();
+      await runAgainstLink(
+        {
+          onAnonymousOperation,
+          onMultiOperationDocument,
+          onNoOperationsDocument,
+          onUnknownOperationName,
+          onDifferentBody,
+        },
+        "query Q { a } query QQ { b }",
+      );
+      expect(onAnonymousOperation).not.toHaveBeenCalled();
+      expect(onMultiOperationDocument).toHaveBeenCalled();
+      expect(onNoOperationsDocument).not.toHaveBeenCalled();
+      expect(onUnknownOperationName).not.toHaveBeenCalled();
+      expect(onDifferentBody).not.toHaveBeenCalled();
+    });
+
+    it("no-operations document", async () => {
+      const onAnonymousOperation = jest.fn();
+      const onMultiOperationDocument = jest.fn();
+      const onNoOperationsDocument = jest.fn();
+      const onUnknownOperationName = jest.fn();
+      const onDifferentBody = jest.fn();
+      await runAgainstLink(
+        {
+          onAnonymousOperation,
+          onMultiOperationDocument,
+          onNoOperationsDocument,
+          onUnknownOperationName,
+          onDifferentBody,
+        },
+        "fragment F on T { f }",
+      );
+      expect(onAnonymousOperation).not.toHaveBeenCalled();
+      expect(onMultiOperationDocument).not.toHaveBeenCalled();
+      expect(onNoOperationsDocument).toHaveBeenCalled();
+      expect(onUnknownOperationName).not.toHaveBeenCalled();
+      expect(onDifferentBody).not.toHaveBeenCalled();
+    });
+
+    it("unknown operation name", async () => {
+      const onAnonymousOperation = jest.fn();
+      const onMultiOperationDocument = jest.fn();
+      const onNoOperationsDocument = jest.fn();
+      const onUnknownOperationName = jest.fn();
+      const onDifferentBody = jest.fn();
+      await runAgainstLink(
+        {
+          onAnonymousOperation,
+          onMultiOperationDocument,
+          onNoOperationsDocument,
+          onUnknownOperationName,
+          onDifferentBody,
+        },
+        "query Foo { f }",
+      );
+      expect(onAnonymousOperation).not.toHaveBeenCalled();
+      expect(onMultiOperationDocument).not.toHaveBeenCalled();
+      expect(onNoOperationsDocument).not.toHaveBeenCalled();
+      expect(onUnknownOperationName).toHaveBeenCalled();
+      expect(onDifferentBody).not.toHaveBeenCalled();
+    });
+
+    it("different body", async () => {
+      const onAnonymousOperation = jest.fn();
+      const onMultiOperationDocument = jest.fn();
+      const onNoOperationsDocument = jest.fn();
+      const onUnknownOperationName = jest.fn();
+      const onDifferentBody = jest.fn();
+      await runAgainstLink(
+        {
+          onAnonymousOperation,
+          onMultiOperationDocument,
+          onNoOperationsDocument,
+          onUnknownOperationName,
+          onDifferentBody,
+        },
+        "query Foobar { different }",
+      );
+      expect(onAnonymousOperation).not.toHaveBeenCalled();
+      expect(onMultiOperationDocument).not.toHaveBeenCalled();
+      expect(onNoOperationsDocument).not.toHaveBeenCalled();
+      expect(onUnknownOperationName).not.toHaveBeenCalled();
+      expect(onDifferentBody).toHaveBeenCalled();
+    });
+
+    it("operation on the manifest", async () => {
+      const onAnonymousOperation = jest.fn();
+      const onMultiOperationDocument = jest.fn();
+      const onNoOperationsDocument = jest.fn();
+      const onUnknownOperationName = jest.fn();
+      const onDifferentBody = jest.fn();
+      await runAgainstLink(
+        {
+          onAnonymousOperation,
+          onMultiOperationDocument,
+          onNoOperationsDocument,
+          onUnknownOperationName,
+          onDifferentBody,
+        },
+        "query Foobar {\n  f\n}",
+      );
+      expect(onAnonymousOperation).not.toHaveBeenCalled();
+      expect(onMultiOperationDocument).not.toHaveBeenCalled();
+      expect(onNoOperationsDocument).not.toHaveBeenCalled();
+      expect(onUnknownOperationName).not.toHaveBeenCalled();
+      expect(onDifferentBody).not.toHaveBeenCalled();
     });
   });
 });

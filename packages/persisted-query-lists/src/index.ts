@@ -1,4 +1,5 @@
 import { print, type DocumentNode } from "graphql";
+import { ApolloLink } from "@apollo/client/link/core";
 
 // This type is copied from `@apollo/client/link/persisted-queries`; to avoid a
 // dependency on a particular version `@apollo/client` we copy it here.
@@ -65,9 +66,12 @@ export function sortTopLevelDefinitions(query: DocumentNode): DocumentNode {
   };
 }
 
-export function generatePersistedQueryIdsFromManifest(options: {
+export interface GeneratePersistedQueryIdsFromManifestOptions {
   manifest: { operations: { id: string; name: string }[] };
-}) {
+}
+export function generatePersistedQueryIdsFromManifest(
+  options: GeneratePersistedQueryIdsFromManifestOptions,
+) {
   const operationIdsByName = new Map<string, string>();
   options.manifest.operations.forEach(({ name, id }) => {
     operationIdsByName.set(name, id);
@@ -75,24 +79,24 @@ export function generatePersistedQueryIdsFromManifest(options: {
 
   function generateHash(document: DocumentNode): string {
     let operationName: string | null = null;
-    document.definitions.forEach((definition) => {
+    for (const definition of document.definitions) {
       if (definition.kind === "OperationDefinition") {
         if (!definition.name) {
           throw new Error(
-            "Anonymous operations are not supported by usePersistedQueryIdsFromManifest",
+            "Anonymous operations are not supported by generatePersistedQueryIdsFromManifest",
           );
         }
         if (operationName !== null) {
           throw new Error(
-            "Multi-operation GraphQL documents are not supported by usePersistedQueryIdsFromManifest",
+            "Multi-operation GraphQL documents are not supported by generatePersistedQueryIdsFromManifest",
           );
         }
         operationName = definition.name.value;
       }
-    });
+    }
     if (operationName === null) {
       throw new Error(
-        "Documents without operations are not supported by usePersistedQueryIdsFromManifest",
+        "Documents without operations are not supported by generatePersistedQueryIdsFromManifest",
       );
     }
     const operationId = operationIdsByName.get(operationName);
@@ -107,4 +111,70 @@ export function generatePersistedQueryIdsFromManifest(options: {
     // Keep sending query IDs even if the other side doesn't know them.
     disable: () => false,
   };
+}
+
+export interface CreatePersistedQueryManifestVerificationLinkOptions {
+  manifest: { operations: { name: string; body: string }[] };
+  onAnonymousOperation?: (options: { body: string }) => void;
+  onMultiOperationDocument?: (options: { body: string }) => void;
+  onNoOperationsDocument?: (options: { body: string }) => void;
+  onUnknownOperationName?: (options: {
+    operationName: string;
+    body: string;
+  }) => void;
+  onDifferentBody?: (options: {
+    operationName: string;
+    manifestBody: string;
+    actualBody: string;
+  }) => void;
+}
+export function createPersistedQueryManifestVerificationLink(
+  options: CreatePersistedQueryManifestVerificationLinkOptions,
+) {
+  const operationBodiesByName = new Map<string, string>();
+  options.manifest.operations.forEach(({ name, body }) => {
+    operationBodiesByName.set(name, body);
+  });
+
+  function checkDocument(document: DocumentNode) {
+    const body = print(sortTopLevelDefinitions(document));
+
+    let operationName: string | null = null;
+    for (const definition of document.definitions) {
+      if (definition.kind === "OperationDefinition") {
+        if (!definition.name) {
+          options.onAnonymousOperation?.({ body });
+          return;
+        }
+        if (operationName !== null) {
+          options.onMultiOperationDocument?.({ body });
+          return;
+        }
+        operationName = definition.name.value;
+      }
+    }
+    if (operationName === null) {
+      options.onNoOperationsDocument?.({ body });
+      return;
+    }
+    const manifestBody = operationBodiesByName.get(operationName);
+    if (manifestBody === undefined) {
+      options.onUnknownOperationName?.({ operationName, body });
+      return;
+    }
+
+    if (body !== manifestBody) {
+      options.onDifferentBody?.({
+        operationName,
+        manifestBody,
+        actualBody: body,
+      });
+      return;
+    }
+  }
+
+  return new ApolloLink((operation, forward) => {
+    checkDocument(operation.query);
+    return forward(operation);
+  });
 }
