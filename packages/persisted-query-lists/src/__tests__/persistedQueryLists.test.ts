@@ -3,7 +3,7 @@ import {
   sortTopLevelDefinitions,
   generatePersistedQueryIdsFromManifest,
   createPersistedQueryManifestVerificationLink,
-  CreatePersistedQueryManifestVerificationLinkOptions,
+  type CreatePersistedQueryManifestVerificationLinkOptions,
 } from "..";
 
 import {
@@ -174,172 +174,188 @@ describe("persisted-query-lists", () => {
   });
 
   describe("createPersistedQueryManifestVerificationLink", () => {
-    async function runAgainstLink(
-      options: Omit<
-        CreatePersistedQueryManifestVerificationLinkOptions,
-        "loadManifest"
-      >,
-      document: string,
-    ) {
-      const manifest = {
-        format: "apollo-persisted-query-manifest",
-        version: 1,
-        operations: [
-          {
-            id: "foobar-id",
-            name: "Foobar",
-            type: "query",
-            body: "query Foobar {\n  f\n}",
-          },
-        ],
-      };
+    describe("basic tests", () => {
+      async function runAgainstLink(
+        options: Omit<
+          CreatePersistedQueryManifestVerificationLinkOptions,
+          "loadManifest"
+        >,
+        document: string,
+      ) {
+        const manifest = {
+          format: "apollo-persisted-query-manifest",
+          version: 1,
+          operations: [
+            {
+              id: "foobar-id",
+              name: "Foobar",
+              type: "query",
+              body: "query Foobar {\n  f\n}",
+            },
+          ],
+        };
 
+        const link = createPersistedQueryManifestVerificationLink({
+          // Make the load truly async.
+          loadManifest: () =>
+            new Promise((resolve) => setTimeout(() => resolve(manifest), 1)),
+          ...options,
+        }).concat(returnExtensionsAndContextLink);
+
+        return await toPromise(execute(link, { query: parse(document) }));
+      }
+
+      it("anonymous operation", async () => {
+        const onAnonymousOperation = jest.fn();
+        const onMultiOperationDocument = jest.fn();
+        const onNoOperationsDocument = jest.fn();
+        const onUnknownOperationName = jest.fn();
+        const onDifferentBody = jest.fn();
+        await runAgainstLink(
+          {
+            onAnonymousOperation,
+            onMultiOperationDocument,
+            onNoOperationsDocument,
+            onUnknownOperationName,
+            onDifferentBody,
+          },
+          "{ x }",
+        );
+        expect(onAnonymousOperation).toHaveBeenCalled();
+        expect(onMultiOperationDocument).not.toHaveBeenCalled();
+        expect(onNoOperationsDocument).not.toHaveBeenCalled();
+        expect(onUnknownOperationName).not.toHaveBeenCalled();
+        expect(onDifferentBody).not.toHaveBeenCalled();
+      });
+
+      it("multi-operation document", async () => {
+        const onAnonymousOperation = jest.fn();
+        const onMultiOperationDocument = jest.fn();
+        const onNoOperationsDocument = jest.fn();
+        const onUnknownOperationName = jest.fn();
+        const onDifferentBody = jest.fn();
+        await runAgainstLink(
+          {
+            onAnonymousOperation,
+            onMultiOperationDocument,
+            onNoOperationsDocument,
+            onUnknownOperationName,
+            onDifferentBody,
+          },
+          "query Q { a } query QQ { b }",
+        );
+        expect(onAnonymousOperation).not.toHaveBeenCalled();
+        expect(onMultiOperationDocument).toHaveBeenCalled();
+        expect(onNoOperationsDocument).not.toHaveBeenCalled();
+        expect(onUnknownOperationName).not.toHaveBeenCalled();
+        expect(onDifferentBody).not.toHaveBeenCalled();
+      });
+
+      it("no-operations document", async () => {
+        const onAnonymousOperation = jest.fn();
+        const onMultiOperationDocument = jest.fn();
+        const onNoOperationsDocument = jest.fn();
+        const onUnknownOperationName = jest.fn();
+        const onDifferentBody = jest.fn();
+        await runAgainstLink(
+          {
+            onAnonymousOperation,
+            onMultiOperationDocument,
+            onNoOperationsDocument,
+            onUnknownOperationName,
+            onDifferentBody,
+          },
+          "fragment F on T { f }",
+        );
+        expect(onAnonymousOperation).not.toHaveBeenCalled();
+        expect(onMultiOperationDocument).not.toHaveBeenCalled();
+        expect(onNoOperationsDocument).toHaveBeenCalled();
+        expect(onUnknownOperationName).not.toHaveBeenCalled();
+        expect(onDifferentBody).not.toHaveBeenCalled();
+      });
+
+      it("unknown operation name", async () => {
+        const onAnonymousOperation = jest.fn();
+        const onMultiOperationDocument = jest.fn();
+        const onNoOperationsDocument = jest.fn();
+        const onUnknownOperationName = jest.fn();
+        const onDifferentBody = jest.fn();
+        await runAgainstLink(
+          {
+            onAnonymousOperation,
+            onMultiOperationDocument,
+            onNoOperationsDocument,
+            onUnknownOperationName,
+            onDifferentBody,
+          },
+          "query Foo { f }",
+        );
+        expect(onAnonymousOperation).not.toHaveBeenCalled();
+        expect(onMultiOperationDocument).not.toHaveBeenCalled();
+        expect(onNoOperationsDocument).not.toHaveBeenCalled();
+        expect(onUnknownOperationName).toHaveBeenCalled();
+        expect(onDifferentBody).not.toHaveBeenCalled();
+      });
+
+      it("different body", async () => {
+        const onAnonymousOperation = jest.fn();
+        const onMultiOperationDocument = jest.fn();
+        const onNoOperationsDocument = jest.fn();
+        const onUnknownOperationName = jest.fn();
+        const onDifferentBody = jest.fn();
+        await runAgainstLink(
+          {
+            onAnonymousOperation,
+            onMultiOperationDocument,
+            onNoOperationsDocument,
+            onUnknownOperationName,
+            onDifferentBody,
+          },
+          "query Foobar { different }",
+        );
+        expect(onAnonymousOperation).not.toHaveBeenCalled();
+        expect(onMultiOperationDocument).not.toHaveBeenCalled();
+        expect(onNoOperationsDocument).not.toHaveBeenCalled();
+        expect(onUnknownOperationName).not.toHaveBeenCalled();
+        expect(onDifferentBody).toHaveBeenCalled();
+      });
+
+      it("operation on the manifest", async () => {
+        const onAnonymousOperation = jest.fn();
+        const onMultiOperationDocument = jest.fn();
+        const onNoOperationsDocument = jest.fn();
+        const onUnknownOperationName = jest.fn();
+        const onDifferentBody = jest.fn();
+        await runAgainstLink(
+          {
+            onAnonymousOperation,
+            onMultiOperationDocument,
+            onNoOperationsDocument,
+            onUnknownOperationName,
+            onDifferentBody,
+          },
+          "query Foobar {\n  f\n}",
+        );
+        expect(onAnonymousOperation).not.toHaveBeenCalled();
+        expect(onMultiOperationDocument).not.toHaveBeenCalled();
+        expect(onNoOperationsDocument).not.toHaveBeenCalled();
+        expect(onUnknownOperationName).not.toHaveBeenCalled();
+        expect(onDifferentBody).not.toHaveBeenCalled();
+      });
+    });
+
+    it("error loading manifest", async () => {
       const link = createPersistedQueryManifestVerificationLink({
         // Make the load truly async.
         loadManifest: () =>
-          new Promise((resolve) => setTimeout(() => resolve(manifest), 1)),
-        ...options,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("nope")), 1),
+          ),
       }).concat(returnExtensionsAndContextLink);
 
-      return await toPromise(execute(link, { query: parse(document) }));
-    }
-
-    it("anonymous operation", async () => {
-      const onAnonymousOperation = jest.fn();
-      const onMultiOperationDocument = jest.fn();
-      const onNoOperationsDocument = jest.fn();
-      const onUnknownOperationName = jest.fn();
-      const onDifferentBody = jest.fn();
-      await runAgainstLink(
-        {
-          onAnonymousOperation,
-          onMultiOperationDocument,
-          onNoOperationsDocument,
-          onUnknownOperationName,
-          onDifferentBody,
-        },
-        "{ x }",
-      );
-      expect(onAnonymousOperation).toHaveBeenCalled();
-      expect(onMultiOperationDocument).not.toHaveBeenCalled();
-      expect(onNoOperationsDocument).not.toHaveBeenCalled();
-      expect(onUnknownOperationName).not.toHaveBeenCalled();
-      expect(onDifferentBody).not.toHaveBeenCalled();
-    });
-
-    it("multi-operation document", async () => {
-      const onAnonymousOperation = jest.fn();
-      const onMultiOperationDocument = jest.fn();
-      const onNoOperationsDocument = jest.fn();
-      const onUnknownOperationName = jest.fn();
-      const onDifferentBody = jest.fn();
-      await runAgainstLink(
-        {
-          onAnonymousOperation,
-          onMultiOperationDocument,
-          onNoOperationsDocument,
-          onUnknownOperationName,
-          onDifferentBody,
-        },
-        "query Q { a } query QQ { b }",
-      );
-      expect(onAnonymousOperation).not.toHaveBeenCalled();
-      expect(onMultiOperationDocument).toHaveBeenCalled();
-      expect(onNoOperationsDocument).not.toHaveBeenCalled();
-      expect(onUnknownOperationName).not.toHaveBeenCalled();
-      expect(onDifferentBody).not.toHaveBeenCalled();
-    });
-
-    it("no-operations document", async () => {
-      const onAnonymousOperation = jest.fn();
-      const onMultiOperationDocument = jest.fn();
-      const onNoOperationsDocument = jest.fn();
-      const onUnknownOperationName = jest.fn();
-      const onDifferentBody = jest.fn();
-      await runAgainstLink(
-        {
-          onAnonymousOperation,
-          onMultiOperationDocument,
-          onNoOperationsDocument,
-          onUnknownOperationName,
-          onDifferentBody,
-        },
-        "fragment F on T { f }",
-      );
-      expect(onAnonymousOperation).not.toHaveBeenCalled();
-      expect(onMultiOperationDocument).not.toHaveBeenCalled();
-      expect(onNoOperationsDocument).toHaveBeenCalled();
-      expect(onUnknownOperationName).not.toHaveBeenCalled();
-      expect(onDifferentBody).not.toHaveBeenCalled();
-    });
-
-    it("unknown operation name", async () => {
-      const onAnonymousOperation = jest.fn();
-      const onMultiOperationDocument = jest.fn();
-      const onNoOperationsDocument = jest.fn();
-      const onUnknownOperationName = jest.fn();
-      const onDifferentBody = jest.fn();
-      await runAgainstLink(
-        {
-          onAnonymousOperation,
-          onMultiOperationDocument,
-          onNoOperationsDocument,
-          onUnknownOperationName,
-          onDifferentBody,
-        },
-        "query Foo { f }",
-      );
-      expect(onAnonymousOperation).not.toHaveBeenCalled();
-      expect(onMultiOperationDocument).not.toHaveBeenCalled();
-      expect(onNoOperationsDocument).not.toHaveBeenCalled();
-      expect(onUnknownOperationName).toHaveBeenCalled();
-      expect(onDifferentBody).not.toHaveBeenCalled();
-    });
-
-    it("different body", async () => {
-      const onAnonymousOperation = jest.fn();
-      const onMultiOperationDocument = jest.fn();
-      const onNoOperationsDocument = jest.fn();
-      const onUnknownOperationName = jest.fn();
-      const onDifferentBody = jest.fn();
-      await runAgainstLink(
-        {
-          onAnonymousOperation,
-          onMultiOperationDocument,
-          onNoOperationsDocument,
-          onUnknownOperationName,
-          onDifferentBody,
-        },
-        "query Foobar { different }",
-      );
-      expect(onAnonymousOperation).not.toHaveBeenCalled();
-      expect(onMultiOperationDocument).not.toHaveBeenCalled();
-      expect(onNoOperationsDocument).not.toHaveBeenCalled();
-      expect(onUnknownOperationName).not.toHaveBeenCalled();
-      expect(onDifferentBody).toHaveBeenCalled();
-    });
-
-    it("operation on the manifest", async () => {
-      const onAnonymousOperation = jest.fn();
-      const onMultiOperationDocument = jest.fn();
-      const onNoOperationsDocument = jest.fn();
-      const onUnknownOperationName = jest.fn();
-      const onDifferentBody = jest.fn();
-      await runAgainstLink(
-        {
-          onAnonymousOperation,
-          onMultiOperationDocument,
-          onNoOperationsDocument,
-          onUnknownOperationName,
-          onDifferentBody,
-        },
-        "query Foobar {\n  f\n}",
-      );
-      expect(onAnonymousOperation).not.toHaveBeenCalled();
-      expect(onMultiOperationDocument).not.toHaveBeenCalled();
-      expect(onNoOperationsDocument).not.toHaveBeenCalled();
-      expect(onUnknownOperationName).not.toHaveBeenCalled();
-      expect(onDifferentBody).not.toHaveBeenCalled();
+      await expect(
+        toPromise(execute(link, { query: parse("{__typename}") })),
+      ).rejects.toThrow("nope");
     });
   });
 });
