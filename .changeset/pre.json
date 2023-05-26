@@ -21,6 +21,7 @@
     "@apollo/utils.withrequired": "3.0.0"
   },
   "changesets": [
-    "khaki-cows-suffer"
+    "khaki-cows-suffer",
+    "mighty-rockets-sing"
   ]
 }
