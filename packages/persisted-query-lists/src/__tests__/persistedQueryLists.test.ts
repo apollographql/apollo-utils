@@ -177,7 +177,7 @@ describe("persisted-query-lists", () => {
     async function runAgainstLink(
       options: Omit<
         CreatePersistedQueryManifestVerificationLinkOptions,
-        "manifest"
+        "loadManifest"
       >,
       document: string,
     ) {
@@ -195,7 +195,9 @@ describe("persisted-query-lists", () => {
       };
 
       const link = createPersistedQueryManifestVerificationLink({
-        manifest,
+        // Make the load truly async.
+        loadManifest: () =>
+          new Promise((resolve) => setTimeout(() => resolve(manifest), 1)),
         ...options,
       }).concat(returnExtensionsAndContextLink);
 

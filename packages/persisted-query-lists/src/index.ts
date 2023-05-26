@@ -1,5 +1,6 @@
 import { print, type DocumentNode } from "graphql";
 import { ApolloLink } from "@apollo/client/link/core";
+import { Observable, ObservableSubscription } from "@apollo/client/core";
 
 // This type is copied from `@apollo/client/link/persisted-queries`; to avoid a
 // dependency on a particular version `@apollo/client` we copy it here.
@@ -113,8 +114,20 @@ export function generatePersistedQueryIdsFromManifest(
   };
 }
 
+// The subset of the fields of a Persisted Query Manifest needed by the
+// verification link. (Using the entire manifest is fine, but if you're trying
+// to save space you can strip down to just these fields.)
+export interface PersistedQueryManifestForVerification {
+  operations: { name: string; body: string }[];
+}
 export interface CreatePersistedQueryManifestVerificationLinkOptions {
-  manifest: { operations: { name: string; body: string }[] };
+  // Manifests can be large, so we allow them to be loaded asynchronously. (For
+  // example, you might make the same webpack bundle for multiple environments
+  // but only enable this link in a QA environment; this lets you keep the
+  // manifest out of the bundle.) This function is invoked as soon as the link
+  // is created, not on the first operation: it's an async load, not a lazy
+  // load.
+  loadManifest: () => Promise<PersistedQueryManifestForVerification>;
   onAnonymousOperation?: (options: { body: string }) => void;
   onMultiOperationDocument?: (options: { body: string }) => void;
   onNoOperationsDocument?: (options: { body: string }) => void;
@@ -131,12 +144,20 @@ export interface CreatePersistedQueryManifestVerificationLinkOptions {
 export function createPersistedQueryManifestVerificationLink(
   options: CreatePersistedQueryManifestVerificationLinkOptions,
 ) {
-  const operationBodiesByName = new Map<string, string>();
-  options.manifest.operations.forEach(({ name, body }) => {
-    operationBodiesByName.set(name, body);
-  });
+  const operationBodiesByNamePromise = options
+    .loadManifest()
+    .then((manifest) => {
+      const operationBodiesByName = new Map<string, string>();
+      manifest.operations.forEach(({ name, body }) => {
+        operationBodiesByName.set(name, body);
+      });
+      return operationBodiesByName;
+    });
 
-  function checkDocument(document: DocumentNode) {
+  function checkDocument(
+    document: DocumentNode,
+    operationBodiesByName: Map<string, string>,
+  ) {
     const body = print(sortTopLevelDefinitions(document));
 
     let operationName: string | null = null;
@@ -174,7 +195,28 @@ export function createPersistedQueryManifestVerificationLink(
   }
 
   return new ApolloLink((operation, forward) => {
-    checkDocument(operation.query);
-    return forward(operation);
+    // Implementation borrowed from `@apollo/client/link/context`.
+    return new Observable((observer) => {
+      let handle: ObservableSubscription;
+      let closed = false;
+      operationBodiesByNamePromise
+        .then((operationBodiesByName) => {
+          checkDocument(operation.query, operationBodiesByName);
+
+          // if the observer is already closed, no need to subscribe.
+          if (closed) return;
+          handle = forward(operation).subscribe({
+            next: observer.next.bind(observer),
+            error: observer.error.bind(observer),
+            complete: observer.complete.bind(observer),
+          });
+        })
+        .catch(observer.error.bind(observer));
+
+      return () => {
+        closed = true;
+        if (handle) handle.unsubscribe();
+      };
+    });
   });
 }
