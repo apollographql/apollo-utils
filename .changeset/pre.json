@@ -20,5 +20,7 @@
     "@apollo/utils.usagereporting": "3.0.0",
     "@apollo/utils.withrequired": "3.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "khaki-cows-suffer"
+  ]
 }
