@@ -1,6 +1,6 @@
 {
   "name": "@apollo/generate-persisted-query-manifest",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Creates a Persisted Query Manifest from an Apollo Client Web project",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
     "node": ">=16"
   },
   "dependencies": {
-    "@apollo/persisted-query-lists": "^1.0.0-alpha.1",
+    "@apollo/persisted-query-lists": "^1.0.0-alpha.2",
     "@graphql-tools/graphql-tag-pluck": "^8.0.0",
     "glob": "^10.2.6",
     "lodash": "^4.17.21"

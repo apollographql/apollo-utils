@@ -21,7 +21,9 @@
     "@apollo/utils.withrequired": "3.0.0"
   },
   "changesets": [
+    "great-onions-punch",
     "khaki-cows-suffer",
-    "mighty-rockets-sing"
+    "mighty-rockets-sing",
+    "selfish-knives-flow"
   ]
 }
