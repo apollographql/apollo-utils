@@ -1,5 +1,16 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.0.0-alpha.2
+
+### Patch Changes
+
+- [#293](https://github.com/apollographql/apollo-utils/pull/293) [`bef53e4`](https://github.com/apollographql/apollo-utils/commit/bef53e4cfc173eefff3b773335002627aaebc35b) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Add `@apollo/persisted-query-lists` as a dependency to fix missing dependency issue.
+
+- [#291](https://github.com/apollographql/apollo-utils/pull/291) [`f72c2d0`](https://github.com/apollographql/apollo-utils/commit/f72c2d08da2e14d477e9c8528d47c2f219554537) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Allow v3.8.0 prerelease versions of @apollo/client.
+
+- Updated dependencies [[`f72c2d0`](https://github.com/apollographql/apollo-utils/commit/f72c2d08da2e14d477e9c8528d47c2f219554537)]:
+  - @apollo/persisted-query-lists@1.0.0-alpha.2
+
 ## 1.0.0-alpha.1
 
 ### Patch Changes
