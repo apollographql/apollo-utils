@@ -24,6 +24,7 @@
     "node": ">=16"
   },
   "dependencies": {
+    "@apollo/persisted-query-lists": "^1.0.0-alpha.1",
     "@graphql-tools/graphql-tag-pluck": "^8.0.0",
     "glob": "^10.2.6",
     "lodash": "^4.17.21"
