@@ -19,12 +19,24 @@ import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
-export interface GeneratePersistedQueryManifestOptions {
-  files?: string[];
+type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
-  globInclude?: string[];
-  globExclude?: string[];
+export interface PersistedQueryManifestConfig {
+  /**
+   * Paths to your GraphQL documents: queries, mutations, subscriptions, and fragments.
+   */
+  documents?: string | string[];
+
+  /**
+   * Paths that should be ignored when searching for your GraphQL documents.
+   */
+  documentIgnorePatterns?: string | string[];
 }
+
+type DefaultPersistedQueryManifestConfig = RequireKeys<
+  PersistedQueryManifestConfig,
+  "documents" | "documentIgnorePatterns"
+>;
 
 export interface PersistedQueryManifestOperation {
   id: string;
@@ -32,28 +44,33 @@ export interface PersistedQueryManifestOperation {
   type: "query" | "mutation" | "subscription";
   body: string;
 }
+
 export interface PersistedQueryManifest {
   format: "apollo-persisted-query-manifest";
   version: 1;
   operations: PersistedQueryManifestOperation[];
 }
 
-export async function generatePersistedQueryManifest(
-  options: GeneratePersistedQueryManifestOptions = {},
-): Promise<PersistedQueryManifest> {
-  const files = new Set<string>(options.files ?? []);
-  const globInclude = options.globInclude ?? [
-    "src/**/*.{graphql,tsx,jsx,ts,js}",
-  ];
-  const globExclude = options.globExclude ?? [
+export const defaults: DefaultPersistedQueryManifestConfig = {
+  documents: "src/**/*.{graphql,js,jsx,ts,tsx}",
+  documentIgnorePatterns: [
+    "**/*.d.ts",
     "**/*.spec.{js,jsx,ts,tsx}",
     "**/*.story.{js,jsx,ts,tsx}",
     "**/*.test.{js,jsx,ts,tsx}",
-  ];
-  for (const include of globInclude) {
-    for (const f of await glob(include, { ignore: globExclude ?? [] })) {
-      files.add(f);
-    }
+  ],
+};
+
+export async function generatePersistedQueryManifest(
+  config: PersistedQueryManifestConfig = {},
+): Promise<PersistedQueryManifest> {
+  const files = new Set<string>();
+  const paths = config.documents ?? defaults.documents;
+  const ignorePaths =
+    config.documentIgnorePatterns ?? defaults.documentIgnorePatterns;
+
+  for (const f of await glob(paths, { ignore: ignorePaths })) {
+    files.add(f);
   }
 
   const documents = [...files].flatMap((filePath) => {

@@ -21,7 +21,7 @@ const explorer = cosmiconfig(moduleName, {
 
 explorer
   .search()
-  .then(() => generatePersistedQueryManifest())
+  .then((result) => generatePersistedQueryManifest(result?.config))
   .then((manifest) => console.log(JSON.stringify(manifest, null, 2)))
   .catch((e) => {
     console.error(e);
