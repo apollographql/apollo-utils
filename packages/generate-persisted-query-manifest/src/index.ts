@@ -17,7 +17,7 @@ import {
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
@@ -31,11 +31,16 @@ export interface PersistedQueryManifestConfig {
    * Paths that should be ignored when searching for your GraphQL documents.
    */
   documentIgnorePatterns?: string | string[];
+
+  /**
+   * Path where the manifest file will be written.
+   */
+  output?: string;
 }
 
 type DefaultPersistedQueryManifestConfig = RequireKeys<
   PersistedQueryManifestConfig,
-  "documents" | "documentIgnorePatterns"
+  "documents" | "documentIgnorePatterns" | "output"
 >;
 
 export interface PersistedQueryManifestOperation {
@@ -59,11 +64,12 @@ export const defaults: DefaultPersistedQueryManifestConfig = {
     "**/*.story.{js,jsx,ts,tsx}",
     "**/*.test.{js,jsx,ts,tsx}",
   ],
+  output: "persisted-query-manifest.json",
 };
 
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
-): Promise<PersistedQueryManifest> {
+): Promise<void> {
   const files = new Set<string>();
   const paths = config.documents ?? defaults.documents;
   const ignorePaths =
@@ -157,9 +163,16 @@ export async function generatePersistedQueryManifest(
     await client.query({ query: document, fetchPolicy: "no-cache" });
   }
 
-  return {
-    format: "apollo-persisted-query-manifest",
-    version: 1,
-    operations: manifestOperations,
-  };
+  writeFileSync(
+    config.output ?? defaults.output,
+    JSON.stringify(
+      {
+        format: "apollo-persisted-query-manifest",
+        version: 1,
+        operations: manifestOperations,
+      },
+      null,
+      2,
+    ),
+  );
 }
