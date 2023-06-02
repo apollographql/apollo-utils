@@ -23,23 +23,8 @@ const explorer = cosmiconfig(moduleName, {
   },
 });
 
-async function getUserConfig(cliOptions) {
-  const { config: configPath } = cliOptions;
-
+async function getUserConfig({ config: configPath }) {
   return configPath ? explorer.load(configPath) : explorer.search();
-}
-
-async function main(cliOptions) {
-  try {
-    const result = await getUserConfig(cliOptions);
-    const outputPath = result?.config.output ?? defaults.output;
-
-    await generatePersistedQueryManifest(result?.config);
-    console.log(`Written to ${outputPath}`);
-  } catch (e) {
-    console.error(e);
-    process.exit(1);
-  }
 }
 
 program
@@ -47,6 +32,17 @@ program
   .description("Generate a persisted query manifest file")
   .option("-c, --config <path>", "path to the config file")
   .version(version, "-v, --version")
-  .parse();
+  .action(async (cliOptions) => {
+    try {
+      const result = await getUserConfig(cliOptions);
+      const outputPath = result?.config.output ?? defaults.output;
 
-main(program.opts());
+      await generatePersistedQueryManifest(result?.config);
+      console.log(`Written to ${outputPath}`);
+    } catch (e) {
+      console.error(e);
+      process.exit(1);
+    }
+  });
+
+program.parse();
