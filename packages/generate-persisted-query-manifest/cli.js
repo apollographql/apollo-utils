@@ -33,16 +33,11 @@ program
   .option("-c, --config <path>", "path to the config file")
   .version(version, "-v, --version")
   .action(async (cliOptions) => {
-    try {
-      const result = await getUserConfig(cliOptions);
-      const outputPath = result?.config.output ?? defaults.output;
+    const result = await getUserConfig(cliOptions);
+    const outputPath = result?.config.output ?? defaults.output;
 
-      await generatePersistedQueryManifest(result?.config);
-      console.log(`Written to ${outputPath}`);
-    } catch (e) {
-      console.error(e);
-      process.exit(1);
-    }
+    await generatePersistedQueryManifest(result?.config);
+    console.log(`Written to ${outputPath}`);
   });
 
 program.parse();
