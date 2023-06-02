@@ -1,5 +1,11 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.0.0-alpha.4
+
+### Patch Changes
+
+- [#295](https://github.com/apollographql/apollo-utils/pull/295) [`c41dd06`](https://github.com/apollographql/apollo-utils/commit/c41dd06ccb0d4b89c12a9458e9cb76ccc3cb4150) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Adds support for a config file to the CLI. This can be used to determine where the CLI should look for GraphQL operations and where the manifest file should be written. The CLI has the ability to specify the path to the config file.
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes
