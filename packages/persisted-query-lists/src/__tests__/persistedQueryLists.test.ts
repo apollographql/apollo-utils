@@ -86,7 +86,9 @@ describe("persisted-query-lists", () => {
       };
 
       const link = createPersistedQueryLink(
-        generatePersistedQueryIdsFromManifest({ manifest }),
+        generatePersistedQueryIdsFromManifest({
+          loadManifest: () => Promise.resolve(manifest),
+        }),
       ).concat(returnExtensionsAndContextLink);
 
       async function run(document: string) {
@@ -132,6 +134,18 @@ describe("persisted-query-lists", () => {
           },
         }
       `);
+    });
+
+    it("error loading manifest", async () => {
+      const link = createPersistedQueryLink(
+        generatePersistedQueryIdsFromManifest({
+          loadManifest: () => Promise.reject(new Error("nope")),
+        }),
+      ).concat(returnExtensionsAndContextLink);
+
+      await expect(
+        toPromise(execute(link, { query: parse("{__typename}") })),
+      ).rejects.toThrow("nope");
     });
   });
 

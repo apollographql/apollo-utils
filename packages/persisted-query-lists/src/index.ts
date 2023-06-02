@@ -67,18 +67,42 @@ export function sortTopLevelDefinitions(query: DocumentNode): DocumentNode {
   };
 }
 
+// The subset of the fields of a Persisted Query Manifest needed by
+// generatePersistedQueryIdsFromManifest. (Using the entire manifest is fine,
+// but if you're trying to save space you can strip down to just these fields: a
+// big savings, as it leaves out all the bodies!)
+export interface PersistedQueryManifestForGeneratingPersistedQueryIds {
+  operations: { id: string; name: string }[];
+}
+
 export interface GeneratePersistedQueryIdsFromManifestOptions {
-  manifest: { operations: { id: string; name: string }[] };
+  // Manifests can be large, so we allow them to be loaded asynchronously.
+  //  This function is invoked as soon as the link
+  // is created, not on the first operation: it's an async load, not a lazy
+  // load.
+  loadManifest: () => Promise<PersistedQueryManifestForGeneratingPersistedQueryIds>;
 }
 export function generatePersistedQueryIdsFromManifest(
   options: GeneratePersistedQueryIdsFromManifestOptions,
 ) {
-  const operationIdsByName = new Map<string, string>();
-  options.manifest.operations.forEach(({ name, id }) => {
-    operationIdsByName.set(name, id);
+  const operationIdsByNamePromise = options.loadManifest().then((manifest) => {
+    const operationIdsByName = new Map<string, string>();
+    manifest.operations.forEach(({ name, id }) => {
+      operationIdsByName.set(name, id);
+    });
+    return operationIdsByName;
   });
+  // If the load fails before the first time we try to run an operation, we
+  // don't want the JS environment to chide us for having an unhandled
+  // rejection: we'll handle the rejection when we `await` below during our
+  // first operation! Put a no-op catch handler on the Promise instead. This
+  // doesn't mean the Promise won't reject on error: the `await` below will
+  // still throw.
+  operationIdsByNamePromise.catch(() => {});
 
-  function generateHash(document: DocumentNode): string {
+  async function generateHash(document: DocumentNode): Promise<string> {
+    const operationIdsByName = await operationIdsByNamePromise;
+
     let operationName: string | null = null;
     for (const definition of document.definitions) {
       if (definition.kind === "OperationDefinition") {
@@ -153,6 +177,13 @@ export function createPersistedQueryManifestVerificationLink(
       });
       return operationBodiesByName;
     });
+  // If the load fails before the first time we try to run an operation, we
+  // don't want the JS environment to chide us for having an unhandled
+  // rejection: we'll handle the rejection when we `await` below during our
+  // first operation! Put a no-op catch handler on the Promise instead. This
+  // doesn't mean the Promise won't reject on error: the `await` below will
+  // still throw.
+  operationBodiesByNamePromise.catch(() => {});
 
   function checkDocument(
     document: DocumentNode,
