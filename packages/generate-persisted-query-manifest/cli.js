@@ -5,6 +5,7 @@ const { cosmiconfig } = require("cosmiconfig");
 const { generatePersistedQueryManifest, defaults } = require("./dist/index.js");
 const { TypeScriptLoader } = require("cosmiconfig-typescript-loader");
 const { version } = require("./package.json");
+const { writeFileSync } = require("node:fs");
 
 const program = new Command();
 
@@ -36,8 +37,10 @@ program
     const result = await getUserConfig(cliOptions);
     const outputPath = result?.config.output ?? defaults.output;
 
-    await generatePersistedQueryManifest(result?.config);
-    console.log(`Written to ${outputPath}`);
+    const manifest = await generatePersistedQueryManifest(result?.config);
+    writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
+
+    console.log(`Manifest written to ${outputPath}`);
   });
 
 program.parse();

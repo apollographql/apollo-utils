@@ -17,7 +17,7 @@ import {
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
@@ -69,7 +69,7 @@ export const defaults: DefaultPersistedQueryManifestConfig = {
 
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
-): Promise<void> {
+): Promise<PersistedQueryManifest> {
   const files = new Set<string>();
   const paths = config.documents ?? defaults.documents;
   const ignorePaths =
@@ -163,16 +163,9 @@ export async function generatePersistedQueryManifest(
     await client.query({ query: document, fetchPolicy: "no-cache" });
   }
 
-  writeFileSync(
-    config.output ?? defaults.output,
-    JSON.stringify(
-      {
-        format: "apollo-persisted-query-manifest",
-        version: 1,
-        operations: manifestOperations,
-      },
-      null,
-      2,
-    ),
-  );
+  return {
+    format: "apollo-persisted-query-manifest",
+    version: 1,
+    operations: manifestOperations,
+  };
 }
