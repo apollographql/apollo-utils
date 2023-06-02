@@ -21,6 +21,7 @@
     "@apollo/utils.withrequired": "3.0.0"
   },
   "changesets": [
+    "cuddly-pillows-mix",
     "great-onions-punch",
     "khaki-cows-suffer",
     "mighty-rockets-sing",
