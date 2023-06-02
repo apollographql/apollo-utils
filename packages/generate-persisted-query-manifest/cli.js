@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
+const { Command } = require("commander");
 const { cosmiconfig } = require("cosmiconfig");
 const { generatePersistedQueryManifest, defaults } = require("./dist/index.js");
 const { TypeScriptLoader } = require("cosmiconfig-typescript-loader");
+
+const program = new Command();
 
 const moduleName = "persisted-query-manifest";
 const supportedExtensions = ["json", "yml", "yaml", "js", "ts", "cjs"];
@@ -19,9 +22,15 @@ const explorer = cosmiconfig(moduleName, {
   },
 });
 
-async function main() {
+async function getUserConfig(cliOptions) {
+  const { config: configPath } = cliOptions;
+
+  return configPath ? explorer.load(configPath) : explorer.search();
+}
+
+async function main(cliOptions) {
   try {
-    const result = await explorer.search();
+    const result = await getUserConfig(cliOptions);
     const outputPath = result?.config.output ?? defaults.output;
 
     await generatePersistedQueryManifest(result?.config);
@@ -32,4 +41,10 @@ async function main() {
   }
 }
 
-main();
+program
+  .name("generate-persisted-query-manifest")
+  .description("Generate a persisted query manifest file")
+  .option("-c, --config <path>", "path to the config file")
+  .parse();
+
+main(program.opts());
