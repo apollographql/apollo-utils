@@ -4,6 +4,7 @@ const { Command } = require("commander");
 const { cosmiconfig } = require("cosmiconfig");
 const { generatePersistedQueryManifest, defaults } = require("./dist/index.js");
 const { TypeScriptLoader } = require("cosmiconfig-typescript-loader");
+const { version } = require("./package.json");
 
 const program = new Command();
 
@@ -45,6 +46,7 @@ program
   .name("generate-persisted-query-manifest")
   .description("Generate a persisted query manifest file")
   .option("-c, --config <path>", "path to the config file")
+  .version(version, "-v, --version")
   .parse();
 
 main(program.opts());
