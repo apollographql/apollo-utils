@@ -57,7 +57,7 @@ export interface PersistedQueryManifest {
 }
 
 export const defaults: DefaultPersistedQueryManifestConfig = {
-  documents: "src/**/*.{graphql,js,jsx,ts,tsx}",
+  documents: "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
   documentIgnorePatterns: [
     "**/*.d.ts",
     "**/*.spec.{js,jsx,ts,tsx}",
