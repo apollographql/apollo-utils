@@ -1,5 +1,11 @@
 # @apollo/persisted-query-lists
 
+## 1.0.0-alpha.3
+
+### Patch Changes
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`fb4f6da`](https://github.com/apollographql/apollo-utils/commit/fb4f6da57acf48ba6eba90011a42d8a9397f6649) Thanks [@glasser](https://github.com/glasser)! - Change `generatePersistedQueryIdsFromManifest` to take an async `loadManifest`. Ensure Promises don't have unhandled rejections.
+
 ## 1.0.0-alpha.2
 
 ### Patch Changes
