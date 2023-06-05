@@ -21,7 +21,7 @@
     "node": ">=16"
   },
   "dependencies": {
-    "@apollo/usage-reporting-protobuf": "^4.0.0",
+    "@apollo/usage-reporting-protobuf": "^4.1.0",
     "@apollo/utils.dropunuseddefinitions": "^3.0.0",
     "@apollo/utils.stripsensitiveliterals": "^3.0.0",
     "@apollo/utils.printwithreducedwhitespace": "^3.0.0",
