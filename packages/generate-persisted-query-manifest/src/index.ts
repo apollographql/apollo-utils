@@ -94,6 +94,31 @@ const colors = {
   name: chalk.yellow,
 };
 
+function processFile(filepath: string): DocumentSource[] {
+  const file = vfile({
+    path: filepath,
+    contents: readFileSync(filepath, "utf-8"),
+  });
+
+  if (file.extname === ".graphql") {
+    return [
+      {
+        node: parse(file.toString()),
+        file,
+        location: { line: 1, column: 1 },
+      },
+    ];
+  }
+
+  return gqlPluckFromCodeStringSync(filepath, file.toString()).map(
+    (source) => ({
+      node: parse(source.body),
+      file,
+      location: source.locationOffset,
+    }),
+  );
+}
+
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
 ): Promise<PersistedQueryManifest> {
@@ -106,30 +131,7 @@ export async function generatePersistedQueryManifest(
     filePaths.add(f);
   }
 
-  const sources: DocumentSource[] = [...filePaths].flatMap((filePath) => {
-    const file = vfile({
-      path: filePath,
-      contents: readFileSync(filePath, "utf-8"),
-    });
-
-    if (file.extname === ".graphql") {
-      return [
-        {
-          node: parse(file.toString()),
-          file,
-          location: { line: 1, column: 1 },
-        },
-      ];
-    }
-
-    return gqlPluckFromCodeStringSync(filePath, file.toString()).map(
-      (source) => ({
-        node: parse(source.body),
-        file,
-        location: source.locationOffset,
-      }),
-    );
-  });
+  const sources = [...filePaths].flatMap(processFile);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();
