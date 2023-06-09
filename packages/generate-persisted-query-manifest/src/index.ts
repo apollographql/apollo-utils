@@ -15,6 +15,7 @@ import {
   type DocumentNode,
   Kind,
   visit,
+  FragmentDefinitionNode,
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
@@ -22,6 +23,7 @@ import { readFileSync } from "node:fs";
 import vfile from "vfile";
 import type { VFile } from "vfile";
 import reporter from "vfile-reporter";
+import chalk from "chalk";
 
 type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
@@ -82,6 +84,18 @@ interface DocumentSource {
   location: Location;
 }
 
+function error(source: DocumentSource, errorMessage: string) {
+  const message = source.file.message(errorMessage, source.location);
+  message.fatal = true;
+
+  return message;
+}
+
+const colors = {
+  filepath: chalk.underline.magenta,
+  name: chalk.bold.yellow,
+};
+
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
 ): Promise<PersistedQueryManifest> {
@@ -120,11 +134,11 @@ export async function generatePersistedQueryManifest(
   });
 
   interface LocatedOperationDefinitionNode {
-    node: OperationDefinitionNode;
-    file: VFile;
+    node: OperationDefinitionNode | FragmentDefinitionNode;
+    source: DocumentSource;
   }
 
-  const seenFragmentNames = new Set<string>();
+  const fragmentsByName = new Map<string, LocatedOperationDefinitionNode>();
   const operationsByName = new Map<string, LocatedOperationDefinitionNode>();
 
   for (const source of sources) {
@@ -132,54 +146,52 @@ export async function generatePersistedQueryManifest(
       FragmentDefinition(node) {
         const name = node.name.value;
 
-        if (seenFragmentNames.has(name)) {
-          source.file.message(
-            `Duplicate fragment name: ${name}`,
-            source.location,
+        if (fragmentsByName.has(name)) {
+          error(
+            source,
+            `Fragment named "${colors.name(
+              name,
+            )}" already found in ${colors.filepath(
+              fragmentsByName.get(name)!.source.file.path,
+            )}`,
           );
+
+          return;
         }
 
-        seenFragmentNames.add(name);
+        fragmentsByName.set(name, { node, source });
       },
       OperationDefinition(node) {
         const name = node.name?.value;
 
         if (!name) {
-          const message = source.file.message(
-            "Anonymous operations are not supported",
-            source.location,
-          );
-
-          message.fatal = true;
+          error(source, "Anonymous operations are not supported");
 
           return;
         }
 
         if (operationsByName.has(name)) {
-          source.file.message(
-            `Duplicate operation name '${name}' in ${
-              operationsByName.get(name)!.file.path
-            }`,
-            source.location,
+          error(
+            source,
+            `Duplicate operation name ${colors.name(
+              name,
+            )} found in ${colors.filepath(
+              operationsByName.get(name)!.source.file.path,
+            )}`,
           );
 
           return;
         }
 
-        operationsByName.set(name, {
-          node,
-          file: source.file,
-        });
+        operationsByName.set(name, { node, source });
       },
     });
   }
 
   if (sources.some((document) => document.file.messages.length > 0)) {
-    console.error(
-      reporter([...new Set(sources.map((document) => document.file))], {
-        quiet: true,
-      }),
-    );
+    const files = [...new Set(sources.map((source) => source.file))];
+
+    console.error(reporter(files, { quiet: true }));
     process.exit(1);
   }
 
