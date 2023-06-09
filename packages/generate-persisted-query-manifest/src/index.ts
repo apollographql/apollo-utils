@@ -122,16 +122,12 @@ function processFile(filepath: string): DocumentSource[] {
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
 ): Promise<PersistedQueryManifest> {
-  const filePaths = new Set<string>();
   const paths = config.documents ?? defaults.documents;
   const ignorePaths =
     config.documentIgnorePatterns ?? defaults.documentIgnorePatterns;
 
-  for (const f of await glob(paths, { ignore: ignorePaths })) {
-    filePaths.add(f);
-  }
-
-  const sources = [...filePaths].flatMap(processFile);
+  const filepaths = await glob(paths, { ignore: ignorePaths });
+  const sources = [...new Set(filepaths)].flatMap(processFile);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();
