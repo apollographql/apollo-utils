@@ -175,7 +175,7 @@ export async function generatePersistedQueryManifest(
         if (!name) {
           addError(source, errors.anonymous(node));
 
-          return;
+          return false;
         }
 
         const sources = operationsByName.get(name) ?? [];
