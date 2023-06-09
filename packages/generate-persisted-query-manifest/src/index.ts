@@ -135,17 +135,6 @@ function getDocumentSources(filepath: string): DocumentSource[] {
   );
 }
 
-function eachSibling(
-  sources: DocumentSource[],
-  callback: (source: DocumentSource, sibling: DocumentSource) => void,
-) {
-  sources.forEach((source) => {
-    sources
-      .filter((s) => s !== source)
-      .forEach((sibling) => callback(source, sibling));
-  });
-}
-
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
 ): Promise<PersistedQueryManifest> {
@@ -165,6 +154,13 @@ export async function generatePersistedQueryManifest(
         const name = node.name.value;
         const sources = fragmentsByName.get(name) ?? [];
 
+        if (sources.length) {
+          sources.forEach((sibling) => {
+            addError(source, errors.uniqueFragment(name, sibling));
+            addError(sibling, errors.uniqueFragment(name, source));
+          });
+        }
+
         fragmentsByName.set(name, [...sources, source]);
 
         return false;
@@ -180,24 +176,19 @@ export async function generatePersistedQueryManifest(
 
         const sources = operationsByName.get(name) ?? [];
 
+        if (sources.length) {
+          sources.forEach((sibling) => {
+            addError(source, errors.uniqueOperation(name, sibling));
+            addError(sibling, errors.uniqueOperation(name, source));
+          });
+        }
+
         operationsByName.set(name, [...sources, source]);
 
         return false;
       },
     });
   }
-
-  fragmentsByName.forEach((sources, name) => {
-    eachSibling(sources, (source, sibling) => {
-      addError(source, errors.uniqueFragment(name, sibling));
-    });
-  });
-
-  operationsByName.forEach((sources, name) => {
-    eachSibling(sources, (source, sibling) => {
-      addError(source, errors.uniqueOperation(name, sibling));
-    });
-  });
 
   if (sources.some(({ file }) => file.messages.length > 0)) {
     const files = [...new Set(sources.map((source) => source.file))];
