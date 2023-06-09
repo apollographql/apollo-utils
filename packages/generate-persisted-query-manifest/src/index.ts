@@ -201,7 +201,7 @@ export async function generatePersistedQueryManifest(
     }
   });
 
-  if (sources.some((document) => document.file.messages.length > 0)) {
+  if (sources.some(({ file }) => file.messages.length > 0)) {
     const files = [...new Set(sources.map((source) => source.file))];
 
     console.error(reporter(files, { quiet: true }));
