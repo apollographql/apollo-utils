@@ -83,7 +83,7 @@ interface DocumentSource {
 }
 
 const errors = {
-  anonymous: (node: OperationDefinitionNode) => {
+  anonymousOperation: (node: OperationDefinitionNode) => {
     return `Anonymous GraphQL operations are not supported. Please be sure to name your ${node.operation}.`;
   },
   uniqueFragment: (name: string, source: DocumentSource) => {
@@ -169,7 +169,7 @@ export async function generatePersistedQueryManifest(
         const name = node.name?.value;
 
         if (!name) {
-          addError(source, errors.anonymous(node));
+          addError(source, errors.anonymousOperation(node));
 
           return false;
         }
