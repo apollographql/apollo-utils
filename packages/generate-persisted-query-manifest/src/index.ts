@@ -119,41 +119,14 @@ function getDocumentSources(filepath: string): DocumentSource[] {
   );
 }
 
-function validateUniqueFragments(
-  fragmentsByName: Map<string, DocumentSource[]>,
+function eachSibling(
+  sources: DocumentSource[],
+  callback: (source: DocumentSource, sibling: DocumentSource) => void,
 ) {
-  fragmentsByName.forEach((sources, name) => {
-    sources.forEach((source) => {
-      const siblings = sources.filter((s) => s !== source);
-
-      siblings.forEach((sibling) => {
-        error(
-          `Fragment named "${colors.name(
-            name,
-          )}" already defined in ${colors.filepath(sibling.file.path)}`,
-          source,
-        );
-      });
-    });
-  });
-}
-
-function validateUniqueOperations(
-  operationsByName: Map<string, DocumentSource[]>,
-) {
-  operationsByName.forEach((sources, name) => {
-    sources.forEach((source) => {
-      const siblings = sources.filter((s) => s !== source);
-
-      siblings.forEach((sibling) => {
-        error(
-          `Operation named "${colors.name(
-            name,
-          )}" already defined in ${colors.filepath(sibling.file.path)}`,
-          source,
-        );
-      });
-    });
+  sources.forEach((source) => {
+    sources
+      .filter((s) => s !== source)
+      .forEach((sibling) => callback(source, sibling));
   });
 }
 
@@ -201,8 +174,27 @@ export async function generatePersistedQueryManifest(
     });
   }
 
-  validateUniqueFragments(fragmentsByName);
-  validateUniqueOperations(operationsByName);
+  fragmentsByName.forEach((sources, name) => {
+    eachSibling(sources, (source, sibling) => {
+      error(
+        `Fragment named "${colors.name(
+          name,
+        )}" already defined in ${colors.filepath(sibling.file.path)}`,
+        source,
+      );
+    });
+  });
+
+  operationsByName.forEach((sources, name) => {
+    eachSibling(sources, (source, sibling) => {
+      error(
+        `Operation named "${colors.name(
+          name,
+        )}" already defined in ${colors.filepath(sibling.file.path)}`,
+        source,
+      );
+    });
+  });
 
   if (sources.some(({ file }) => file.messages.length > 0)) {
     const files = [...new Set(sources.map((source) => source.file))];
