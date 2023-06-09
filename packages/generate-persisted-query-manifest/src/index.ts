@@ -14,6 +14,7 @@ import {
   print,
   type DocumentNode,
   Kind,
+  visit,
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
@@ -100,18 +101,23 @@ export async function generatePersistedQueryManifest(
   const operationsByName = new Map<string, LocatedOperationDefinitionNode>();
 
   for (const document of documents) {
-    for (const definition of document.ast.definitions) {
-      if (definition.kind === "FragmentDefinition") {
-        const name = definition.name.value;
+    visit(document.ast, {
+      FragmentDefinition(node) {
+        const name = node.name.value;
+
         if (seenFragmentNames.has(name)) {
           throw new Error(`Duplicate fragment name: ${name}`);
         }
+
         seenFragmentNames.add(name);
-      } else if (definition.kind === "OperationDefinition") {
-        const name = definition.name?.value;
+      },
+      OperationDefinition(node) {
+        const name = node.name?.value;
+
         if (!name) {
           throw new Error("Anonymous operations not supported");
         }
+
         if (operationsByName.has(name)) {
           throw new Error(
             `Duplicate operation name '${name}' in ${
@@ -119,12 +125,13 @@ export async function generatePersistedQueryManifest(
             } and ${document.filename}`,
           );
         }
+
         operationsByName.set(name, {
-          node: definition,
+          node: node,
           filename: document.filename,
         });
-      }
-    }
+      },
+    });
   }
 
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
