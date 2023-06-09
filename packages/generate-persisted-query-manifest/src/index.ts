@@ -82,15 +82,15 @@ interface DocumentSource {
   location: Location;
 }
 
-function error(source: DocumentSource, errorMessage: string) {
-  const message = source.file.message(errorMessage, source.location);
-  message.fatal = true;
+function error(message: string, source: DocumentSource) {
+  const vfileMessage = source.file.message(message, source.location);
+  vfileMessage.fatal = true;
 
-  return message;
+  return vfileMessage;
 }
 
 const colors = {
-  filepath: chalk.underline.magenta,
+  filepath: chalk.underline.cyan,
   name: chalk.yellow,
 };
 
@@ -117,6 +117,44 @@ function getDocumentSources(filepath: string): DocumentSource[] {
       location: source.locationOffset,
     }),
   );
+}
+
+function validateUniqueFragments(
+  fragmentsByName: Map<string, DocumentSource[]>,
+) {
+  fragmentsByName.forEach((sources, name) => {
+    sources.forEach((source) => {
+      const siblings = sources.filter((s) => s !== source);
+
+      siblings.forEach((sibling) => {
+        error(
+          `Fragment named "${colors.name(
+            name,
+          )}" already defined in ${colors.filepath(sibling.file.path)}`,
+          source,
+        );
+      });
+    });
+  });
+}
+
+function validateUniqueOperations(
+  operationsByName: Map<string, DocumentSource[]>,
+) {
+  operationsByName.forEach((sources, name) => {
+    sources.forEach((source) => {
+      const siblings = sources.filter((s) => s !== source);
+
+      siblings.forEach((sibling) => {
+        error(
+          `Operation named "${colors.name(
+            name,
+          )}" already defined in ${colors.filepath(sibling.file.path)}`,
+          source,
+        );
+      });
+    });
+  });
 }
 
 export async function generatePersistedQueryManifest(
@@ -147,8 +185,8 @@ export async function generatePersistedQueryManifest(
 
         if (!name) {
           error(
-            source,
             `Anonymous GraphQL operations are not supported. Please be sure to name your ${node.operation}.`,
+            source,
           );
 
           return;
@@ -163,43 +201,8 @@ export async function generatePersistedQueryManifest(
     });
   }
 
-  fragmentsByName.forEach((sources, name) => {
-    if (sources.length <= 1) {
-      return;
-    }
-
-    for (const source of sources) {
-      const siblings = sources.filter((s) => s !== source);
-
-      siblings.forEach((sibling) => {
-        error(
-          source,
-          `Fragment named "${colors.name(
-            name,
-          )}" already defined in ${colors.filepath(sibling.file.path)}`,
-        );
-      });
-    }
-  });
-
-  operationsByName.forEach((sources, name) => {
-    if (sources.length <= 1) {
-      return;
-    }
-
-    for (const source of sources) {
-      const siblings = sources.filter((s) => s !== source);
-
-      siblings.forEach((sibling) => {
-        error(
-          source,
-          `Operation named "${colors.name(
-            name,
-          )}" already defined in ${colors.filepath(sibling.file.path)}`,
-        );
-      });
-    }
-  });
+  validateUniqueFragments(fragmentsByName);
+  validateUniqueOperations(operationsByName);
 
   if (sources.some(({ file }) => file.messages.length > 0)) {
     const files = [...new Set(sources.map((source) => source.file))];
