@@ -82,7 +82,23 @@ interface DocumentSource {
   location: Location;
 }
 
-function error(message: string, source: DocumentSource) {
+const errors = {
+  anonymous: (node: OperationDefinitionNode) => {
+    return `Anonymous GraphQL operations are not supported. Please be sure to name your ${node.operation}.`;
+  },
+  uniqueFragment: (name: string, source: DocumentSource) => {
+    return `Fragment named "${colors.name(
+      name,
+    )}" already defined in ${colors.filepath(source.file.path)}`;
+  },
+  uniqueOperation: (name: string, source: DocumentSource) => {
+    return `Operation named "${colors.name(
+      name,
+    )}" already defined in ${colors.filepath(source.file.path)}`;
+  },
+};
+
+function addError(source: DocumentSource, message: string) {
   const vfileMessage = source.file.message(message, source.location);
   vfileMessage.fatal = true;
 
@@ -157,10 +173,7 @@ export async function generatePersistedQueryManifest(
         const name = node.name?.value;
 
         if (!name) {
-          error(
-            `Anonymous GraphQL operations are not supported. Please be sure to name your ${node.operation}.`,
-            source,
-          );
+          addError(source, errors.anonymous(node));
 
           return;
         }
@@ -176,23 +189,13 @@ export async function generatePersistedQueryManifest(
 
   fragmentsByName.forEach((sources, name) => {
     eachSibling(sources, (source, sibling) => {
-      error(
-        `Fragment named "${colors.name(
-          name,
-        )}" already defined in ${colors.filepath(sibling.file.path)}`,
-        source,
-      );
+      addError(source, errors.uniqueFragment(name, sibling));
     });
   });
 
   operationsByName.forEach((sources, name) => {
     eachSibling(sources, (source, sibling) => {
-      error(
-        `Operation named "${colors.name(
-          name,
-        )}" already defined in ${colors.filepath(sibling.file.path)}`,
-        source,
-      );
+      addError(source, errors.uniqueOperation(name, sibling));
     });
   });
 
