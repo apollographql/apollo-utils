@@ -94,7 +94,7 @@ const colors = {
   name: chalk.yellow,
 };
 
-function processFile(filepath: string): DocumentSource[] {
+function getDocumentSources(filepath: string): DocumentSource[] {
   const file = vfile({
     path: filepath,
     contents: readFileSync(filepath, "utf-8"),
@@ -127,7 +127,7 @@ export async function generatePersistedQueryManifest(
     config.documentIgnorePatterns ?? defaults.documentIgnorePatterns;
 
   const filepaths = await glob(paths, { ignore: ignorePaths });
-  const sources = [...new Set(filepaths)].flatMap(processFile);
+  const sources = [...new Set(filepaths)].flatMap(getDocumentSources);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();
