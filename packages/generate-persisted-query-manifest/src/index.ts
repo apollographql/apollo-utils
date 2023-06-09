@@ -141,6 +141,8 @@ export async function generatePersistedQueryManifest(
         const sources = fragmentsByName.get(name) ?? [];
 
         fragmentsByName.set(name, [...sources, source]);
+
+        return false;
       },
       OperationDefinition(node) {
         const name = node.name?.value;
@@ -157,6 +159,8 @@ export async function generatePersistedQueryManifest(
         const sources = operationsByName.get(name) ?? [];
 
         operationsByName.set(name, [...sources, source]);
+
+        return false;
       },
     });
   }
