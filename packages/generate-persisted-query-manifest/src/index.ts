@@ -19,6 +19,9 @@ import {
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import vfile from "vfile";
+import type { VFile } from "vfile";
+import reporter from "vfile-reporter";
 
 type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
@@ -68,45 +71,72 @@ export const defaults: DefaultPersistedQueryManifestConfig = {
   output: "persisted-query-manifest.json",
 };
 
+interface Location {
+  line: number;
+  column: number;
+}
+
+interface DocumentSource {
+  node: DocumentNode;
+  file: VFile;
+  location: Location;
+}
+
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
 ): Promise<PersistedQueryManifest> {
-  const files = new Set<string>();
+  const filePaths = new Set<string>();
   const paths = config.documents ?? defaults.documents;
   const ignorePaths =
     config.documentIgnorePatterns ?? defaults.documentIgnorePatterns;
 
   for (const f of await glob(paths, { ignore: ignorePaths })) {
-    files.add(f);
+    filePaths.add(f);
   }
 
-  const documents = [...files].flatMap((filePath) => {
-    const content = readFileSync(filePath, "utf-8");
-    if (filePath.endsWith("graphql")) {
-      return [{ ast: parse(content), filename: filePath }];
-    } else {
-      return gqlPluckFromCodeStringSync(
-        filePath,
-        readFileSync(filePath, "utf-8"),
-      ).map((source) => ({ ast: parse(source.body), filename: source.name }));
+  const sources: DocumentSource[] = [...filePaths].flatMap((filePath) => {
+    const file = vfile({
+      path: filePath,
+      contents: readFileSync(filePath, "utf-8"),
+    });
+
+    if (file.extname === ".graphql") {
+      return [
+        {
+          node: parse(file.toString()),
+          file,
+          location: { line: 1, column: 1 },
+        },
+      ];
     }
+
+    return gqlPluckFromCodeStringSync(filePath, file.toString()).map(
+      (source) => ({
+        node: parse(source.body),
+        file,
+        location: source.locationOffset,
+      }),
+    );
   });
 
   interface LocatedOperationDefinitionNode {
     node: OperationDefinitionNode;
-    filename: string;
+    file: VFile;
   }
 
   const seenFragmentNames = new Set<string>();
   const operationsByName = new Map<string, LocatedOperationDefinitionNode>();
 
-  for (const document of documents) {
-    visit(document.ast, {
+  for (const source of sources) {
+    visit(source.node, {
       FragmentDefinition(node) {
         const name = node.name.value;
 
         if (seenFragmentNames.has(name)) {
-          throw new Error(`Duplicate fragment name: ${name}`);
+          source.file.message(
+            `Duplicate fragment name: ${name}`,
+            source.location,
+          );
         }
 
         seenFragmentNames.add(name);
@@ -115,29 +145,48 @@ export async function generatePersistedQueryManifest(
         const name = node.name?.value;
 
         if (!name) {
-          throw new Error("Anonymous operations not supported");
+          const message = source.file.message(
+            "Anonymous operations are not supported",
+            source.location,
+          );
+
+          message.fatal = true;
+
+          return;
         }
 
         if (operationsByName.has(name)) {
-          throw new Error(
+          source.file.message(
             `Duplicate operation name '${name}' in ${
-              operationsByName.get(name)?.filename
-            } and ${document.filename}`,
+              operationsByName.get(name)!.file.path
+            }`,
+            source.location,
           );
+
+          return;
         }
 
         operationsByName.set(name, {
-          node: node,
-          filename: document.filename,
+          node,
+          file: source.file,
         });
       },
     });
   }
 
+  if (sources.some((document) => document.file.messages.length > 0)) {
+    console.error(
+      reporter([...new Set(sources.map((document) => document.file))], {
+        quiet: true,
+      }),
+    );
+    process.exit(1);
+  }
+
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
-  const fragments = createFragmentRegistry(...documents.map(({ ast }) => ast));
+  const fragments = createFragmentRegistry(...sources.map(({ node }) => node));
 
   const manifestOperations: PersistedQueryManifestOperation[] = [];
 

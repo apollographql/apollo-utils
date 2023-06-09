@@ -9,5 +9,7 @@ declare module "vfile-reporter" {
     defaultName?: string;
   }
 
-  export function reporter(files: VFile[], options?: ReporterOptions): string;
+  function reporter(files: VFile[], options?: ReporterOptions): string;
+
+  export = reporter;
 }
