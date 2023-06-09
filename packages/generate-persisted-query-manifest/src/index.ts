@@ -150,7 +150,7 @@ export async function generatePersistedQueryManifest(
         if (!name) {
           error(
             source,
-            `Anonymous GraphQL operations are not supported. Make sure to name your ${node.operation}.`,
+            `Anonymous GraphQL operations are not supported. Please be sure to name your ${node.operation}.`,
           );
 
           return;
