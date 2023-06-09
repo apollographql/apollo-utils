@@ -13,9 +13,7 @@ import {
   parse,
   print,
   type DocumentNode,
-  Kind,
   visit,
-  FragmentDefinitionNode,
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
@@ -93,7 +91,7 @@ function error(source: DocumentSource, errorMessage: string) {
 
 const colors = {
   filepath: chalk.underline.magenta,
-  name: chalk.bold.yellow,
+  name: chalk.yellow,
 };
 
 export async function generatePersistedQueryManifest(
@@ -133,60 +131,73 @@ export async function generatePersistedQueryManifest(
     );
   });
 
-  interface LocatedOperationDefinitionNode {
-    node: OperationDefinitionNode | FragmentDefinitionNode;
-    source: DocumentSource;
-  }
-
-  const fragmentsByName = new Map<string, LocatedOperationDefinitionNode>();
-  const operationsByName = new Map<string, LocatedOperationDefinitionNode>();
+  const fragmentsByName = new Map<string, DocumentSource[]>();
+  const operationsByName = new Map<string, DocumentSource[]>();
 
   for (const source of sources) {
     visit(source.node, {
       FragmentDefinition(node) {
         const name = node.name.value;
+        const sources = fragmentsByName.get(name) ?? [];
 
-        if (fragmentsByName.has(name)) {
-          error(
-            source,
-            `Fragment named "${colors.name(
-              name,
-            )}" already found in ${colors.filepath(
-              fragmentsByName.get(name)!.source.file.path,
-            )}`,
-          );
-
-          return;
-        }
-
-        fragmentsByName.set(name, { node, source });
+        fragmentsByName.set(name, [...sources, source]);
       },
       OperationDefinition(node) {
         const name = node.name?.value;
 
         if (!name) {
-          error(source, "Anonymous operations are not supported");
-
-          return;
-        }
-
-        if (operationsByName.has(name)) {
           error(
             source,
-            `Duplicate operation name ${colors.name(
-              name,
-            )} found in ${colors.filepath(
-              operationsByName.get(name)!.source.file.path,
-            )}`,
+            `Anonymous GraphQL operations are not supported. Make sure to name your ${node.operation}.`,
           );
 
           return;
         }
 
-        operationsByName.set(name, { node, source });
+        const sources = operationsByName.get(name) ?? [];
+
+        operationsByName.set(name, [...sources, source]);
       },
     });
   }
+
+  fragmentsByName.forEach((sources, name) => {
+    if (sources.length <= 1) {
+      return;
+    }
+
+    for (const source of sources) {
+      const siblings = sources.filter((s) => s !== source);
+
+      siblings.forEach((sibling) => {
+        error(
+          source,
+          `Fragment named "${colors.name(
+            name,
+          )}" already defined in ${colors.filepath(sibling.file.path)}`,
+        );
+      });
+    }
+  });
+
+  operationsByName.forEach((sources, name) => {
+    if (sources.length <= 1) {
+      return;
+    }
+
+    for (const source of sources) {
+      const siblings = sources.filter((s) => s !== source);
+
+      siblings.forEach((sibling) => {
+        error(
+          source,
+          `Operation named "${colors.name(
+            name,
+          )}" already defined in ${colors.filepath(sibling.file.path)}`,
+        );
+      });
+    }
+  });
 
   if (sources.some((document) => document.file.messages.length > 0)) {
     const files = [...new Set(sources.map((source) => source.file))];
@@ -223,12 +234,10 @@ export async function generatePersistedQueryManifest(
     }),
   });
 
-  for (const [_, operation] of sortBy([...operationsByName.entries()], first)) {
-    const document: DocumentNode = {
-      kind: Kind.DOCUMENT,
-      definitions: [operation.node],
-    };
-    await client.query({ query: document, fetchPolicy: "no-cache" });
+  for (const [_, sources] of sortBy([...operationsByName.entries()], first)) {
+    for (const source of sources) {
+      await client.query({ query: source.node, fetchPolicy: "no-cache" });
+    }
   }
 
   return {
