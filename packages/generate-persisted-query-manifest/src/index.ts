@@ -101,8 +101,6 @@ const errors = {
 function addError(source: DocumentSource, message: string) {
   const vfileMessage = source.file.message(message, source.location);
   vfileMessage.fatal = true;
-
-  return vfileMessage;
 }
 
 const colors = {
