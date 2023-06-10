@@ -114,7 +114,7 @@ function getDocumentSources(filepath: string): DocumentSource[] {
     contents: readFileSync(filepath, "utf-8"),
   });
 
-  if (file.extname === ".graphql") {
+  if (file.extname === ".graphql" || file.extname === ".gql") {
     return [
       {
         node: parse(file.toString()),
