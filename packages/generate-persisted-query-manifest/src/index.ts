@@ -84,17 +84,17 @@ interface DocumentSource {
 
 const errors = {
   anonymousOperation: (node: OperationDefinitionNode) => {
-    return `Anonymous GraphQL operations are not supported. Please be sure to name your ${node.operation}.`;
+    return `Anonymous GraphQL operations are not supported. Please name your ${node.operation}.`;
   },
   uniqueFragment: (name: string, source: DocumentSource) => {
     return `Fragment named "${colors.name(
       name,
-    )}" already defined in ${colors.filepath(source.file.path)}`;
+    )}" already defined in: ${colors.filepath(source.file.path)}`;
   },
   uniqueOperation: (name: string, source: DocumentSource) => {
     return `Operation named "${colors.name(
       name,
-    )}" already defined in ${colors.filepath(source.file.path)}`;
+    )}" already defined in: ${colors.filepath(source.file.path)}`;
   },
 };
 
