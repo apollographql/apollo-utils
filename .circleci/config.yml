@@ -85,7 +85,7 @@ workflows:
               node-version:
                 - "16"
                 - "18"
-                - "20"
+                - "20.2"
       - GraphQL v14 - backcompat
       - GraphQL v15 - backcompat
       - Prettier
