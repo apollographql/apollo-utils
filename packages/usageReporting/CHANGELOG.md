@@ -1,5 +1,11 @@
 # @apollo/utils.usagereporting
 
+## 3.1.0
+
+### Minor Changes
+
+- [#299](https://github.com/apollographql/apollo-utils/pull/299) [`a4c17b2`](https://github.com/apollographql/apollo-utils/commit/a4c17b286790e094942e713f6c9999f8b548d39a) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Update usage reporting protobuf which introduces support for the `ConditionNode` in query planning.
+
 ## 3.0.0
 
 ### Major Changes
