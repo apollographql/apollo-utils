@@ -82,19 +82,24 @@ interface DocumentSource {
   location: Location;
 }
 
-const errors = {
+const COLORS = {
+  filepath: chalk.underline.cyan,
+  name: chalk.yellow,
+};
+
+const ERROR_MESSAGES = {
   anonymousOperation: (node: OperationDefinitionNode) => {
     return `Anonymous GraphQL operations are not supported. Please name your ${node.operation}.`;
   },
   uniqueFragment: (name: string, source: DocumentSource) => {
-    return `Fragment named "${colors.name(
+    return `Fragment named "${COLORS.name(
       name,
-    )}" already defined in: ${colors.filepath(source.file.path)}`;
+    )}" already defined in: ${COLORS.filepath(source.file.path)}`;
   },
   uniqueOperation: (name: string, source: DocumentSource) => {
-    return `Operation named "${colors.name(
+    return `Operation named "${COLORS.name(
       name,
-    )}" already defined in: ${colors.filepath(source.file.path)}`;
+    )}" already defined in: ${COLORS.filepath(source.file.path)}`;
   },
 };
 
@@ -102,11 +107,6 @@ function addError(source: DocumentSource, message: string) {
   const vfileMessage = source.file.message(message, source.location);
   vfileMessage.fatal = true;
 }
-
-const colors = {
-  filepath: chalk.underline.cyan,
-  name: chalk.yellow,
-};
 
 function getDocumentSources(filepath: string): DocumentSource[] {
   const file = vfile({
@@ -154,8 +154,8 @@ export async function generatePersistedQueryManifest(
 
         if (sources.length) {
           sources.forEach((sibling) => {
-            addError(source, errors.uniqueFragment(name, sibling));
-            addError(sibling, errors.uniqueFragment(name, source));
+            addError(source, ERROR_MESSAGES.uniqueFragment(name, sibling));
+            addError(sibling, ERROR_MESSAGES.uniqueFragment(name, source));
           });
         }
 
@@ -167,7 +167,7 @@ export async function generatePersistedQueryManifest(
         const name = node.name?.value;
 
         if (!name) {
-          addError(source, errors.anonymousOperation(node));
+          addError(source, ERROR_MESSAGES.anonymousOperation(node));
 
           return false;
         }
@@ -176,8 +176,8 @@ export async function generatePersistedQueryManifest(
 
         if (sources.length) {
           sources.forEach((sibling) => {
-            addError(source, errors.uniqueOperation(name, sibling));
-            addError(sibling, errors.uniqueOperation(name, source));
+            addError(source, ERROR_MESSAGES.uniqueOperation(name, sibling));
+            addError(sibling, ERROR_MESSAGES.uniqueOperation(name, source));
           });
         }
 
