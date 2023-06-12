@@ -1,5 +1,14 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.0.0-alpha.5
+
+### Patch Changes
+
+- [#302](https://github.com/apollographql/apollo-utils/pull/302) [`3057433`](https://github.com/apollographql/apollo-utils/commit/30574331ef2ab3215d6c0c0d77aee81f29bafc84) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Provides more robust error handling and reporting.
+
+  - Collect all errors while generating manifest and report them together at once. Previously it would exit as soon as an error was encountered, even if there were multiple issues.
+  - Update the error reporting format to make it much easier to determine which file contains the error.
+
 ## 1.0.0-alpha.4
 
 ### Patch Changes
