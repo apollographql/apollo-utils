@@ -1,6 +1,6 @@
 import { print, type DocumentNode } from "graphql";
 import { ApolloLink } from "@apollo/client/link/core";
-import { Observable, ObservableSubscription } from "@apollo/client/core";
+import { Observable, type ObservableSubscription } from "@apollo/client/core";
 
 // This type is copied from `@apollo/client/link/persisted-queries`; to avoid a
 // dependency on a particular version `@apollo/client` we copy it here.
