@@ -222,8 +222,8 @@ describe("persisted-query-lists", () => {
         await runAgainstLink({ onError }, "{ x }");
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
-          reason: "ANONYMOUS_OPERATION",
-          body: print(parse("{ x }")),
+          reason: "AnonymousOperation",
+          query: print(parse("{ x }")),
         });
       });
 
@@ -232,8 +232,8 @@ describe("persisted-query-lists", () => {
         await runAgainstLink({ onError }, "query Q { a } query QQ { b }");
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
-          reason: "MULTI_OPERATION_DOCUMENT",
-          body: print(parse("query Q { a } query QQ { b }")),
+          reason: "MultipleOperations",
+          query: print(parse("query Q { a } query QQ { b }")),
         });
       });
 
@@ -242,8 +242,8 @@ describe("persisted-query-lists", () => {
         await runAgainstLink({ onError }, "fragment F on T { f }");
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
-          reason: "NO_OPERATIONS_DOCUMENT",
-          body: print(parse("fragment F on T { f }")),
+          reason: "NoOperations",
+          query: print(parse("fragment F on T { f }")),
         });
       });
 
@@ -252,9 +252,9 @@ describe("persisted-query-lists", () => {
         await runAgainstLink({ onError }, "query Foo { f }");
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
-          reason: "UNKNOWN_OPERATION_NAME",
+          reason: "UnknownOperation",
           operationName: "Foo",
-          body: print(parse("query Foo { f }")),
+          query: print(parse("query Foo { f }")),
         });
       });
 
@@ -263,10 +263,10 @@ describe("persisted-query-lists", () => {
         await runAgainstLink({ onError }, "query Foobar { different }");
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
-          reason: "DIFFERENT_BODY",
+          reason: "QueryMismatch",
           operationName: "Foobar",
-          manifestBody: print(parse("query Foobar {\n  f\n}")),
-          actualBody: print(parse("query Foobar { different }")),
+          manifestDefinition: print(parse("query Foobar {\n  f\n}")),
+          query: print(parse("query Foobar { different }")),
         });
       });
 

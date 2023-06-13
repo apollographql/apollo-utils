@@ -146,15 +146,15 @@ export interface PersistedQueryManifestForVerification {
 }
 
 type PersistedQueryManifestVerificationLinkErrorDetails =
-  | { reason: "ANONYMOUS_OPERATION"; body: string }
-  | { reason: "MULTI_OPERATION_DOCUMENT"; body: string }
-  | { reason: "NO_OPERATIONS_DOCUMENT"; body: string }
-  | { reason: "UNKNOWN_OPERATION_NAME"; operationName: string; body: string }
+  | { reason: "AnonymousOperation"; query: string }
+  | { reason: "MultipleOperations"; query: string }
+  | { reason: "NoOperations"; query: string }
+  | { reason: "UnknownOperation"; operationName: string; query: string }
   | {
-      reason: "DIFFERENT_BODY";
+      reason: "QueryMismatch";
       operationName: string;
-      manifestBody: string;
-      actualBody: string;
+      manifestDefinition: string;
+      query: string;
     };
 
 export interface CreatePersistedQueryManifestVerificationLinkOptions {
@@ -193,42 +193,38 @@ export function createPersistedQueryManifestVerificationLink(
     document: DocumentNode,
     operationBodiesByName: Map<string, string>,
   ) {
-    const body = print(sortTopLevelDefinitions(document));
+    const query = print(sortTopLevelDefinitions(document));
 
     let operationName: string | null = null;
     for (const definition of document.definitions) {
       if (definition.kind === "OperationDefinition") {
         if (!definition.name) {
-          options.onError?.({ reason: "ANONYMOUS_OPERATION", body });
+          options.onError?.({ reason: "AnonymousOperation", query });
           return;
         }
         if (operationName !== null) {
-          options.onError?.({ reason: "MULTI_OPERATION_DOCUMENT", body });
+          options.onError?.({ reason: "MultipleOperations", query });
           return;
         }
         operationName = definition.name.value;
       }
     }
     if (operationName === null) {
-      options.onError?.({ reason: "NO_OPERATIONS_DOCUMENT", body });
+      options.onError?.({ reason: "NoOperations", query });
       return;
     }
-    const manifestBody = operationBodiesByName.get(operationName);
-    if (manifestBody === undefined) {
-      options.onError?.({
-        reason: "UNKNOWN_OPERATION_NAME",
-        operationName,
-        body,
-      });
+    const manifestQuery = operationBodiesByName.get(operationName);
+    if (manifestQuery === undefined) {
+      options.onError?.({ reason: "UnknownOperation", operationName, query });
       return;
     }
 
-    if (body !== manifestBody) {
+    if (query !== manifestQuery) {
       options.onError?.({
-        reason: "DIFFERENT_BODY",
+        reason: "QueryMismatch",
         operationName,
-        manifestBody,
-        actualBody: body,
+        query,
+        manifestDefinition: manifestQuery,
       });
       return;
     }
