@@ -144,6 +144,19 @@ export function generatePersistedQueryIdsFromManifest(
 export interface PersistedQueryManifestForVerification {
   operations: { name: string; body: string }[];
 }
+
+type PersistedQueryManifestVerificationLinkErrorDetails =
+  | { reason: "ANONYMOUS_OPERATION"; body: string }
+  | { reason: "MULTI_OPERATION_DOCUMENT"; body: string }
+  | { reason: "NO_OPERATIONS_DOCUMENT"; body: string }
+  | { reason: "UNKNOWN_OPERATION_NAME"; operationName: string; body: string }
+  | {
+      reason: "DIFFERENT_BODY";
+      operationName: string;
+      manifestBody: string;
+      actualBody: string;
+    };
+
 export interface CreatePersistedQueryManifestVerificationLinkOptions {
   // Manifests can be large, so we allow them to be loaded asynchronously. (For
   // example, you might make the same webpack bundle for multiple environments
@@ -152,18 +165,9 @@ export interface CreatePersistedQueryManifestVerificationLinkOptions {
   // is created, not on the first operation: it's an async load, not a lazy
   // load.
   loadManifest: () => Promise<PersistedQueryManifestForVerification>;
-  onAnonymousOperation?: (options: { body: string }) => void;
-  onMultiOperationDocument?: (options: { body: string }) => void;
-  onNoOperationsDocument?: (options: { body: string }) => void;
-  onUnknownOperationName?: (options: {
-    operationName: string;
-    body: string;
-  }) => void;
-  onDifferentBody?: (options: {
-    operationName: string;
-    manifestBody: string;
-    actualBody: string;
-  }) => void;
+  onError?: (
+    details: PersistedQueryManifestVerificationLinkErrorDetails,
+  ) => void;
 }
 export function createPersistedQueryManifestVerificationLink(
   options: CreatePersistedQueryManifestVerificationLinkOptions,
@@ -195,28 +199,33 @@ export function createPersistedQueryManifestVerificationLink(
     for (const definition of document.definitions) {
       if (definition.kind === "OperationDefinition") {
         if (!definition.name) {
-          options.onAnonymousOperation?.({ body });
+          options.onError?.({ reason: "ANONYMOUS_OPERATION", body });
           return;
         }
         if (operationName !== null) {
-          options.onMultiOperationDocument?.({ body });
+          options.onError?.({ reason: "MULTI_OPERATION_DOCUMENT", body });
           return;
         }
         operationName = definition.name.value;
       }
     }
     if (operationName === null) {
-      options.onNoOperationsDocument?.({ body });
+      options.onError?.({ reason: "NO_OPERATIONS_DOCUMENT", body });
       return;
     }
     const manifestBody = operationBodiesByName.get(operationName);
     if (manifestBody === undefined) {
-      options.onUnknownOperationName?.({ operationName, body });
+      options.onError?.({
+        reason: "UNKNOWN_OPERATION_NAME",
+        operationName,
+        body,
+      });
       return;
     }
 
     if (body !== manifestBody) {
-      options.onDifferentBody?.({
+      options.onError?.({
+        reason: "DIFFERENT_BODY",
         operationName,
         manifestBody,
         actualBody: body,
