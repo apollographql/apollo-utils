@@ -1,6 +1,10 @@
 import { print, type DocumentNode } from "graphql";
 import { ApolloLink } from "@apollo/client/link/core";
-import { Observable, type ObservableSubscription } from "@apollo/client/core";
+import {
+  Observable,
+  type Operation,
+  type ObservableSubscription,
+} from "@apollo/client/core";
 
 // This type is copied from `@apollo/client/link/persisted-queries`; to avoid a
 // dependency on a particular version `@apollo/client` we copy it here.
@@ -146,15 +150,14 @@ export interface PersistedQueryManifestForVerification {
 }
 
 type PersistedQueryManifestVerificationLinkErrorDetails =
-  | { reason: "AnonymousOperation"; query: string }
-  | { reason: "MultipleOperations"; query: string }
-  | { reason: "NoOperations"; query: string }
-  | { reason: "UnknownOperation"; operationName: string; query: string }
+  | { reason: "AnonymousOperation"; operation: Operation }
+  | { reason: "MultipleOperations"; operation: Operation }
+  | { reason: "NoOperations"; operation: Operation }
+  | { reason: "UnknownOperation"; operation: Operation }
   | {
       reason: "QueryMismatch";
-      operationName: string;
+      operation: Operation;
       manifestDefinition: string;
-      query: string;
     };
 
 export interface CreatePersistedQueryManifestVerificationLinkOptions {
@@ -189,42 +192,44 @@ export function createPersistedQueryManifestVerificationLink(
   // still throw.
   operationBodiesByNamePromise.catch(() => {});
 
-  function checkDocument(
-    document: DocumentNode,
+  function checkOperation(
+    operation: Operation,
     operationBodiesByName: Map<string, string>,
   ) {
-    const query = print(sortTopLevelDefinitions(document));
+    const query = print(sortTopLevelDefinitions(operation.query));
 
     let operationName: string | null = null;
-    for (const definition of document.definitions) {
+    for (const definition of operation.query.definitions) {
       if (definition.kind === "OperationDefinition") {
         if (!definition.name) {
-          options.onError?.({ reason: "AnonymousOperation", query });
+          options.onError?.({ reason: "AnonymousOperation", operation });
           return;
         }
         if (operationName !== null) {
-          options.onError?.({ reason: "MultipleOperations", query });
+          options.onError?.({ reason: "MultipleOperations", operation });
           return;
         }
         operationName = definition.name.value;
       }
     }
     if (operationName === null) {
-      options.onError?.({ reason: "NoOperations", query });
+      options.onError?.({ reason: "NoOperations", operation });
       return;
     }
-    const manifestQuery = operationBodiesByName.get(operationName);
-    if (manifestQuery === undefined) {
-      options.onError?.({ reason: "UnknownOperation", operationName, query });
+    const manifestDefinition = operationBodiesByName.get(operationName);
+    if (manifestDefinition === undefined) {
+      options.onError?.({
+        reason: "UnknownOperation",
+        operation,
+      });
       return;
     }
 
-    if (query !== manifestQuery) {
+    if (query !== manifestDefinition) {
       options.onError?.({
         reason: "QueryMismatch",
-        operationName,
-        query,
-        manifestDefinition: manifestQuery,
+        operation,
+        manifestDefinition,
       });
       return;
     }
@@ -237,7 +242,7 @@ export function createPersistedQueryManifestVerificationLink(
       let closed = false;
       operationBodiesByNamePromise
         .then((operationBodiesByName) => {
-          checkDocument(operation.query, operationBodiesByName);
+          checkOperation(operation, operationBodiesByName);
 
           // if the observer is already closed, no need to subscribe.
           if (closed) return;

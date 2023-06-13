@@ -11,10 +11,21 @@ import {
   toPromise,
   ApolloLink,
   Observable,
+  type GraphQLRequest,
 } from "@apollo/client/core";
 import { createPersistedQueryLink } from "@apollo/client/link/persisted-queries";
+import {
+  createOperation as createLinkOperation,
+  transformOperation,
+} from "@apollo/client/link/utils";
 import { sha256 } from "crypto-hash";
 import { parse, print } from "graphql";
+
+function createOperation({
+  query,
+}: Omit<GraphQLRequest, "query"> & { query: string }) {
+  return createLinkOperation({}, transformOperation({ query: parse(query) }));
+}
 
 // A link that shows what extensions and context would have been sent.
 const returnExtensionsAndContextLink = new ApolloLink((operation) => {
@@ -223,7 +234,7 @@ describe("persisted-query-lists", () => {
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
           reason: "AnonymousOperation",
-          query: print(parse("{ x }")),
+          operation: createOperation({ query: "{ x }" }),
         });
       });
 
@@ -233,7 +244,7 @@ describe("persisted-query-lists", () => {
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
           reason: "MultipleOperations",
-          query: print(parse("query Q { a } query QQ { b }")),
+          operation: createOperation({ query: "query Q { a } query QQ { b }" }),
         });
       });
 
@@ -243,7 +254,7 @@ describe("persisted-query-lists", () => {
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
           reason: "NoOperations",
-          query: print(parse("fragment F on T { f }")),
+          operation: createOperation({ query: "fragment F on T { f }" }),
         });
       });
 
@@ -253,8 +264,7 @@ describe("persisted-query-lists", () => {
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
           reason: "UnknownOperation",
-          operationName: "Foo",
-          query: print(parse("query Foo { f }")),
+          operation: createOperation({ query: "query Foo { f }" }),
         });
       });
 
@@ -264,9 +274,8 @@ describe("persisted-query-lists", () => {
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onError).toHaveBeenCalledWith({
           reason: "QueryMismatch",
-          operationName: "Foobar",
+          operation: createOperation({ query: "query Foobar { different }" }),
           manifestDefinition: print(parse("query Foobar {\n  f\n}")),
-          query: print(parse("query Foobar { different }")),
         });
       });
 
