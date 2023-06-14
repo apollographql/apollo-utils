@@ -11,10 +11,21 @@ import {
   toPromise,
   ApolloLink,
   Observable,
+  type GraphQLRequest,
 } from "@apollo/client/core";
 import { createPersistedQueryLink } from "@apollo/client/link/persisted-queries";
+import {
+  createOperation as createLinkOperation,
+  transformOperation,
+} from "@apollo/client/link/utils";
 import { sha256 } from "crypto-hash";
 import { parse, print } from "graphql";
+
+function createOperation({
+  query,
+}: Omit<GraphQLRequest, "query"> & { query: string }) {
+  return createLinkOperation({}, transformOperation({ query: parse(query) }));
+}
 
 // A link that shows what extensions and context would have been sent.
 const returnExtensionsAndContextLink = new ApolloLink((operation) => {
@@ -203,7 +214,7 @@ describe("persisted-query-lists", () => {
             {
               id: "foobar-id",
               name: "Foobar",
-              type: "query",
+              type: "query" as const,
               body: "query Foobar {\n  f\n}",
             },
           ],
@@ -218,141 +229,86 @@ describe("persisted-query-lists", () => {
       }
 
       it("anonymous operation", async () => {
-        const onAnonymousOperation = jest.fn();
-        const onMultiOperationDocument = jest.fn();
-        const onNoOperationsDocument = jest.fn();
-        const onUnknownOperationName = jest.fn();
-        const onDifferentBody = jest.fn();
-        await runAgainstLink(
-          {
-            onAnonymousOperation,
-            onMultiOperationDocument,
-            onNoOperationsDocument,
-            onUnknownOperationName,
-            onDifferentBody,
-          },
-          "{ x }",
-        );
-        expect(onAnonymousOperation).toHaveBeenCalled();
-        expect(onMultiOperationDocument).not.toHaveBeenCalled();
-        expect(onNoOperationsDocument).not.toHaveBeenCalled();
-        expect(onUnknownOperationName).not.toHaveBeenCalled();
-        expect(onDifferentBody).not.toHaveBeenCalled();
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink({ onVerificationFailed }, "{ x }");
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
+          reason: "AnonymousOperation",
+          operation: createOperation({ query: "{ x }" }),
+        });
       });
 
       it("multi-operation document", async () => {
-        const onAnonymousOperation = jest.fn();
-        const onMultiOperationDocument = jest.fn();
-        const onNoOperationsDocument = jest.fn();
-        const onUnknownOperationName = jest.fn();
-        const onDifferentBody = jest.fn();
+        const onVerificationFailed = jest.fn();
+
         await runAgainstLink(
-          {
-            onAnonymousOperation,
-            onMultiOperationDocument,
-            onNoOperationsDocument,
-            onUnknownOperationName,
-            onDifferentBody,
-          },
+          { onVerificationFailed },
           "query Q { a } query QQ { b }",
         );
-        expect(onAnonymousOperation).not.toHaveBeenCalled();
-        expect(onMultiOperationDocument).toHaveBeenCalled();
-        expect(onNoOperationsDocument).not.toHaveBeenCalled();
-        expect(onUnknownOperationName).not.toHaveBeenCalled();
-        expect(onDifferentBody).not.toHaveBeenCalled();
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
+          reason: "MultipleOperations",
+          operation: createOperation({ query: "query Q { a } query QQ { b }" }),
+        });
       });
 
       it("no-operations document", async () => {
-        const onAnonymousOperation = jest.fn();
-        const onMultiOperationDocument = jest.fn();
-        const onNoOperationsDocument = jest.fn();
-        const onUnknownOperationName = jest.fn();
-        const onDifferentBody = jest.fn();
-        await runAgainstLink(
-          {
-            onAnonymousOperation,
-            onMultiOperationDocument,
-            onNoOperationsDocument,
-            onUnknownOperationName,
-            onDifferentBody,
-          },
-          "fragment F on T { f }",
-        );
-        expect(onAnonymousOperation).not.toHaveBeenCalled();
-        expect(onMultiOperationDocument).not.toHaveBeenCalled();
-        expect(onNoOperationsDocument).toHaveBeenCalled();
-        expect(onUnknownOperationName).not.toHaveBeenCalled();
-        expect(onDifferentBody).not.toHaveBeenCalled();
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink({ onVerificationFailed }, "fragment F on T { f }");
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
+          reason: "NoOperations",
+          operation: createOperation({ query: "fragment F on T { f }" }),
+        });
       });
 
       it("unknown operation name", async () => {
-        const onAnonymousOperation = jest.fn();
-        const onMultiOperationDocument = jest.fn();
-        const onNoOperationsDocument = jest.fn();
-        const onUnknownOperationName = jest.fn();
-        const onDifferentBody = jest.fn();
-        await runAgainstLink(
-          {
-            onAnonymousOperation,
-            onMultiOperationDocument,
-            onNoOperationsDocument,
-            onUnknownOperationName,
-            onDifferentBody,
-          },
-          "query Foo { f }",
-        );
-        expect(onAnonymousOperation).not.toHaveBeenCalled();
-        expect(onMultiOperationDocument).not.toHaveBeenCalled();
-        expect(onNoOperationsDocument).not.toHaveBeenCalled();
-        expect(onUnknownOperationName).toHaveBeenCalled();
-        expect(onDifferentBody).not.toHaveBeenCalled();
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink({ onVerificationFailed }, "query Foo { f }");
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
+          reason: "UnknownOperation",
+          operation: createOperation({ query: "query Foo { f }" }),
+        });
       });
 
-      it("different body", async () => {
-        const onAnonymousOperation = jest.fn();
-        const onMultiOperationDocument = jest.fn();
-        const onNoOperationsDocument = jest.fn();
-        const onUnknownOperationName = jest.fn();
-        const onDifferentBody = jest.fn();
+      it("operation mismatch", async () => {
+        const onVerificationFailed = jest.fn();
+
         await runAgainstLink(
-          {
-            onAnonymousOperation,
-            onMultiOperationDocument,
-            onNoOperationsDocument,
-            onUnknownOperationName,
-            onDifferentBody,
-          },
+          { onVerificationFailed },
           "query Foobar { different }",
         );
-        expect(onAnonymousOperation).not.toHaveBeenCalled();
-        expect(onMultiOperationDocument).not.toHaveBeenCalled();
-        expect(onNoOperationsDocument).not.toHaveBeenCalled();
-        expect(onUnknownOperationName).not.toHaveBeenCalled();
-        expect(onDifferentBody).toHaveBeenCalled();
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
+          reason: "OperationMismatch",
+          operation: createOperation({ query: "query Foobar { different }" }),
+          manifestOperation: {
+            id: "foobar-id",
+            name: "Foobar",
+            type: "query" as const,
+            body: "query Foobar {\n  f\n}",
+          },
+        });
       });
 
       it("operation on the manifest", async () => {
-        const onAnonymousOperation = jest.fn();
-        const onMultiOperationDocument = jest.fn();
-        const onNoOperationsDocument = jest.fn();
-        const onUnknownOperationName = jest.fn();
-        const onDifferentBody = jest.fn();
+        const onVerificationFailed = jest.fn();
+
         await runAgainstLink(
-          {
-            onAnonymousOperation,
-            onMultiOperationDocument,
-            onNoOperationsDocument,
-            onUnknownOperationName,
-            onDifferentBody,
-          },
+          { onVerificationFailed },
           "query Foobar {\n  f\n}",
         );
-        expect(onAnonymousOperation).not.toHaveBeenCalled();
-        expect(onMultiOperationDocument).not.toHaveBeenCalled();
-        expect(onNoOperationsDocument).not.toHaveBeenCalled();
-        expect(onUnknownOperationName).not.toHaveBeenCalled();
-        expect(onDifferentBody).not.toHaveBeenCalled();
+
+        expect(onVerificationFailed).not.toHaveBeenCalled();
       });
     });
 
