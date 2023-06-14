@@ -97,6 +97,7 @@ interface DocumentSource {
 }
 
 const COLORS = {
+  identifier: chalk.magenta,
   filepath: chalk.underline.cyan,
   name: chalk.yellow,
 };
@@ -114,6 +115,19 @@ const ERROR_MESSAGES = {
     return `Operation named "${COLORS.name(
       name,
     )}" already defined in: ${COLORS.filepath(source.file.path)}`;
+  },
+  uniqueOperationId: (
+    id: string,
+    operationName: string,
+    definedOperationName: string,
+  ) => {
+    return `Manifest operation ID (${COLORS.identifier(
+      id,
+    )}) for operation named "${COLORS.name(
+      operationName,
+    )}" has already been defined for operation named "${COLORS.name(
+      definedOperationName,
+    )}".`;
   },
 };
 
@@ -226,7 +240,7 @@ export async function generatePersistedQueryManifest(
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
   const fragments = createFragmentRegistry(...sources.map(({ node }) => node));
-  const manifestOperationIds = new Set<string>();
+  const manifestOperationIds = new Map<string, string>();
   const manifestFile = vfile({ path: output });
 
   const manifestOperations: PersistedQueryManifestOperation[] = [];
@@ -244,18 +258,28 @@ export async function generatePersistedQueryManifest(
         ) as OperationDefinitionNode
       ).operation;
 
-      manifestOperations.push({
-        id: createOperationId(body, {
-          operationName: name,
-          type,
-          createDefaultId() {
-            return defaults.createOperationId(body);
-          },
-        }),
-        name,
+      const id = createOperationId(body, {
+        operationName: name,
         type,
-        body,
+        createDefaultId() {
+          return defaults.createOperationId(body);
+        },
       });
+
+      if (manifestOperationIds.has(id)) {
+        const message = manifestFile.message(
+          ERROR_MESSAGES.uniqueOperationId(
+            id,
+            name,
+            manifestOperationIds.get(id)!,
+          ),
+        );
+        message.fatal = true;
+      } else {
+        manifestOperationIds.set(id, name);
+      }
+
+      manifestOperations.push({ id, name, type, body });
 
       return Observable.of({ data: null });
     }),
@@ -266,6 +290,8 @@ export async function generatePersistedQueryManifest(
       await client.query({ query: source.node, fetchPolicy: "no-cache" });
     }
   }
+
+  maybeReportErrorsAndExit(manifestFile);
 
   return {
     format: "apollo-persisted-query-manifest",
