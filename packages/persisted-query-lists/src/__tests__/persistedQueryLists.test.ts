@@ -279,7 +279,7 @@ describe("persisted-query-lists", () => {
         });
       });
 
-      it("different body", async () => {
+      it("operation mismatch", async () => {
         const onVerificationFailed = jest.fn();
 
         await runAgainstLink(
@@ -289,7 +289,7 @@ describe("persisted-query-lists", () => {
 
         expect(onVerificationFailed).toHaveBeenCalledTimes(1);
         expect(onVerificationFailed).toHaveBeenCalledWith({
-          reason: "QueryMismatch",
+          reason: "OperationMismatch",
           operation: createOperation({ query: "query Foobar { different }" }),
           manifestOperation: {
             id: "foobar-id",

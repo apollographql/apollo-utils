@@ -159,7 +159,7 @@ type PersistedQueryManifestVerificationLinkErrorDetails =
   | { reason: "NoOperations"; operation: Operation }
   | { reason: "UnknownOperation"; operation: Operation }
   | {
-      reason: "QueryMismatch";
+      reason: "OperationMismatch";
       operation: Operation;
       manifestOperation: PersistedQueryManifestOperation;
     };
@@ -237,7 +237,7 @@ export function createPersistedQueryManifestVerificationLink(
 
     if (query !== manifestOperation.body) {
       options.onVerificationFailed?.({
-        reason: "QueryMismatch",
+        reason: "OperationMismatch",
         operation,
         manifestOperation,
       });
