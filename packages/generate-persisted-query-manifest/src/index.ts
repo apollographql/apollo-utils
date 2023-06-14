@@ -23,8 +23,6 @@ import type { VFile } from "vfile";
 import reporter from "vfile-reporter";
 import chalk from "chalk";
 
-type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
-
 type OperationType = "query" | "mutation" | "subscription";
 
 interface CreateOperationIdOptions {
@@ -59,11 +57,6 @@ export interface PersistedQueryManifestConfig {
   ) => string;
 }
 
-type DefaultPersistedQueryManifestConfig = RequireKeys<
-  PersistedQueryManifestConfig,
-  "documents" | "documentIgnorePatterns" | "output" | "createOperationId"
->;
-
 export interface PersistedQueryManifestOperation {
   id: string;
   name: string;
@@ -77,7 +70,7 @@ export interface PersistedQueryManifest {
   operations: PersistedQueryManifestOperation[];
 }
 
-export const defaults: DefaultPersistedQueryManifestConfig = {
+export const defaults = {
   documents: "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
   documentIgnorePatterns: [
     "**/*.d.ts",
@@ -86,7 +79,7 @@ export const defaults: DefaultPersistedQueryManifestConfig = {
     "**/*.test.{js,jsx,ts,tsx}",
   ],
   output: "persisted-query-manifest.json",
-  createOperationId: (query) => {
+  createOperationId: (query: string) => {
     return createHash("sha256").update(query).digest("hex");
   },
 };
