@@ -214,7 +214,7 @@ describe("persisted-query-lists", () => {
             {
               id: "foobar-id",
               name: "Foobar",
-              type: "query",
+              type: "query" as const,
               body: "query Foobar {\n  f\n}",
             },
           ],
@@ -291,7 +291,12 @@ describe("persisted-query-lists", () => {
         expect(onVerificationFailed).toHaveBeenCalledWith({
           reason: "QueryMismatch",
           operation: createOperation({ query: "query Foobar { different }" }),
-          manifestDefinition: print(parse("query Foobar {\n  f\n}")),
+          manifestOperation: {
+            id: "foobar-id",
+            name: "Foobar",
+            type: "query" as const,
+            body: "query Foobar {\n  f\n}",
+          },
         });
       });
 

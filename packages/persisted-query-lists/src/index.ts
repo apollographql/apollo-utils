@@ -142,11 +142,15 @@ export function generatePersistedQueryIdsFromManifest(
   };
 }
 
-// The subset of the fields of a Persisted Query Manifest needed by the
-// verification link. (Using the entire manifest is fine, but if you're trying
-// to save space you can strip down to just these fields.)
+interface PersistedQueryManifestOperation {
+  id: string;
+  name: string;
+  type: "query" | "mutation" | "subscription";
+  body: string;
+}
+
 export interface PersistedQueryManifestForVerification {
-  operations: { name: string; body: string }[];
+  operations: PersistedQueryManifestOperation[];
 }
 
 type PersistedQueryManifestVerificationLinkErrorDetails =
@@ -157,7 +161,7 @@ type PersistedQueryManifestVerificationLinkErrorDetails =
   | {
       reason: "QueryMismatch";
       operation: Operation;
-      manifestDefinition: string;
+      manifestOperation: PersistedQueryManifestOperation;
     };
 
 export interface CreatePersistedQueryManifestVerificationLinkOptions {
@@ -175,26 +179,26 @@ export interface CreatePersistedQueryManifestVerificationLinkOptions {
 export function createPersistedQueryManifestVerificationLink(
   options: CreatePersistedQueryManifestVerificationLinkOptions,
 ) {
-  const operationBodiesByNamePromise = options
-    .loadManifest()
-    .then((manifest) => {
-      const operationBodiesByName = new Map<string, string>();
-      manifest.operations.forEach(({ name, body }) => {
-        operationBodiesByName.set(name, body);
-      });
-      return operationBodiesByName;
+  const operationsByNamePromise = options.loadManifest().then((manifest) => {
+    const operationsByName = new Map<string, PersistedQueryManifestOperation>();
+
+    manifest.operations.forEach((operation) => {
+      operationsByName.set(operation.name, operation);
     });
+
+    return operationsByName;
+  });
   // If the load fails before the first time we try to run an operation, we
   // don't want the JS environment to chide us for having an unhandled
   // rejection: we'll handle the rejection when we `await` below during our
   // first operation! Put a no-op catch handler on the Promise instead. This
   // doesn't mean the Promise won't reject on error: the `await` below will
   // still throw.
-  operationBodiesByNamePromise.catch(() => {});
+  operationsByNamePromise.catch(() => {});
 
   function verifyOperation(
     operation: Operation,
-    operationBodiesByName: Map<string, string>,
+    operationsByName: Map<string, PersistedQueryManifestOperation>,
   ) {
     const query = print(sortTopLevelDefinitions(operation.query));
 
@@ -222,8 +226,8 @@ export function createPersistedQueryManifestVerificationLink(
       options.onVerificationFailed?.({ reason: "NoOperations", operation });
       return;
     }
-    const manifestDefinition = operationBodiesByName.get(operationName);
-    if (manifestDefinition === undefined) {
+    const manifestOperation = operationsByName.get(operationName);
+    if (manifestOperation === undefined) {
       options.onVerificationFailed?.({
         reason: "UnknownOperation",
         operation,
@@ -231,11 +235,11 @@ export function createPersistedQueryManifestVerificationLink(
       return;
     }
 
-    if (query !== manifestDefinition) {
+    if (query !== manifestOperation.body) {
       options.onVerificationFailed?.({
         reason: "QueryMismatch",
         operation,
-        manifestDefinition,
+        manifestOperation,
       });
       return;
     }
@@ -246,9 +250,9 @@ export function createPersistedQueryManifestVerificationLink(
     return new Observable((observer) => {
       let handle: ObservableSubscription;
       let closed = false;
-      operationBodiesByNamePromise
-        .then((operationBodiesByName) => {
-          verifyOperation(operation, operationBodiesByName);
+      operationsByNamePromise
+        .then((operationsByName) => {
+          verifyOperation(operation, operationsByName);
 
           // if the observer is already closed, no need to subscribe.
           if (closed) return;
