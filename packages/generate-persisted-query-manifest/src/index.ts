@@ -122,11 +122,11 @@ const ERROR_MESSAGES = {
     operationName: string,
     definedOperationName: string,
   ) => {
-    return `Manifest operation ID (${COLORS.identifier(
+    return `\`createOperationId\` created an ID (${COLORS.identifier(
       id,
     )}) for operation named "${COLORS.name(
       operationName,
-    )}" has already been defined for operation named "${COLORS.name(
+    )}" that has already been used for operation named "${COLORS.name(
       definedOperationName,
     )}".`;
   },
