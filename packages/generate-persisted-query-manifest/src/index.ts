@@ -40,11 +40,18 @@ export interface PersistedQueryManifestConfig {
    * Path where the manifest file will be written.
    */
   output?: string;
+
+  /**
+   * Function that generates a manifest operation ID for a given query.
+   *
+   * Defaults to a sha256 hash of the query.
+   */
+  createOperationId?: (query: string) => string;
 }
 
 type DefaultPersistedQueryManifestConfig = RequireKeys<
   PersistedQueryManifestConfig,
-  "documents" | "documentIgnorePatterns" | "output"
+  "documents" | "documentIgnorePatterns" | "output" | "createOperationId"
 >;
 
 export interface PersistedQueryManifestOperation {
@@ -69,6 +76,9 @@ export const defaults: DefaultPersistedQueryManifestConfig = {
     "**/*.test.{js,jsx,ts,tsx}",
   ],
   output: "persisted-query-manifest.json",
+  createOperationId: (query: string) => {
+    return createHash("sha256").update(query).digest("hex");
+  },
 };
 
 interface Location {
@@ -136,6 +146,8 @@ function getDocumentSources(filepath: string): DocumentSource[] {
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
 ): Promise<PersistedQueryManifest> {
+  const { createOperationId = defaults.createOperationId } = config;
+
   const paths = config.documents ?? defaults.documents;
   const ignorePaths =
     config.documentIgnorePatterns ?? defaults.documentIgnorePatterns;
@@ -209,7 +221,7 @@ export async function generatePersistedQueryManifest(
     link: new ApolloLink((operation) => {
       const body = print(sortTopLevelDefinitions(operation.query));
       manifestOperations.push({
-        id: createHash("sha256").update(body).digest("hex"),
+        id: createOperationId(body),
         name: operation.operationName,
         type: (
           operation.query.definitions.find(
