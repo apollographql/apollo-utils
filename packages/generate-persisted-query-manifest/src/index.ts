@@ -28,6 +28,7 @@ type OperationType = "query" | "mutation" | "subscription";
 interface CreateOperationIdOptions {
   operationName: string;
   type: OperationType;
+  createDefaultId: () => string;
 }
 
 export interface PersistedQueryManifestConfig {
@@ -231,7 +232,13 @@ export async function generatePersistedQueryManifest(
       ).operation;
 
       manifestOperations.push({
-        id: createOperationId(body, { operationName: name, type }),
+        id: createOperationId(body, {
+          operationName: name,
+          type,
+          createDefaultId() {
+            return defaults.createOperationId(body);
+          },
+        }),
         name,
         type,
         body,
