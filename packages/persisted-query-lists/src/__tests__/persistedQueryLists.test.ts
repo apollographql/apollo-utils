@@ -229,50 +229,66 @@ describe("persisted-query-lists", () => {
       }
 
       it("anonymous operation", async () => {
-        const onError = jest.fn();
-        await runAgainstLink({ onError }, "{ x }");
-        expect(onError).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledWith({
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink({ onVerificationFailed }, "{ x }");
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
           reason: "AnonymousOperation",
           operation: createOperation({ query: "{ x }" }),
         });
       });
 
       it("multi-operation document", async () => {
-        const onError = jest.fn();
-        await runAgainstLink({ onError }, "query Q { a } query QQ { b }");
-        expect(onError).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledWith({
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink(
+          { onVerificationFailed },
+          "query Q { a } query QQ { b }",
+        );
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
           reason: "MultipleOperations",
           operation: createOperation({ query: "query Q { a } query QQ { b }" }),
         });
       });
 
       it("no-operations document", async () => {
-        const onError = jest.fn();
-        await runAgainstLink({ onError }, "fragment F on T { f }");
-        expect(onError).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledWith({
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink({ onVerificationFailed }, "fragment F on T { f }");
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
           reason: "NoOperations",
           operation: createOperation({ query: "fragment F on T { f }" }),
         });
       });
 
       it("unknown operation name", async () => {
-        const onError = jest.fn();
-        await runAgainstLink({ onError }, "query Foo { f }");
-        expect(onError).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledWith({
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink({ onVerificationFailed }, "query Foo { f }");
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
           reason: "UnknownOperation",
           operation: createOperation({ query: "query Foo { f }" }),
         });
       });
 
       it("different body", async () => {
-        const onError = jest.fn();
-        await runAgainstLink({ onError }, "query Foobar { different }");
-        expect(onError).toHaveBeenCalledTimes(1);
-        expect(onError).toHaveBeenCalledWith({
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink(
+          { onVerificationFailed },
+          "query Foobar { different }",
+        );
+
+        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+        expect(onVerificationFailed).toHaveBeenCalledWith({
           reason: "QueryMismatch",
           operation: createOperation({ query: "query Foobar { different }" }),
           manifestDefinition: print(parse("query Foobar {\n  f\n}")),
@@ -280,9 +296,14 @@ describe("persisted-query-lists", () => {
       });
 
       it("operation on the manifest", async () => {
-        const onError = jest.fn();
-        await runAgainstLink({ onError }, "query Foobar {\n  f\n}");
-        expect(onError).not.toHaveBeenCalled();
+        const onVerificationFailed = jest.fn();
+
+        await runAgainstLink(
+          { onVerificationFailed },
+          "query Foobar {\n  f\n}",
+        );
+
+        expect(onVerificationFailed).not.toHaveBeenCalled();
       });
     });
 

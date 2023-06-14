@@ -168,7 +168,7 @@ export interface CreatePersistedQueryManifestVerificationLinkOptions {
   // is created, not on the first operation: it's an async load, not a lazy
   // load.
   loadManifest: () => Promise<PersistedQueryManifestForVerification>;
-  onError?: (
+  onVerificationFailed?: (
     details: PersistedQueryManifestVerificationLinkErrorDetails,
   ) => void;
 }
@@ -202,23 +202,29 @@ export function createPersistedQueryManifestVerificationLink(
     for (const definition of operation.query.definitions) {
       if (definition.kind === "OperationDefinition") {
         if (!definition.name) {
-          options.onError?.({ reason: "AnonymousOperation", operation });
+          options.onVerificationFailed?.({
+            reason: "AnonymousOperation",
+            operation,
+          });
           return;
         }
         if (operationName !== null) {
-          options.onError?.({ reason: "MultipleOperations", operation });
+          options.onVerificationFailed?.({
+            reason: "MultipleOperations",
+            operation,
+          });
           return;
         }
         operationName = definition.name.value;
       }
     }
     if (operationName === null) {
-      options.onError?.({ reason: "NoOperations", operation });
+      options.onVerificationFailed?.({ reason: "NoOperations", operation });
       return;
     }
     const manifestDefinition = operationBodiesByName.get(operationName);
     if (manifestDefinition === undefined) {
-      options.onError?.({
+      options.onVerificationFailed?.({
         reason: "UnknownOperation",
         operation,
       });
@@ -226,7 +232,7 @@ export function createPersistedQueryManifestVerificationLink(
     }
 
     if (query !== manifestDefinition) {
-      options.onError?.({
+      options.onVerificationFailed?.({
         reason: "QueryMismatch",
         operation,
         manifestDefinition,
