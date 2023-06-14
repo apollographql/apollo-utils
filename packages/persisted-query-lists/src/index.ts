@@ -192,7 +192,7 @@ export function createPersistedQueryManifestVerificationLink(
   // still throw.
   operationBodiesByNamePromise.catch(() => {});
 
-  function checkOperation(
+  function verifyOperation(
     operation: Operation,
     operationBodiesByName: Map<string, string>,
   ) {
@@ -248,7 +248,7 @@ export function createPersistedQueryManifestVerificationLink(
       let closed = false;
       operationBodiesByNamePromise
         .then((operationBodiesByName) => {
-          checkOperation(operation, operationBodiesByName);
+          verifyOperation(operation, operationBodiesByName);
 
           // if the observer is already closed, no need to subscribe.
           if (closed) return;
