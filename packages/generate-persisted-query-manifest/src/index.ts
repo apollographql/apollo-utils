@@ -25,6 +25,13 @@ import chalk from "chalk";
 
 type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
+type OperationType = "query" | "mutation" | "subscription";
+
+interface CreateOperationIdOptions {
+  operationName: string;
+  type: OperationType;
+}
+
 export interface PersistedQueryManifestConfig {
   /**
    * Paths to your GraphQL documents: queries, mutations, subscriptions, and fragments.
@@ -46,7 +53,10 @@ export interface PersistedQueryManifestConfig {
    *
    * Defaults to a sha256 hash of the query.
    */
-  createOperationId?: (query: string) => string;
+  createOperationId?: (
+    query: string,
+    options: CreateOperationIdOptions,
+  ) => string;
 }
 
 type DefaultPersistedQueryManifestConfig = RequireKeys<
@@ -57,7 +67,7 @@ type DefaultPersistedQueryManifestConfig = RequireKeys<
 export interface PersistedQueryManifestOperation {
   id: string;
   name: string;
-  type: "query" | "mutation" | "subscription";
+  type: OperationType;
   body: string;
 }
 
@@ -76,7 +86,7 @@ export const defaults: DefaultPersistedQueryManifestConfig = {
     "**/*.test.{js,jsx,ts,tsx}",
   ],
   output: "persisted-query-manifest.json",
-  createOperationId: (query: string) => {
+  createOperationId: (query) => {
     return createHash("sha256").update(query).digest("hex");
   },
 };
@@ -220,14 +230,17 @@ export async function generatePersistedQueryManifest(
     }),
     link: new ApolloLink((operation) => {
       const body = print(sortTopLevelDefinitions(operation.query));
+      const name = operation.operationName;
+      const type = (
+        operation.query.definitions.find(
+          (d) => d.kind === "OperationDefinition",
+        ) as OperationDefinitionNode
+      ).operation;
+
       manifestOperations.push({
-        id: createOperationId(body),
-        name: operation.operationName,
-        type: (
-          operation.query.definitions.find(
-            (d) => d.kind === "OperationDefinition",
-          ) as OperationDefinitionNode
-        ).operation,
+        id: createOperationId(body, { operationName: name, type }),
+        name,
+        type,
         body,
       });
 
