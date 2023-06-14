@@ -18,6 +18,7 @@ import {
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { relative } from "node:path";
 import vfile from "vfile";
 import type { VFile } from "vfile";
 import reporter from "vfile-reporter";
@@ -178,14 +179,17 @@ function uniq<T>(arr: T[]) {
 
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
+  configFilePath: string | undefined,
 ): Promise<PersistedQueryManifest> {
   const {
     documents = defaults.documents,
     documentIgnorePatterns = defaults.documentIgnorePatterns,
     createOperationId = defaults.createOperationId,
-    output = defaults.output,
   } = config;
 
+  const configFile = configFilePath
+    ? vfile({ path: relative(process.cwd(), configFilePath) })
+    : null;
   const filepaths = await glob(documents, { ignore: documentIgnorePatterns });
   const sources = uniq(filepaths).flatMap(getDocumentSources);
 
@@ -241,7 +245,6 @@ export async function generatePersistedQueryManifest(
   // reimplement/copy the fragment registry code here.
   const fragments = createFragmentRegistry(...sources.map(({ node }) => node));
   const manifestOperationIds = new Map<string, string>();
-  const manifestFile = vfile({ path: output });
 
   const manifestOperations: PersistedQueryManifestOperation[] = [];
 
@@ -266,8 +269,11 @@ export async function generatePersistedQueryManifest(
         },
       });
 
-      if (manifestOperationIds.has(id)) {
-        const message = manifestFile.message(
+      // We only need to validate the `id` when using a config file. Without
+      // a config file, our default id function will be used which is
+      // guaranteed to create unique IDs.
+      if (configFile && manifestOperationIds.has(id)) {
+        const message = configFile.message(
           ERROR_MESSAGES.uniqueOperationId(
             id,
             name,
@@ -291,7 +297,9 @@ export async function generatePersistedQueryManifest(
     }
   }
 
-  maybeReportErrorsAndExit(manifestFile);
+  if (configFile) {
+    maybeReportErrorsAndExit(configFile);
+  }
 
   return {
     format: "apollo-persisted-query-manifest",
