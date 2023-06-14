@@ -147,6 +147,21 @@ function getDocumentSources(filepath: string): DocumentSource[] {
   );
 }
 
+function maybeReportErrorsAndExit(files: VFile | VFile[]) {
+  if (!Array.isArray(files)) {
+    files = [files];
+  }
+
+  if (files.some((file) => file.messages.length > 0)) {
+    console.error(reporter(files, { quiet: true }));
+    process.exit(1);
+  }
+}
+
+function uniq<T>(arr: T[]) {
+  return [...new Set(arr)];
+}
+
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
 ): Promise<PersistedQueryManifest> {
@@ -154,10 +169,11 @@ export async function generatePersistedQueryManifest(
     documents = defaults.documents,
     documentIgnorePatterns = defaults.documentIgnorePatterns,
     createOperationId = defaults.createOperationId,
+    output = defaults.output,
   } = config;
 
   const filepaths = await glob(documents, { ignore: documentIgnorePatterns });
-  const sources = [...new Set(filepaths)].flatMap(getDocumentSources);
+  const sources = uniq(filepaths).flatMap(getDocumentSources);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();
@@ -204,17 +220,14 @@ export async function generatePersistedQueryManifest(
     });
   }
 
-  if (sources.some(({ file }) => file.messages.length > 0)) {
-    const files = [...new Set(sources.map((source) => source.file))];
-
-    console.error(reporter(files, { quiet: true }));
-    process.exit(1);
-  }
+  maybeReportErrorsAndExit(uniq(sources.map((source) => source.file)));
 
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
   const fragments = createFragmentRegistry(...sources.map(({ node }) => node));
+  const manifestOperationIds = new Set<string>();
+  const manifestFile = vfile({ path: output });
 
   const manifestOperations: PersistedQueryManifestOperation[] = [];
 
