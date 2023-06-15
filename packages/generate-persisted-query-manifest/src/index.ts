@@ -187,9 +187,11 @@ export async function generatePersistedQueryManifest(
     createOperationId = defaults.createOperationId,
   } = config;
 
-  const configFile = configFilePath
-    ? vfile({ path: relative(process.cwd(), configFilePath) })
-    : null;
+  const configFile = vfile({
+    path: configFilePath
+      ? relative(process.cwd(), configFilePath)
+      : "<virtual>",
+  });
   const filepaths = await glob(documents, { ignore: documentIgnorePatterns });
   const sources = uniq(filepaths).flatMap(getDocumentSources);
 
@@ -272,7 +274,7 @@ export async function generatePersistedQueryManifest(
       // We only need to validate the `id` when using a config file. Without
       // a config file, our default id function will be used which is
       // guaranteed to create unique IDs.
-      if (configFile && manifestOperationIds.has(id)) {
+      if (manifestOperationIds.has(id)) {
         const message = configFile.message(
           ERROR_MESSAGES.uniqueOperationId(
             id,
@@ -297,9 +299,7 @@ export async function generatePersistedQueryManifest(
     }
   }
 
-  if (configFile) {
-    maybeReportErrorsAndExit(configFile);
-  }
+  maybeReportErrorsAndExit(configFile);
 
   return {
     format: "apollo-persisted-query-manifest",
