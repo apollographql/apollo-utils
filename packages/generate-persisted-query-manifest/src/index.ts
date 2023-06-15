@@ -132,7 +132,10 @@ const ERROR_MESSAGES = {
   },
 };
 
-function addError(source: DocumentSource, message: string) {
+function addError(
+  source: Pick<DocumentSource, "file"> & Partial<DocumentSource>,
+  message: string,
+) {
   const vfileMessage = source.file.message(message, source.location);
   vfileMessage.fatal = true;
 }
@@ -275,14 +278,14 @@ export async function generatePersistedQueryManifest(
       // a config file, our default id function will be used which is
       // guaranteed to create unique IDs.
       if (manifestOperationIds.has(id)) {
-        const message = configFile.message(
+        addError(
+          { file: configFile },
           ERROR_MESSAGES.uniqueOperationId(
             id,
             name,
             manifestOperationIds.get(id)!,
           ),
         );
-        message.fatal = true;
       } else {
         manifestOperationIds.set(id, name);
       }
