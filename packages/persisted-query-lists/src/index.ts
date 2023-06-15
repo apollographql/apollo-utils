@@ -1,6 +1,10 @@
 import { print, type DocumentNode } from "graphql";
 import { ApolloLink } from "@apollo/client/link/core";
-import { Observable, ObservableSubscription } from "@apollo/client/core";
+import {
+  Observable,
+  type Operation,
+  type ObservableSubscription,
+} from "@apollo/client/core";
 
 // This type is copied from `@apollo/client/link/persisted-queries`; to avoid a
 // dependency on a particular version `@apollo/client` we copy it here.
@@ -138,12 +142,28 @@ export function generatePersistedQueryIdsFromManifest(
   };
 }
 
-// The subset of the fields of a Persisted Query Manifest needed by the
-// verification link. (Using the entire manifest is fine, but if you're trying
-// to save space you can strip down to just these fields.)
-export interface PersistedQueryManifestForVerification {
-  operations: { name: string; body: string }[];
+interface PersistedQueryManifestOperation {
+  id: string;
+  name: string;
+  type: "query" | "mutation" | "subscription";
+  body: string;
 }
+
+export interface PersistedQueryManifestForVerification {
+  operations: PersistedQueryManifestOperation[];
+}
+
+type PersistedQueryManifestVerificationLinkErrorDetails =
+  | { reason: "AnonymousOperation"; operation: Operation }
+  | { reason: "MultipleOperations"; operation: Operation }
+  | { reason: "NoOperations"; operation: Operation }
+  | { reason: "UnknownOperation"; operation: Operation }
+  | {
+      reason: "OperationMismatch";
+      operation: Operation;
+      manifestOperation: PersistedQueryManifestOperation;
+    };
+
 export interface CreatePersistedQueryManifestVerificationLinkOptions {
   // Manifests can be large, so we allow them to be loaded asynchronously. (For
   // example, you might make the same webpack bundle for multiple environments
@@ -152,74 +172,74 @@ export interface CreatePersistedQueryManifestVerificationLinkOptions {
   // is created, not on the first operation: it's an async load, not a lazy
   // load.
   loadManifest: () => Promise<PersistedQueryManifestForVerification>;
-  onAnonymousOperation?: (options: { body: string }) => void;
-  onMultiOperationDocument?: (options: { body: string }) => void;
-  onNoOperationsDocument?: (options: { body: string }) => void;
-  onUnknownOperationName?: (options: {
-    operationName: string;
-    body: string;
-  }) => void;
-  onDifferentBody?: (options: {
-    operationName: string;
-    manifestBody: string;
-    actualBody: string;
-  }) => void;
+  onVerificationFailed?: (
+    details: PersistedQueryManifestVerificationLinkErrorDetails,
+  ) => void;
 }
 export function createPersistedQueryManifestVerificationLink(
   options: CreatePersistedQueryManifestVerificationLinkOptions,
 ) {
-  const operationBodiesByNamePromise = options
-    .loadManifest()
-    .then((manifest) => {
-      const operationBodiesByName = new Map<string, string>();
-      manifest.operations.forEach(({ name, body }) => {
-        operationBodiesByName.set(name, body);
-      });
-      return operationBodiesByName;
+  const operationsByNamePromise = options.loadManifest().then((manifest) => {
+    const operationsByName = new Map<string, PersistedQueryManifestOperation>();
+
+    manifest.operations.forEach((operation) => {
+      operationsByName.set(operation.name, operation);
     });
+
+    return operationsByName;
+  });
   // If the load fails before the first time we try to run an operation, we
   // don't want the JS environment to chide us for having an unhandled
   // rejection: we'll handle the rejection when we `await` below during our
   // first operation! Put a no-op catch handler on the Promise instead. This
   // doesn't mean the Promise won't reject on error: the `await` below will
   // still throw.
-  operationBodiesByNamePromise.catch(() => {});
+  operationsByNamePromise.catch(() => {});
 
-  function checkDocument(
-    document: DocumentNode,
-    operationBodiesByName: Map<string, string>,
+  function verifyOperation(
+    operation: Operation,
+    operationsByName: Map<string, PersistedQueryManifestOperation>,
   ) {
-    const body = print(sortTopLevelDefinitions(document));
+    const query = print(sortTopLevelDefinitions(operation.query));
 
     let operationName: string | null = null;
-    for (const definition of document.definitions) {
+    for (const definition of operation.query.definitions) {
       if (definition.kind === "OperationDefinition") {
         if (!definition.name) {
-          options.onAnonymousOperation?.({ body });
+          options.onVerificationFailed?.({
+            reason: "AnonymousOperation",
+            operation,
+          });
           return;
         }
         if (operationName !== null) {
-          options.onMultiOperationDocument?.({ body });
+          options.onVerificationFailed?.({
+            reason: "MultipleOperations",
+            operation,
+          });
           return;
         }
         operationName = definition.name.value;
       }
     }
     if (operationName === null) {
-      options.onNoOperationsDocument?.({ body });
+      options.onVerificationFailed?.({ reason: "NoOperations", operation });
       return;
     }
-    const manifestBody = operationBodiesByName.get(operationName);
-    if (manifestBody === undefined) {
-      options.onUnknownOperationName?.({ operationName, body });
+    const manifestOperation = operationsByName.get(operationName);
+    if (manifestOperation === undefined) {
+      options.onVerificationFailed?.({
+        reason: "UnknownOperation",
+        operation,
+      });
       return;
     }
 
-    if (body !== manifestBody) {
-      options.onDifferentBody?.({
-        operationName,
-        manifestBody,
-        actualBody: body,
+    if (query !== manifestOperation.body) {
+      options.onVerificationFailed?.({
+        reason: "OperationMismatch",
+        operation,
+        manifestOperation,
       });
       return;
     }
@@ -230,9 +250,9 @@ export function createPersistedQueryManifestVerificationLink(
     return new Observable((observer) => {
       let handle: ObservableSubscription;
       let closed = false;
-      operationBodiesByNamePromise
-        .then((operationBodiesByName) => {
-          checkDocument(operation.query, operationBodiesByName);
+      operationsByNamePromise
+        .then((operationsByName) => {
+          verifyOperation(operation, operationsByName);
 
           // if the observer is already closed, no need to subscribe.
           if (closed) return;
