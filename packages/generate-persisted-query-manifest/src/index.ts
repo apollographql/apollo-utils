@@ -18,12 +18,19 @@ import {
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { relative } from "node:path";
 import vfile from "vfile";
 import type { VFile } from "vfile";
 import reporter from "vfile-reporter";
 import chalk from "chalk";
 
-type RequireKeys<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
+type OperationType = "query" | "mutation" | "subscription";
+
+interface CreateOperationIdOptions {
+  operationName: string;
+  type: OperationType;
+  createDefaultId: () => string;
+}
 
 export interface PersistedQueryManifestConfig {
   /**
@@ -40,17 +47,22 @@ export interface PersistedQueryManifestConfig {
    * Path where the manifest file will be written.
    */
   output?: string;
-}
 
-type DefaultPersistedQueryManifestConfig = RequireKeys<
-  PersistedQueryManifestConfig,
-  "documents" | "documentIgnorePatterns" | "output"
->;
+  /**
+   * Function that generates a manifest operation ID for a given query.
+   *
+   * Defaults to a sha256 hash of the query.
+   */
+  createOperationId?: (
+    query: string,
+    options: CreateOperationIdOptions,
+  ) => string;
+}
 
 export interface PersistedQueryManifestOperation {
   id: string;
   name: string;
-  type: "query" | "mutation" | "subscription";
+  type: OperationType;
   body: string;
 }
 
@@ -60,7 +72,7 @@ export interface PersistedQueryManifest {
   operations: PersistedQueryManifestOperation[];
 }
 
-export const defaults: DefaultPersistedQueryManifestConfig = {
+export const defaults = {
   documents: "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
   documentIgnorePatterns: [
     "**/*.d.ts",
@@ -69,6 +81,9 @@ export const defaults: DefaultPersistedQueryManifestConfig = {
     "**/*.test.{js,jsx,ts,tsx}",
   ],
   output: "persisted-query-manifest.json",
+  createOperationId: (query: string) => {
+    return createHash("sha256").update(query).digest("hex");
+  },
 };
 
 interface Location {
@@ -83,6 +98,7 @@ interface DocumentSource {
 }
 
 const COLORS = {
+  identifier: chalk.magenta,
   filepath: chalk.underline.cyan,
   name: chalk.yellow,
 };
@@ -101,9 +117,25 @@ const ERROR_MESSAGES = {
       name,
     )}" already defined in: ${COLORS.filepath(source.file.path)}`;
   },
+  uniqueOperationId: (
+    id: string,
+    operationName: string,
+    definedOperationName: string,
+  ) => {
+    return `\`createOperationId\` created an ID (${COLORS.identifier(
+      id,
+    )}) for operation named "${COLORS.name(
+      operationName,
+    )}" that has already been used for operation named "${COLORS.name(
+      definedOperationName,
+    )}".`;
+  },
 };
 
-function addError(source: DocumentSource, message: string) {
+function addError(
+  source: Pick<DocumentSource, "file"> & Partial<DocumentSource>,
+  message: string,
+) {
   const vfileMessage = source.file.message(message, source.location);
   vfileMessage.fatal = true;
 }
@@ -133,15 +165,38 @@ function getDocumentSources(filepath: string): DocumentSource[] {
   );
 }
 
+function maybeReportErrorsAndExit(files: VFile | VFile[]) {
+  if (!Array.isArray(files)) {
+    files = [files];
+  }
+
+  if (files.some((file) => file.messages.length > 0)) {
+    console.error(reporter(files, { quiet: true }));
+    process.exit(1);
+  }
+}
+
+function uniq<T>(arr: T[]) {
+  return [...new Set(arr)];
+}
+
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
+  configFilePath: string | undefined,
 ): Promise<PersistedQueryManifest> {
-  const paths = config.documents ?? defaults.documents;
-  const ignorePaths =
-    config.documentIgnorePatterns ?? defaults.documentIgnorePatterns;
+  const {
+    documents = defaults.documents,
+    documentIgnorePatterns = defaults.documentIgnorePatterns,
+    createOperationId = defaults.createOperationId,
+  } = config;
 
-  const filepaths = await glob(paths, { ignore: ignorePaths });
-  const sources = [...new Set(filepaths)].flatMap(getDocumentSources);
+  const configFile = vfile({
+    path: configFilePath
+      ? relative(process.cwd(), configFilePath)
+      : "<virtual>",
+  });
+  const filepaths = await glob(documents, { ignore: documentIgnorePatterns });
+  const sources = uniq(filepaths).flatMap(getDocumentSources);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();
@@ -188,17 +243,13 @@ export async function generatePersistedQueryManifest(
     });
   }
 
-  if (sources.some(({ file }) => file.messages.length > 0)) {
-    const files = [...new Set(sources.map((source) => source.file))];
-
-    console.error(reporter(files, { quiet: true }));
-    process.exit(1);
-  }
+  maybeReportErrorsAndExit(uniq(sources.map((source) => source.file)));
 
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
   const fragments = createFragmentRegistry(...sources.map(({ node }) => node));
+  const manifestOperationIds = new Map<string, string>();
 
   const manifestOperations: PersistedQueryManifestOperation[] = [];
 
@@ -208,16 +259,38 @@ export async function generatePersistedQueryManifest(
     }),
     link: new ApolloLink((operation) => {
       const body = print(sortTopLevelDefinitions(operation.query));
-      manifestOperations.push({
-        id: createHash("sha256").update(body).digest("hex"),
-        name: operation.operationName,
-        type: (
-          operation.query.definitions.find(
-            (d) => d.kind === "OperationDefinition",
-          ) as OperationDefinitionNode
-        ).operation,
-        body,
+      const name = operation.operationName;
+      const type = (
+        operation.query.definitions.find(
+          (d) => d.kind === "OperationDefinition",
+        ) as OperationDefinitionNode
+      ).operation;
+
+      const id = createOperationId(body, {
+        operationName: name,
+        type,
+        createDefaultId() {
+          return defaults.createOperationId(body);
+        },
       });
+
+      // We only need to validate the `id` when using a config file. Without
+      // a config file, our default id function will be used which is
+      // guaranteed to create unique IDs.
+      if (manifestOperationIds.has(id)) {
+        addError(
+          { file: configFile },
+          ERROR_MESSAGES.uniqueOperationId(
+            id,
+            name,
+            manifestOperationIds.get(id)!,
+          ),
+        );
+      } else {
+        manifestOperationIds.set(id, name);
+      }
+
+      manifestOperations.push({ id, name, type, body });
 
       return Observable.of({ data: null });
     }),
@@ -228,6 +301,8 @@ export async function generatePersistedQueryManifest(
       await client.query({ query: source.node, fetchPolicy: "no-cache" });
     }
   }
+
+  maybeReportErrorsAndExit(configFile);
 
   return {
     format: "apollo-persisted-query-manifest",

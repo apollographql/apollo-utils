@@ -37,7 +37,10 @@ program
     const result = await getUserConfig(cliOptions);
     const outputPath = result?.config.output ?? defaults.output;
 
-    const manifest = await generatePersistedQueryManifest(result?.config);
+    const manifest = await generatePersistedQueryManifest(
+      result?.config,
+      result?.filepath,
+    );
     writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
 
     console.log(`Manifest written to ${outputPath}`);
