@@ -84,12 +84,16 @@ export interface GeneratePersistedQueryIdsFromManifestOptions {
   //  This function is invoked as soon as the link
   // is created, not on the first operation: it's an async load, not a lazy
   // load.
-  loadManifest: () => Promise<PersistedQueryManifestForGeneratingPersistedQueryIds>;
+  loadManifest: () =>
+    | Promise<PersistedQueryManifestForGeneratingPersistedQueryIds>
+    | PersistedQueryManifestForGeneratingPersistedQueryIds;
 }
 export function generatePersistedQueryIdsFromManifest(
   options: GeneratePersistedQueryIdsFromManifestOptions,
 ) {
-  const operationIdsByNamePromise = options.loadManifest().then((manifest) => {
+  const operationIdsByNamePromise = Promise.resolve(
+    options.loadManifest(),
+  ).then((manifest) => {
     const operationIdsByName = new Map<string, string>();
     manifest.operations.forEach(({ name, id }) => {
       operationIdsByName.set(name, id);

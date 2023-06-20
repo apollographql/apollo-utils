@@ -158,6 +158,48 @@ describe("persisted-query-lists", () => {
         toPromise(execute(link, { query: parse("{__typename}") })),
       ).rejects.toThrow("nope");
     });
+
+    it("allows manifest to be loaded synchronously", async () => {
+      const manifest = {
+        format: "apollo-persisted-query-manifest",
+        version: 1,
+        operations: [
+          {
+            id: "foobar-id",
+            name: "Foobar",
+            type: "query",
+            body: "query Foobar { f }",
+          },
+        ],
+      };
+
+      const link = createPersistedQueryLink(
+        generatePersistedQueryIdsFromManifest({
+          loadManifest: () => manifest,
+        }),
+      ).concat(returnExtensionsAndContextLink);
+
+      expect(
+        await toPromise(execute(link, { query: parse("query Foobar { f }") })),
+      ).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "context": {
+              "http": {
+                "includeExtensions": true,
+                "includeQuery": false,
+              },
+            },
+            "extensions": {
+              "persistedQuery": {
+                "sha256Hash": "foobar-id",
+                "version": 1,
+              },
+            },
+          },
+        }
+      `);
+    });
   });
 
   describe("sortTopLevelDefinitions", () => {
