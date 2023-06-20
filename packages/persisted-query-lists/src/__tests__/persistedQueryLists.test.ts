@@ -352,6 +352,34 @@ describe("persisted-query-lists", () => {
 
         expect(onVerificationFailed).not.toHaveBeenCalled();
       });
+
+      it("allows manifest to be loaded synchronously", async () => {
+        const manifest = {
+          format: "apollo-persisted-query-manifest",
+          version: 1,
+          operations: [
+            {
+              id: "foobar-id",
+              name: "Foobar",
+              type: "query" as const,
+              body: "query Foobar {\n  f\n}",
+            },
+          ],
+        };
+
+        const onVerificationFailed = jest.fn();
+
+        const link = createPersistedQueryManifestVerificationLink({
+          loadManifest: () => manifest,
+          onVerificationFailed,
+        }).concat(returnExtensionsAndContextLink);
+
+        await toPromise(
+          execute(link, { query: parse("query Foobar {\n  f\n}") }),
+        );
+
+        expect(onVerificationFailed).not.toHaveBeenCalled();
+      });
     });
 
     it("error loading manifest", async () => {
