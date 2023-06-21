@@ -31,9 +31,9 @@ If you need to provide further customization, such as customizing the location o
 }
 ```
 
-> NOTE: The config file is optional. Defaults for each option is displayed above.
+> NOTE: The config file is optional. Defaults for each option are displayed above.
 
-If you would like to name the config file something different, or put it in a different directory, you can tell the CLI where to find it using the `--config` option.
+If you would like to define the config file in a directory other than the root, you can tell the CLI the location of the config file using the `--config` option.
 
 ```
 npx generate-persisted-query-manifest --config path/to/persisted-query-manifest.config.json
@@ -41,9 +41,7 @@ npx generate-persisted-query-manifest --config path/to/persisted-query-manifest.
 
 ### Supported config file formats
 
-The config file can be provided in a variety of formats and optionally prefixed with a dot (`.`).
-
-The CLI will search for a config file in these locations:
+The config file can be provided in a variety of formats and optionally prefixed with a dot (`.`). The CLI will search for a config file in these locations:
 
 - `.persisted-query-manifest.config.json`
 - `persisted-query-manifest.config.json`
