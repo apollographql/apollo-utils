@@ -14,9 +14,36 @@ Run code extraction using the CLI
 npx generate-persisted-query-manifest
 ```
 
-By default, this will look at all `.graphql`, `.gql`, `.js`, `.jsx`, `.ts`, and `.tsx` files in your `src` directory, excluding storybook and test files. The manifest file will be written to the `persisted-query-manifest.json` file in your root directory.
+## CLI configuration
 
-If you need to provide further customization, such as customizing the location of where to search for your documents, you can provide a config file at the root of your project. The CLI will search for a config file in a variety of formats in these locations:
+If you need to provide further customization, such as customizing the location of where to search for your documents, you can provide a config file at the root of your project. Create a `persisted-query-manifest.config.json` file in the root of your project.
+
+```json
+{
+  "documents": "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
+  "documentIgnorePatterns": [
+    "**/*.d.ts",
+    "**/*.spec.{js,jsx,ts,tsx}",
+    "**/*.story.{js,jsx,ts,tsx}",
+    "**/*.test.{js,jsx,ts,tsx}"
+  ],
+  "output": "persisted-query-manifest.json"
+}
+```
+
+> NOTE: The config file is optional. Defaults for each option is displayed above.
+
+If you would like to name the config file something different, or put it in a different directory, you can tell the CLI where to find it using the `--config` option.
+
+```
+npx generate-persisted-query-manifest --config path/to/persisted-query-manifest.config.json
+```
+
+### Supported config file formats
+
+The config file can be provided in a variety of formats and optionally prefixed with a dot (`.`).
+
+The CLI will search for a config file in these locations:
 
 - `.persisted-query-manifest.config.json`
 - `persisted-query-manifest.config.json`
@@ -31,12 +58,6 @@ If you need to provide further customization, such as customizing the location o
 - `.persisted-query-manifest.config.cjs`
 - `persisted-query-manifest.config.cjs`
 - A `persisted-query-manifest` key in `package.json`
-
-If you would like to name the config file something different, or put it in a different directory, you can tell the CLI where to find it using the `--config` option.
-
-```
-npx generate-persisted-query-manifest --config path/to/persisted-query-manifest.config.ts
-```
 
 ## Configuration
 
