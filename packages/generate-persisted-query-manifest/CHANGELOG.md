@@ -1,5 +1,33 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.0.0-alpha.6
+
+### Patch Changes
+
+- [#309](https://github.com/apollographql/apollo-utils/pull/309) [`18981ce`](https://github.com/apollographql/apollo-utils/commit/18981ce68fa65eb99bd46172f2ce6c055170cd18) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Add the ability to create custom manifest operation IDs by defining a `createCustomId` function in the config file.
+
+  ```ts
+  // persisted-query-manifest.config.ts
+  import { PersistedQueryManifestConfig } from "@apollo/generate-persisted-query-manifest";
+  import { Buffer } from "node:buffer";
+
+  const config: PersistedQueryManifestConfig = {
+    createOperationId(query, { operationName, createDefaultId }) {
+      switch (operationName) {
+        case "TestOperation":
+          return Buffer.from(query).toString("base64");
+        default:
+          return createDefaultId();
+      }
+    },
+  };
+
+  export default config;
+  ```
+
+- Updated dependencies [[`12b76e2`](https://github.com/apollographql/apollo-utils/commit/12b76e24fb29bb43540798a142497b37ba4bd016), [`b5ca31c`](https://github.com/apollographql/apollo-utils/commit/b5ca31c18b1689c08be21bed79ea37c81152abed)]:
+  - @apollo/persisted-query-lists@1.0.0-alpha.4
+
 ## 1.0.0-alpha.5
 
 ### Patch Changes
