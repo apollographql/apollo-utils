@@ -1,5 +1,28 @@
 # @apollo/persisted-query-lists
 
+## 1.0.0-alpha.4
+
+### Patch Changes
+
+- [#315](https://github.com/apollographql/apollo-utils/pull/315) [`12b76e2`](https://github.com/apollographql/apollo-utils/commit/12b76e24fb29bb43540798a142497b37ba4bd016) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Allow the persisted query manifest to be loaded synchronously for both `createPersistedQueryManifestVerificationLink` and `generatePersistedQueryIdsFromManifest`.
+
+- [#308](https://github.com/apollographql/apollo-utils/pull/308) [`b5ca31c`](https://github.com/apollographql/apollo-utils/commit/b5ca31c18b1689c08be21bed79ea37c81152abed) Thanks [@jerelmiller](https://github.com/jerelmiller)! - **`createPersistedQueryManifestVerificationLink`**
+
+  - Consolidate the callbacks to a single `onVerificationFailed` callback with a `reason` property that describes the verification failure.
+  - The full `operation` is now available as a property to the `onVerificationFailed` callback.
+
+  ```ts
+  createPersistedQueryManifestVerificationLink({
+    onVerificationFailed(details) {
+      // The reason the verification failed, such as an anonymous operation
+      console.log(details.reason);
+
+      // The operation that caused the verification failure
+      console.log(details.operation);
+    },
+  });
+  ```
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes
