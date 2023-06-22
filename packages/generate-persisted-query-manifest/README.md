@@ -2,13 +2,13 @@
 
 ## Setup
 
-First install the package that will extract queries from your app
+First, install the `@apollo/generate-persisted-query-manifest` package as a dev dependency:
 
 ```sh
 npm install --save-dev @apollo/generate-persisted-query-manifest
 ```
 
-Run code extraction using the CLI
+Use its CLI to extract queries from your app:
 
 ```sh
 npx generate-persisted-query-manifest
@@ -16,7 +16,7 @@ npx generate-persisted-query-manifest
 
 ## CLI configuration
 
-If you need to provide further customization, such as customizing the location of where to search for your documents, you can provide a config file at the root of your project. Create a `persisted-query-manifest.config.json` file in the root of your project.
+To override the default options, you can provide a config file. Create a `persisted-query-manifest.config.json` file in the root of your project.
 
 ```json
 {
@@ -107,7 +107,7 @@ Default: `persisted-query-manifest.json`
 
 - `createOperationId` - Function `(query: string, options: CreateOperationIdOptions) => string`
 
-A custom function that allows you to customize the `id` for a query operation. By default, a SHA 256 hash of the query string will be used to generate the `id`. This option can only be used if your config file is defined using a `.js` , `.cjs` or `.ts `extension.
+A custom function that allows you to customize the `id` for a query operation. By default, a SHA 256 hash of the query string will be used to generate the `id`. This option can only be used if your config file is defined using a `.js`, `.cjs` or `.ts` extension.
 
 ```ts
 interface CreateOperationIdOptions {
