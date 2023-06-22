@@ -84,16 +84,12 @@ export interface GeneratePersistedQueryIdsFromManifestOptions {
   //  This function is invoked as soon as the link
   // is created, not on the first operation: it's an async load, not a lazy
   // load.
-  loadManifest: () =>
-    | Promise<PersistedQueryManifestForGeneratingPersistedQueryIds>
-    | PersistedQueryManifestForGeneratingPersistedQueryIds;
+  loadManifest: () => Promise<PersistedQueryManifestForGeneratingPersistedQueryIds>;
 }
 export function generatePersistedQueryIdsFromManifest(
   options: GeneratePersistedQueryIdsFromManifestOptions,
 ) {
-  const operationIdsByNamePromise = Promise.resolve(
-    options.loadManifest(),
-  ).then((manifest) => {
+  const operationIdsByNamePromise = options.loadManifest().then((manifest) => {
     const operationIdsByName = new Map<string, string>();
     manifest.operations.forEach(({ name, id }) => {
       operationIdsByName.set(name, id);
@@ -175,9 +171,7 @@ export interface CreatePersistedQueryManifestVerificationLinkOptions {
   // manifest out of the bundle.) This function is invoked as soon as the link
   // is created, not on the first operation: it's an async load, not a lazy
   // load.
-  loadManifest: () =>
-    | Promise<PersistedQueryManifestForVerification>
-    | PersistedQueryManifestForVerification;
+  loadManifest: () => Promise<PersistedQueryManifestForVerification>;
   onVerificationFailed?: (
     details: PersistedQueryManifestVerificationLinkErrorDetails,
   ) => void;
@@ -185,20 +179,15 @@ export interface CreatePersistedQueryManifestVerificationLinkOptions {
 export function createPersistedQueryManifestVerificationLink(
   options: CreatePersistedQueryManifestVerificationLinkOptions,
 ) {
-  const operationsByNamePromise = Promise.resolve(options.loadManifest()).then(
-    (manifest) => {
-      const operationsByName = new Map<
-        string,
-        PersistedQueryManifestOperation
-      >();
+  const operationsByNamePromise = options.loadManifest().then((manifest) => {
+    const operationsByName = new Map<string, PersistedQueryManifestOperation>();
 
-      manifest.operations.forEach((operation) => {
-        operationsByName.set(operation.name, operation);
-      });
+    manifest.operations.forEach((operation) => {
+      operationsByName.set(operation.name, operation);
+    });
 
-      return operationsByName;
-    },
-  );
+    return operationsByName;
+  });
   // If the load fails before the first time we try to run an operation, we
   // don't want the JS environment to chide us for having an unhandled
   // rejection: we'll handle the rejection when we `await` below during our
