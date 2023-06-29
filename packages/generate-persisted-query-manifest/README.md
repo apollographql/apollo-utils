@@ -20,12 +20,12 @@ To override the default options, you can provide a config file. Create a `persis
 
 ```json
 {
-  "documents": "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
-  "documentIgnorePatterns": [
-    "**/*.d.ts",
-    "**/*.spec.{js,jsx,ts,tsx}",
-    "**/*.story.{js,jsx,ts,tsx}",
-    "**/*.test.{js,jsx,ts,tsx}"
+  "documents": [
+    "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
+    "!**/*.d.ts",
+    "!**/*.spec.{js,jsx,ts,tsx}",
+    "!**/*.story.{js,jsx,ts,tsx}",
+    "!**/*.test.{js,jsx,ts,tsx}"
   ],
   "output": "persisted-query-manifest.json"
 }
@@ -80,22 +80,17 @@ export default config;
 
 - `documents` - `string | string[]`
 
-Tell the CLI where to look for your documents. You can use glob patterns to determine where to look.
-
-Default: `src/*/.{graphql,gql,js,jsx,ts,tsx}`
-
-- `documentIgnorePatterns` - `string | string[]`
-
-Tell the CLI to ignore these files when looking for documents. Useful to ignore queries that might be defined in your tests or storybook stories that are not used in your production application.
+Tell the CLI where to look for your documents. You can use glob patterns to determine where to look. Prefix the pattern with `!` to ignore the path which is useful to ignore queries that might be defined in your tests or storybook stories not used in your production application.
 
 Default:
 
 ```json
 [
-  "**/*.d.ts",
-  "**/*.spec.{js,jsx,ts,tsx}",
-  "**/*.story.{js,jsx,ts,tsx}",
-  "**/*.test.{js,jsx,ts,tsx}"
+  "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
+  "!**/*.d.ts",
+  "!**/*.spec.{js,jsx,ts,tsx}",
+  "!**/*.story.{js,jsx,ts,tsx}",
+  "!**/*.test.{js,jsx,ts,tsx}"
 ]
 ```
 
