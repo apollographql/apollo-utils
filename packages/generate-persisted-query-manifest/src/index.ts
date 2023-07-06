@@ -7,7 +7,7 @@ import {
 } from "@apollo/client/core";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
-import { glob } from "glob";
+import globby from "globby";
 import {
   type OperationDefinitionNode,
   parse,
@@ -35,13 +35,9 @@ interface CreateOperationIdOptions {
 export interface PersistedQueryManifestConfig {
   /**
    * Paths to your GraphQL documents: queries, mutations, subscriptions, and fragments.
+   * Prefix the pattern with `!` to specify a path that should be ignored.
    */
   documents?: string | string[];
-
-  /**
-   * Paths that should be ignored when searching for your GraphQL documents.
-   */
-  documentIgnorePatterns?: string | string[];
 
   /**
    * Path where the manifest file will be written.
@@ -73,12 +69,12 @@ export interface PersistedQueryManifest {
 }
 
 export const defaults = {
-  documents: "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
-  documentIgnorePatterns: [
-    "**/*.d.ts",
-    "**/*.spec.{js,jsx,ts,tsx}",
-    "**/*.story.{js,jsx,ts,tsx}",
-    "**/*.test.{js,jsx,ts,tsx}",
+  documents: [
+    "src/**/*.{graphql,gql,js,jsx,ts,tsx}",
+    "!**/*.d.ts",
+    "!**/*.spec.{js,jsx,ts,tsx}",
+    "!**/*.story.{js,jsx,ts,tsx}",
+    "!**/*.test.{js,jsx,ts,tsx}",
   ],
   output: "persisted-query-manifest.json",
   createOperationId: (query: string) => {
@@ -186,7 +182,6 @@ export async function generatePersistedQueryManifest(
 ): Promise<PersistedQueryManifest> {
   const {
     documents = defaults.documents,
-    documentIgnorePatterns = defaults.documentIgnorePatterns,
     createOperationId = defaults.createOperationId,
   } = config;
 
@@ -195,7 +190,7 @@ export async function generatePersistedQueryManifest(
       ? relative(process.cwd(), configFilePath)
       : "<virtual>",
   });
-  const filepaths = await glob(documents, { ignore: documentIgnorePatterns });
+  const filepaths = await globby(documents);
   const sources = uniq(filepaths).flatMap(getDocumentSources);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
