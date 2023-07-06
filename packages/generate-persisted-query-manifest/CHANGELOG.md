@@ -1,5 +1,11 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.0.0-alpha.7
+
+### Patch Changes
+
+- [#316](https://github.com/apollographql/apollo-utils/pull/316) [`d517125`](https://github.com/apollographql/apollo-utils/commit/d5171251e1a46863d3449ab13668dab32dedebc9) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Consolidate `document` and `documentIgnorePatterns` to the `documents` option. `documents` patterns can now be prefixed with `!` to negate the pattern.
+
 ## 1.0.0-alpha.6
 
 ### Patch Changes
