@@ -5,6 +5,12 @@ queries. Specifically, this package contains an [Apollo Link](https://www.apollo
 that can be used to verify your persisted queries against a manifest as well as
 helpers that work with the [Persisted Query Link](https://www.apollographql.com/docs/react/api/link/persisted-queries).
 
+These functions correspond to different steps in the adoption of persisted queries:
+
+- `createPersistedQueryManifestVerificationLink` allows you to verify that you've properly configured the `@apollo/generate-persisted-query-manifest` tool, without changing how your app communicates with your GraphQL server or requiring you to set up persisted queries in GraphOS/Router. This helps you build a deployment workflow that creates (and optionally publishes) your manifest.
+- Once you're confident that your manifest is being properly generated and published by your deployment infrastructure, you can use `generatePersistedQueryIdsAtRuntime` to tell your app to send persisted query IDs in its GraphQL requests instead of the full GraphQL document. While you do need to generate and publish your manifest to GraphOS in order for this to work properly, you don't need to make the manifest available to your client at runtime if you use this mechanism, so it can be simpler to set up than `generatePersistedQueryIdsFromManifest`. However, this requires your app to calculate SHA256 hashes at runtime.
+- Finally, you can use `generatePersistedQueryIdsFromManifest` to tell your app to send persisted query IDs by including the manifest directly inside your app. It uses your GraphQL operation's name to select which persisted query ID to send. This can perform better than `generatePersistedQueryIdsAtRuntime` by not requiring the client to calculate hashes.
+
 ## Setup
 
 Install the package:
@@ -22,7 +28,7 @@ that generates query hashes at runtime without the use of a manifest file. This
 differs from the default behavior of the Persisted Query Link by disabling
 automatic registration of persisted queries and sorting top-level definitions
 to mimic the behavior of the manifest file. See [`generatePersistedQueryIdsFromManifest`](#generatepersistedqueryidsfrommanifest)
-if you already have a manifest file.
+if you are able to integrate manifest file generation into your app's build process.
 
 ```ts
 import { generatePersistedQueryIdsAtRuntime } from "@apollo/persisted-query-lists";
