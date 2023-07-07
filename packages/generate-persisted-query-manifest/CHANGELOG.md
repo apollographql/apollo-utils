@@ -1,5 +1,54 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.0.0
+
+### Major Changes
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Initial release
+
+### Patch Changes
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Change `generatePersistedQueryIdsFromManifest` to take an async `loadManifest`. Ensure Promises don't have unhandled rejections.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Consolidate `document` and `documentIgnorePatterns` to the `documents` option. `documents` patterns can now be prefixed with `!` to negate the pattern.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Add `@apollo/persisted-query-lists` as a dependency to fix missing dependency issue.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Change createPersistedQueryManifestVerificationLink to load manifest asynchronously.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Adds support for a config file to the CLI. This can be used to determine where the CLI should look for GraphQL operations and where the manifest file should be written. The CLI has the ability to specify the path to the config file.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Allow v3.8.0 prerelease versions of @apollo/client.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Add the ability to create custom manifest operation IDs by defining a `createCustomId` function in the config file.
+
+  ```ts
+  // persisted-query-manifest.config.ts
+  import { PersistedQueryManifestConfig } from "@apollo/generate-persisted-query-manifest";
+  import { Buffer } from "node:buffer";
+
+  const config: PersistedQueryManifestConfig = {
+    createOperationId(query, { operationName, createDefaultId }) {
+      switch (operationName) {
+        case "TestOperation":
+          return Buffer.from(query).toString("base64");
+        default:
+          return createDefaultId();
+      }
+    },
+  };
+
+  export default config;
+  ```
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Provides more robust error handling and reporting.
+
+  - Collect all errors while generating manifest and report them together at once. Previously it would exit as soon as an error was encountered, even if there were multiple issues.
+  - Update the error reporting format to make it much easier to determine which file contains the error.
+
+- Updated dependencies [[`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8), [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8), [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8), [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8), [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8), [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8)]:
+  - @apollo/persisted-query-lists@1.0.0
+
 ## 1.0.0-alpha.7
 
 ### Patch Changes

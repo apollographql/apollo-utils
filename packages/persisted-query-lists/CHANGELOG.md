@@ -1,5 +1,38 @@
 # @apollo/persisted-query-lists
 
+## 1.0.0
+
+### Major Changes
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Initial release
+
+### Patch Changes
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Change `generatePersistedQueryIdsFromManifest` to take an async `loadManifest`. Ensure Promises don't have unhandled rejections.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Allow the persisted query manifest to be loaded synchronously for both `createPersistedQueryManifestVerificationLink` and `generatePersistedQueryIdsFromManifest`.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Change createPersistedQueryManifestVerificationLink to load manifest asynchronously.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - Allow v3.8.0 prerelease versions of @apollo/client.
+
+- [#287](https://github.com/apollographql/apollo-utils/pull/287) [`1a64dfa`](https://github.com/apollographql/apollo-utils/commit/1a64dfabc47d0d735473aecd23d540cab6737ca8) Thanks [@glasser](https://github.com/glasser)! - **`createPersistedQueryManifestVerificationLink`**
+
+  - Consolidate the callbacks to a single `onVerificationFailed` callback with a `reason` property that describes the verification failure.
+  - The full `operation` is now available as a property to the `onVerificationFailed` callback.
+
+  ```ts
+  createPersistedQueryManifestVerificationLink({
+    onVerificationFailed(details) {
+      // The reason the verification failed, such as an anonymous operation
+      console.log(details.reason);
+
+      // The operation that caused the verification failure
+      console.log(details.operation);
+    },
+  });
+  ```
+
 ## 1.0.0-alpha.4
 
 ### Patch Changes
