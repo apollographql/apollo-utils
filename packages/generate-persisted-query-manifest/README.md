@@ -82,6 +82,8 @@ export default config;
 
 Tell the CLI where to look for your documents. You can use glob patterns to determine where to look. Prefix the pattern with `!` to ignore the path which is useful to ignore queries that might be defined in your tests or storybook stories not used in your production application.
 
+Paths are interpreted relative to the current working directory, not the config file's directory. We recommend always running `generate-persisted-query-manifest` via an `npm run` script, which runs commands with the directory containing `package.json` as the current directory.
+
 Default:
 
 ```json
@@ -96,7 +98,7 @@ Default:
 
 - `output` - `string`
 
-Tell the CLI the location of where to write your manifest file.
+Tell the CLI the location of where to write your manifest file. Paths are interpreted relative to the current working directory.
 
 Default: `persisted-query-manifest.json`
 
