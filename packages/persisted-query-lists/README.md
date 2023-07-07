@@ -49,6 +49,7 @@ const persistedQueryLink = createPersistedQueryLink(
 
 Helper function passed to [Persisted Query Link](https://www.apollographql.com/docs/react/api/link/persisted-queries)
 that will read from your manifest configuration to get the persisted query ID.
+Note that this function completely ignores the `body` in the manifest: it just looks for an operation whose `name` matches the operation your code is trying to execute, and uses its `id`.
 See the [`@apollo/generate-persisted-query-manifest`](https://www.npmjs.com/package/@apollo/generate-persisted-query-manifest)
 package to learn how to generate the manifest file.
 
