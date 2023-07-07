@@ -104,6 +104,8 @@ Default: `persisted-query-manifest.json`
 
 A custom function that allows you to customize the `id` for a query operation. By default, a SHA 256 hash of the query string will be used to generate the `id`. This option can only be used if your config file is defined using a `.js`, `.cjs` or `.ts` extension.
 
+When you use this option, you cannot use the `generatePersistedQueryIdsAtRuntime` function from `@apollo/persisted-query-lists` in your client, because that function assumes that you are using the default ID generation (SHA256 hash of the body). It is compatible with `generatePersistedQueryIdsFromManifest`.
+
 ```ts
 interface CreateOperationIdOptions {
   /**

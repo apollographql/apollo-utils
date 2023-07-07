@@ -40,6 +40,8 @@ const persistedQueryLink = createPersistedQueryLink(
 );
 ```
 
+This function will not work properly if you use the `createOperationId` config option to `@apollo/generate-persisted-query-manifest`.
+
 #### Options
 
 - `sha256`: A SHA-256 hashing function. Can be sync or async. Providing a SHA-256
