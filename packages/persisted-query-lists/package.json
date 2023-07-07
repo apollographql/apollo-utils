@@ -1,0 +1,28 @@
+{
+  "name": "@apollo/persisted-query-lists",
+  "version": "1.0.0-alpha.4",
+  "description": "Support for Persisted Query Lists in Apollo Client Web",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apollographql/apollo-utils.git",
+    "directory": "packages/persisted-query-lists/"
+  },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "typescript",
+    "node"
+  ],
+  "author": "Apollo <packages@apollographql.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@apollo/client": "^3.2.0 || ^3.8.0-alpha",
+    "graphql": "14.x || 15.x || 16.x"
+  }
+}
