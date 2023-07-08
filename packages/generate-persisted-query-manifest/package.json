@@ -32,7 +32,7 @@
     "cosmiconfig-typescript-loader": "^4.3.0",
     "globby": "^11.1.0",
     "lodash": "^4.17.21",
-    "vfile": "^4.2.1",
+    "vfile": "^6.0.0",
     "vfile-reporter": "^6.0.2"
   },
   "peerDependencies": {
