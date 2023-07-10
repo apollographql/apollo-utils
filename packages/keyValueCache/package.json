@@ -22,6 +22,6 @@
   },
   "dependencies": {
     "@apollo/utils.logger": "^3.0.0",
-    "lru-cache": "^9.0.3"
+    "lru-cache": "^10.0.0"
   }
 }
