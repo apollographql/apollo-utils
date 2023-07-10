@@ -44,6 +44,16 @@
       "matchPackageNames": ["globby"],
       "allowedVersions": "11.x"
     },
+    // vfile v5+ only ships as ESM. So let's stay on v4.
+    {
+      "matchPackageNames": ["vfile"],
+      "allowedVersions": "4.x"
+    },
+    // vfile-reporter v7+ only ships as ESM. So let's stay on v6.
+    {
+      "matchPackageNames": ["vfile-reporter"],
+      "allowedVersions": "6.x"
+    },
     {
       "matchPackageNames": ["graphql"],
       "automerge": false,
