@@ -29,6 +29,11 @@
       "matchPackageNames": ["node-fetch", "@types/node-fetch"],
       "allowedVersions": "2.x"
     },
+    // crypto-hash v2 only ships as ESM. So let's stay on v1.
+    {
+      "matchPackageNames": ["crypto-hash"],
+      "allowedVersions": "1.x"
+    },
     {
       "matchPackageNames": ["graphql"],
       "automerge": false,
