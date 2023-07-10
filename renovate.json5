@@ -39,6 +39,11 @@
       "matchPackageNames": ["chalk"],
       "allowedVersions": "4.x"
     },
+    // globby v12+ only ships as ESM. So let's stay on v11.
+    {
+      "matchPackageNames": ["globby"],
+      "allowedVersions": "11.x"
+    },
     {
       "matchPackageNames": ["graphql"],
       "automerge": false,
