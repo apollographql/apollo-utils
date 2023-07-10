@@ -34,6 +34,11 @@
       "matchPackageNames": ["crypto-hash"],
       "allowedVersions": "1.x"
     },
+    // chalk v5 only ships as ESM. So let's stay on v4.
+    {
+      "matchPackageNames": ["chalk"],
+      "allowedVersions": "4.x"
+    },
     {
       "matchPackageNames": ["graphql"],
       "automerge": false,
