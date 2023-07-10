@@ -7,7 +7,10 @@ import type { Logger } from "@apollo/utils.logger";
  * capture these errors rather than just swallow them.
  */
 export class ErrorsAreMissesCache<V = string> implements KeyValueCache<V> {
-  constructor(private cache: KeyValueCache<V>, private logger?: Logger) {}
+  constructor(
+    private cache: KeyValueCache<V>,
+    private logger?: Logger,
+  ) {}
 
   async get(key: string): Promise<V | undefined> {
     try {

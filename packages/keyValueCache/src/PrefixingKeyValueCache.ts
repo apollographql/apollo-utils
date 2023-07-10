@@ -18,7 +18,10 @@ export class PrefixingKeyValueCache<V = string> implements KeyValueCache<V> {
   private prefix: string;
   [prefixesAreUnnecessaryForIsolationSymbol]?: true;
 
-  constructor(private wrapped: KeyValueCache<V>, prefix: string) {
+  constructor(
+    private wrapped: KeyValueCache<V>,
+    prefix: string,
+  ) {
     if (PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(wrapped)) {
       this.prefix = "";
       // If we try to again prefix this cache, we should still skip the
