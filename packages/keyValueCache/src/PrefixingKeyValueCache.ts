@@ -16,14 +16,14 @@ const prefixesAreUnnecessaryForIsolationSymbol = Symbol(
 // trying to provide a flush() method here could be confusingly dangerous.
 export class PrefixingKeyValueCache<
   V = string,
-  O extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
-> implements KeyValueCache<V, O>
+  SO extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+> implements KeyValueCache<V, SO>
 {
   private prefix: string;
   [prefixesAreUnnecessaryForIsolationSymbol]?: true;
 
   constructor(
-    private wrapped: KeyValueCache<V, O>,
+    private wrapped: KeyValueCache<V, SO>,
     prefix: string,
   ) {
     if (PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(wrapped)) {
@@ -41,7 +41,7 @@ export class PrefixingKeyValueCache<
   get(key: string) {
     return this.wrapped.get(this.prefix + key);
   }
-  set(key: string, value: V, options?: O) {
+  set(key: string, value: V, options?: SO) {
     return this.wrapped.set(this.prefix + key, value, options);
   }
   delete(key: string) {
