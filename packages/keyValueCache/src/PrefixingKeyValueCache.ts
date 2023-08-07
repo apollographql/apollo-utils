@@ -53,15 +53,15 @@ export class PrefixingKeyValueCache<
   // package doesn't break things).
   static prefixesAreUnnecessaryForIsolation<
     V = string,
-    O extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
-  >(c: KeyValueCache<V, O>): boolean {
+    SO extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+  >(c: KeyValueCache<V, SO>): boolean {
     return prefixesAreUnnecessaryForIsolationSymbol in c;
   }
 
   static cacheDangerouslyDoesNotNeedPrefixesForIsolation<
     V = string,
-    O extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
-  >(c: KeyValueCache<V, O>): KeyValueCache<V, O> {
+    SO extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+  >(c: KeyValueCache<V, SO>): KeyValueCache<V, SO> {
     return new PrefixesAreUnnecessaryForIsolationCache(c);
   }
 }
@@ -70,17 +70,17 @@ export class PrefixingKeyValueCache<
 // PrefixingKeyValueCache. See the README for details.
 class PrefixesAreUnnecessaryForIsolationCache<
   V = string,
-  O extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
-> implements KeyValueCache<V, O>
+  SO extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+> implements KeyValueCache<V, SO>
 {
   [prefixesAreUnnecessaryForIsolationSymbol] = true;
 
-  constructor(private wrapped: KeyValueCache<V, O>) {}
+  constructor(private wrapped: KeyValueCache<V, SO>) {}
 
   get(key: string) {
     return this.wrapped.get(key);
   }
-  set(key: string, value: V, options?: O) {
+  set(key: string, value: V, options?: SO) {
     return this.wrapped.set(key, value, options);
   }
   delete(key: string) {
