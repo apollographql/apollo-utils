@@ -1,9 +1,12 @@
 # KeyValueCache interface
 
 ```ts
-export interface KeyValueCache<V = string> {
+export interface KeyValueCache<
+  V = string,
+  SO extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+> {
   get(key: string): Promise<V | undefined>;
-  set(key: string, value: V, options?: KeyValueCacheSetOptions): Promise<void>;
+  set(key: string, value: V, options?: SO): Promise<void>;
   delete(key: string): Promise<boolean | void>;
 }
 ```

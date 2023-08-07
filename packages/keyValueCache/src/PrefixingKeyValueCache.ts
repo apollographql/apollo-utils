@@ -14,12 +14,16 @@ const prefixesAreUnnecessaryForIsolationSymbol = Symbol(
 // send a simple command that wipes the entire backend cache system, which
 // wouldn't support "only wipe the part of the cache with this prefix", so
 // trying to provide a flush() method here could be confusingly dangerous.
-export class PrefixingKeyValueCache<V = string> implements KeyValueCache<V> {
+export class PrefixingKeyValueCache<
+  V = string,
+  O extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+> implements KeyValueCache<V, O>
+{
   private prefix: string;
   [prefixesAreUnnecessaryForIsolationSymbol]?: true;
 
   constructor(
-    private wrapped: KeyValueCache<V>,
+    private wrapped: KeyValueCache<V, O>,
     prefix: string,
   ) {
     if (PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(wrapped)) {
@@ -37,7 +41,7 @@ export class PrefixingKeyValueCache<V = string> implements KeyValueCache<V> {
   get(key: string) {
     return this.wrapped.get(this.prefix + key);
   }
-  set(key: string, value: V, options?: KeyValueCacheSetOptions) {
+  set(key: string, value: V, options?: O) {
     return this.wrapped.set(this.prefix + key, value, options);
   }
   delete(key: string) {
@@ -47,32 +51,36 @@ export class PrefixingKeyValueCache<V = string> implements KeyValueCache<V> {
   // Checks to see if a cache is a PrefixesAreUnnecessaryForIsolationCache,
   // without using instanceof (so that installing multiple copies of this
   // package doesn't break things).
-  static prefixesAreUnnecessaryForIsolation<V = string>(
-    c: KeyValueCache<V>,
-  ): boolean {
+  static prefixesAreUnnecessaryForIsolation<
+    V = string,
+    O extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+  >(c: KeyValueCache<V, O>): boolean {
     return prefixesAreUnnecessaryForIsolationSymbol in c;
   }
 
-  static cacheDangerouslyDoesNotNeedPrefixesForIsolation<V = string>(
-    c: KeyValueCache<V>,
-  ): KeyValueCache<V> {
+  static cacheDangerouslyDoesNotNeedPrefixesForIsolation<
+    V = string,
+    O extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+  >(c: KeyValueCache<V, O>): KeyValueCache<V, O> {
     return new PrefixesAreUnnecessaryForIsolationCache(c);
   }
 }
 
 // This class lets you opt a cache out of the prefixing provided by
 // PrefixingKeyValueCache. See the README for details.
-class PrefixesAreUnnecessaryForIsolationCache<V = string>
-  implements KeyValueCache<V>
+class PrefixesAreUnnecessaryForIsolationCache<
+  V = string,
+  O extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+> implements KeyValueCache<V, O>
 {
   [prefixesAreUnnecessaryForIsolationSymbol] = true;
 
-  constructor(private wrapped: KeyValueCache<V>) {}
+  constructor(private wrapped: KeyValueCache<V, O>) {}
 
   get(key: string) {
     return this.wrapped.get(key);
   }
-  set(key: string, value: V, options?: KeyValueCacheSetOptions) {
+  set(key: string, value: V, options?: O) {
     return this.wrapped.set(key, value, options);
   }
   delete(key: string) {

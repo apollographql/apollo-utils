@@ -1,6 +1,11 @@
 import type { Logger } from "@apollo/utils.logger";
 import { ErrorsAreMissesCache } from "../ErrorsAreMissesCache";
-import type { KeyValueCache } from "../KeyValueCache";
+import type { KeyValueCache, KeyValueCacheSetOptions } from "../KeyValueCache";
+
+interface CustomKeyValueCacheSetOptions extends KeyValueCacheSetOptions {
+  noDisposeOnSet?: boolean;
+  noUpdateTTL?: boolean;
+}
 
 describe("ErrorsAreMissesCache", () => {
   const knownErrorMessage = "Service is down";
@@ -35,7 +40,7 @@ describe("ErrorsAreMissesCache", () => {
   });
 
   it("passes through calls to the underlying cache", async () => {
-    const mockCache: KeyValueCache = {
+    const mockCache: KeyValueCache<string, CustomKeyValueCacheSetOptions> = {
       get: jest.fn(async () => "foo"),
       set: jest.fn(),
       delete: jest.fn(),
@@ -47,9 +52,15 @@ describe("ErrorsAreMissesCache", () => {
 
     await errorsAreMisses.set("key", "foo");
     expect(mockCache.set).toHaveBeenCalledWith("key", "foo", undefined);
-    await errorsAreMisses.set("keyWithTTL", "foo", { ttl: 1000 });
-    expect(mockCache.set).toHaveBeenLastCalledWith("keyWithTTL", "foo", {
+    await errorsAreMisses.set("keyWithOptions", "foo", {
       ttl: 1000,
+      noDisposeOnSet: true,
+      noUpdateTTL: true,
+    });
+    expect(mockCache.set).toHaveBeenLastCalledWith("keyWithOptions", "foo", {
+      ttl: 1000,
+      noDisposeOnSet: true,
+      noUpdateTTL: true,
     });
 
     await errorsAreMisses.delete("key");

@@ -2,8 +2,10 @@ import { LRUCache } from "lru-cache";
 import type { KeyValueCache, KeyValueCacheSetOptions } from "./KeyValueCache";
 
 // LRUCache wrapper to implement the KeyValueCache interface.
-export class InMemoryLRUCache<V extends {} = string>
-  implements KeyValueCache<V>
+export class InMemoryLRUCache<
+  V extends {} = string,
+  SO extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+> implements KeyValueCache<V, SO>
 {
   private cache: LRUCache<string, V>;
 
@@ -32,7 +34,7 @@ export class InMemoryLRUCache<V extends {} = string>
     return 1;
   }
 
-  async set(key: string, value: V, options?: KeyValueCacheSetOptions) {
+  async set(key: string, value: V, options?: SO) {
     if (options?.ttl) {
       this.cache.set(key, value, { ttl: options.ttl * 1000 });
     } else {
