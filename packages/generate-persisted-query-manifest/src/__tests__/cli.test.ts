@@ -53,7 +53,7 @@ test("writes manifest file and prints location", async () => {
   await cleanup();
 });
 
-test("can read operations from .graphql files", async () => {
+test("can extract operations from .graphql files", async () => {
   const query = gql`
     query GreetingQuery {
       greeting
@@ -80,7 +80,7 @@ test("can read operations from .graphql files", async () => {
   await cleanup();
 });
 
-test("can read operations from .gql files", async () => {
+test("can extract operations from .gql files", async () => {
   const query = gql`
     query GreetingQuery {
       greeting
