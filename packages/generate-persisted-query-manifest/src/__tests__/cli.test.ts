@@ -804,6 +804,68 @@ export default config;
   await cleanup();
 });
 
+test("gathers and reports all errors together", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+  const anonymousQuery = gql`
+    query {
+      incorrect
+    }
+  `;
+  const helloQuery = gql`
+    query HelloQuery {
+      hello
+    }
+  `;
+
+  const currentUserQuery = gql`
+    query CurrentUserQuery {
+      currentUser {
+        ...CurrentUserFragment
+      }
+    }
+  `;
+
+  const currentUserFragment = gql`
+    fragment CurrentUserFragment on CurrentUser {
+      id
+    }
+  `;
+
+  await writeFile("./src/query.graphql", print(anonymousQuery));
+  await writeFile("./src/hello-query.graphql", print(helloQuery));
+  await writeFile("./src/hello2-query.graphql", print(helloQuery));
+  await writeFile("./src/current-user-query.graphql", print(currentUserQuery));
+  await writeFile(
+    "./src/current-user-fragment.graphql",
+    print(currentUserFragment),
+  );
+  await writeFile(
+    "./src/current-user-fragment2.graphql",
+    print(currentUserFragment),
+  );
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "src/current-user-fragment.graphql",
+      "1:1  error  Fragment named "CurrentUserFragment" already defined in: src/current-user-fragment2.graphql",
+      "src/current-user-fragment2.graphql",
+      "1:1  error  Fragment named "CurrentUserFragment" already defined in: src/current-user-fragment.graphql",
+      "src/hello-query.graphql",
+      "1:1  error  Operation named "HelloQuery" already defined in: src/hello2-query.graphql",
+      "src/hello2-query.graphql",
+      "1:1  error  Operation named "HelloQuery" already defined in: src/hello-query.graphql",
+      "src/query.graphql",
+      "1:1  error  Anonymous GraphQL operations are not supported. Please name your query.",
+      "✖ 5 errors",
+    ]
+  `);
+
+  await cleanup();
+});
+
 async function setup() {
   const utils = await prepareEnvironment();
 
