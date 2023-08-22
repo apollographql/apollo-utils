@@ -23,6 +23,7 @@ test("prints help message with --help", async () => {
       "Generate a persisted query manifest file",
       "Options:",
       "-c, --config <path>  path to the config file",
+      "-l, --list-files     prints the files matched from the documents pattern",
       "-v, --version        output the version number",
       "-h, --help           display help for command",
     ]

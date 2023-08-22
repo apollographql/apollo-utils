@@ -32,6 +32,10 @@ program
   .name("generate-persisted-query-manifest")
   .description("Generate a persisted query manifest file")
   .option("-c, --config <path>", "path to the config file")
+  .option(
+    "-l, --list-files",
+    "prints the files matched from the documents pattern",
+  )
   .version(version, "-v, --version")
   .action(async (cliOptions) => {
     const result = await getUserConfig(cliOptions);
