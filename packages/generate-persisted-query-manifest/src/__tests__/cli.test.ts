@@ -421,6 +421,99 @@ test("can specify custom document location with config file", async () => {
   await cleanup();
 });
 
+{
+  const ymlConfig = `
+documents: 
+  - queries/**/*.graphql
+`;
+
+  const jsConfig = `
+module.exports = {
+  documents: ['queries/**/*.graphql']
+}
+`;
+
+  const tsConfig = `
+import { PersistedQueryManifestConfig } from '@apollo/generate-persisted-query-manifest';
+
+const config: PersistedQueryManifestOperation = {
+  documents: ['queries/**/*.graphql'] 
+}
+
+export default config;
+`;
+
+  test.each([
+    ["json", JSON.stringify({ documents: ["queries/**/*.graphql"] })],
+    ["yml", ymlConfig],
+    ["yaml", ymlConfig],
+    ["js", jsConfig],
+    ["cjs", jsConfig],
+    ["ts", tsConfig],
+  ])("can read config file with %s extension", async (extension, contents) => {
+    const { cleanup, readFile, runCommand, writeFile } = await setup();
+    const query = gql`
+      query GreetingQuery {
+        greeting
+      }
+    `;
+
+    await writeFile("./queries/greeting-query.graphql", print(query));
+    await writeFile(`./persisted-query-manifest.config.${extension}`, contents);
+
+    const { code } = await runCommand();
+
+    const manifest = await readFile("./persisted-query-manifest.json");
+
+    expect(code).toBe(0);
+    expect(manifest).toBeManifestWithOperations([
+      {
+        id: sha256(query),
+        name: "GreetingQuery",
+        body: print(query),
+        type: "query",
+      },
+    ]);
+
+    await cleanup();
+  });
+}
+
+test("can read config from package.json under `persisted-query-manifest` key", async () => {
+  const { cleanup, readFile, runCommand, writeFile } = await setup();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+
+  await writeFile("./queries/greeting-query.graphql", print(query));
+  await writeFile(
+    "package.json",
+    JSON.stringify({
+      "persisted-query-manifest": {
+        documents: ["queries/**/*.graphql"],
+      },
+    }),
+  );
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
 test("can omit paths in document configuration with starting !", async () => {
   const { cleanup, readFile, runCommand, writeFile } = await setup();
   const greetingQuery = gql`
@@ -460,6 +553,29 @@ test("can omit paths in document configuration with starting !", async () => {
 });
 
 test("can specify manifest output location using config file", async () => {
+  const { cleanup, runCommand, writeFile, exists } = await setup();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+
+  await writeFile("./src/greeting-query.graphql", print(query));
+
+  await writeFile(
+    "./persisted-query-manifest.config.json",
+    JSON.stringify({ output: "./pql.json" }),
+  );
+
+  const { code } = await runCommand();
+
+  expect(code).toBe(0);
+  expect(await exists("./pql.json")).toBe(true);
+
+  await cleanup();
+});
+
+test("can specify custom query ID using createOperationId function", async () => {
   const { cleanup, runCommand, writeFile, exists } = await setup();
   const query = gql`
     query GreetingQuery {
