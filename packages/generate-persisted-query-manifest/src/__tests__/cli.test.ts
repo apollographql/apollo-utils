@@ -1,12 +1,12 @@
-import path from "node:path";
 import { gql } from "@apollo/client/core";
-import { type DocumentNode, print } from "graphql";
-import { prepareEnvironment } from "@gmrchk/cli-testing-library";
-import { createHash } from "node:crypto";
-import { equal } from "@wry/equality";
-import { readFileSync } from "node:fs";
-import type { PersistedQueryManifestOperation } from "../index";
 import { addTypenameToDocument } from "@apollo/client/utilities";
+import { prepareEnvironment } from "@gmrchk/cli-testing-library";
+import { equal } from "@wry/equality";
+import { print, type DocumentNode } from "graphql";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import type { PersistedQueryManifestOperation } from "../index";
 
 test("prints help message with --help", async () => {
   const { cleanup, runCommand } = await setup();
