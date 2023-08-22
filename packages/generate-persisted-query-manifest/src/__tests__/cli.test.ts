@@ -421,6 +421,44 @@ test("can specify custom document location with config file", async () => {
   await cleanup();
 });
 
+test("can omit paths in document configuration with starting !", async () => {
+  const { cleanup, readFile, runCommand, writeFile } = await setup();
+  const greetingQuery = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+
+  await writeFile("./queries/greeting-query.graphql", print(greetingQuery));
+  await writeFile(
+    "./queries/ignored-query.graphql",
+    `query IgnoredQuery { ignored }`,
+  );
+
+  await writeFile(
+    "./persisted-query-manifest.config.json",
+    JSON.stringify({
+      documents: ["./queries/**/*.graphql", "!./queries/ignored-query.graphql"],
+    }),
+  );
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(greetingQuery),
+      name: "GreetingQuery",
+      body: print(greetingQuery),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
 async function setup() {
   const utils = await prepareEnvironment();
 
