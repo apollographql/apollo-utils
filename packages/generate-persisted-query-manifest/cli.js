@@ -10,7 +10,6 @@ const {
 const { TypeScriptLoader } = require("cosmiconfig-typescript-loader");
 const { version } = require("./package.json");
 const { writeFileSync } = require("node:fs");
-const chalk = require("chalk");
 
 const program = new Command();
 
