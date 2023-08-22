@@ -696,6 +696,69 @@ test("errors on anonymous operations", async () => {
   await cleanup();
 });
 
+test("errors on duplicate operations across files", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+
+  await writeFile("./src/query-1.graphql", print(query));
+  await writeFile("./src/query-2.graphql", print(query));
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "src/query-1.graphql",
+      "1:1  error  Operation named "GreetingQuery" already defined in: src/query-2.graphql",
+      "src/query-2.graphql",
+      "1:1  error  Operation named "GreetingQuery" already defined in: src/query-1.graphql",
+      "✖ 2 errors",
+    ]
+  `);
+
+  await cleanup();
+});
+
+test("errors when declaring duplicate fragments across files", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+  const query = gql`
+    query CurrentUserQuery {
+      currentUser {
+        ...CurrentUserFragment
+      }
+    }
+  `;
+
+  const fragment = gql`
+    fragment GreetingFragment on CurrentUser {
+      id
+    }
+  `;
+
+  await writeFile("./src/query.graphql", print(query));
+  await writeFile("./src/fragment-1.graphql", print(fragment));
+  await writeFile("./src/fragment-2.graphql", print(fragment));
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "src/fragment-1.graphql",
+      "1:1  error  Fragment named "GreetingFragment" already defined in: src/fragment-2.graphql",
+      "src/fragment-2.graphql",
+      "1:1  error  Fragment named "GreetingFragment" already defined in: src/fragment-1.graphql",
+      "✖ 2 errors",
+    ]
+  `);
+
+  await cleanup();
+});
+
 async function setup() {
   const utils = await prepareEnvironment();
 
