@@ -759,6 +759,51 @@ test("errors when declaring duplicate fragments across files", async () => {
   await cleanup();
 });
 
+test("errors createOperationId creates non-unique ids", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+  const helloQuery = gql`
+    query HelloQuery {
+      hello
+    }
+  `;
+
+  const greetingQuery = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+
+  await writeFile("./src/hello.graphql", print(helloQuery));
+  await writeFile("./src/greeting.graphql", print(greetingQuery));
+  await writeFile(
+    "./persisted-query-manifest.config.ts",
+    `
+import { PersistedQueryManifestConfig } from '@apollo/generate-persisted-query-manifest';
+
+const config: PersistedQueryManifestConfig = {
+  createOperationId() {
+    return "1234"
+  }
+};
+
+export default config;
+`,
+  );
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "persisted-query-manifest.config.ts",
+      "1:1  error  \`createOperationId\` created an ID (1234) for operation named "HelloQuery" that has already been used for operation named "GreetingQuery".",
+      "✖ 1 error",
+    ]
+  `);
+
+  await cleanup();
+});
+
 async function setup() {
   const utils = await prepareEnvironment();
 
