@@ -1048,8 +1048,10 @@ async function setup() {
     return utils.writeFile(path, contents.trim());
   };
 
-  const runCommand = (args?: string) => {
-    return utils.execute("node", getCommand(args));
+  const runCommand = (...args: string[]) => {
+    const cli = path.resolve(__dirname, "../../cli.js");
+
+    return utils.execute("node", [cli, ...args].join(" "));
   };
 
   return { ...utils, writeFile, runCommand };
@@ -1061,10 +1063,6 @@ function sha256(query: DocumentNode) {
 
 function base64(query: DocumentNode) {
   return Buffer.from(print(query)).toString("base64");
-}
-
-function getCommand(args: string = "") {
-  return `${path.resolve(__dirname, "../../cli.js")} ${args}`.trim();
 }
 
 interface ApolloCustomMatchers<R = void> {
