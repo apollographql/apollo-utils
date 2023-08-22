@@ -514,6 +514,41 @@ test("can read config from package.json under `persisted-query-manifest` key", a
   await cleanup();
 });
 
+test("can specify config path with --config option", async () => {
+  const { cleanup, readFile, runCommand, writeFile } = await setup();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+
+  await writeFile("./queries/greeting-query.graphql", print(query));
+  await writeFile(
+    "./config/persisted-query-manifest.json",
+    JSON.stringify({
+      documents: ["queries/**/*.graphql"],
+    }),
+  );
+
+  const { code } = await runCommand(
+    "--config config/persisted-query-manifest.json",
+  );
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
 test("can omit paths in document configuration with starting !", async () => {
   const { cleanup, readFile, runCommand, writeFile } = await setup();
   const greetingQuery = gql`
