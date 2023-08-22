@@ -10,6 +10,7 @@ const {
 const { TypeScriptLoader } = require("cosmiconfig-typescript-loader");
 const { version } = require("./package.json");
 const { writeFileSync } = require("node:fs");
+const chalk = require("chalk");
 
 const program = new Command();
 
@@ -32,6 +33,14 @@ async function getUserConfig({ config: configPath }) {
   return configPath ? explorer.load(configPath) : explorer.search();
 }
 
+async function listFiles(config) {
+  const filepaths = await getFilepaths(config?.documents ?? defaults.documents);
+
+  if (filepaths.length > 0) {
+    console.log(filepaths.join("\n"));
+  }
+}
+
 program
   .name("generate-persisted-query-manifest")
   .description("Generate a persisted query manifest file")
@@ -45,11 +54,7 @@ program
     const result = await getUserConfig(cliOptions);
 
     if (cliOptions.listFiles) {
-      const filepaths = await getFilepaths(
-        result?.config.documents ?? defaults.documents,
-      );
-
-      console.log(filepaths.join("\n"));
+      await listFiles(result?.config);
       process.exit(0);
     }
 
