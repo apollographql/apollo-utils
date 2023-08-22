@@ -459,6 +459,29 @@ test("can omit paths in document configuration with starting !", async () => {
   await cleanup();
 });
 
+test("can specify manifest output location using config file", async () => {
+  const { cleanup, runCommand, writeFile, exists } = await setup();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+
+  await writeFile("./src/greeting-query.graphql", print(query));
+
+  await writeFile(
+    "./persisted-query-manifest.config.json",
+    JSON.stringify({ output: "./pql.json" }),
+  );
+
+  const { code } = await runCommand();
+
+  expect(code).toBe(0);
+  expect(await exists("./pql.json")).toBe(true);
+
+  await cleanup();
+});
+
 async function setup() {
   const utils = await prepareEnvironment();
 
