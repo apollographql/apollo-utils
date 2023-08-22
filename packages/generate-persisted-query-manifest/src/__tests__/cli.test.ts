@@ -46,6 +46,31 @@ test("prints version number with --version", async () => {
   await cleanup();
 });
 
+test("prints list of matched files with --list-files option", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+
+  await writeFile("./src/query.graphql", "");
+  await writeFile("./src/components/legacy.js", "");
+  await writeFile("./src/components/my-component.tsx", "");
+  await writeFile("./src/queries/root.graphql", "");
+  // Include a file that isn't part of the globbed pattern
+  await writeFile("./not-included.ts", "");
+
+  const { code, stdout } = await runCommand("--list-files");
+
+  expect(code).toBe(0);
+  expect(stdout).toMatchInlineSnapshot(`
+    [
+      "src/query.graphql",
+      "src/components/legacy.js",
+      "src/components/my-component.tsx",
+      "src/queries/root.graphql",
+    ]
+  `);
+
+  await cleanup();
+});
+
 test("writes manifest file and prints location", async () => {
   const { cleanup, exists, runCommand } = await setup();
 

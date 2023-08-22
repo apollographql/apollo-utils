@@ -2,7 +2,11 @@
 
 const { Command } = require("commander");
 const { cosmiconfig } = require("cosmiconfig");
-const { generatePersistedQueryManifest, defaults } = require("./dist/index.js");
+const {
+  generatePersistedQueryManifest,
+  getFilepaths,
+  defaults,
+} = require("./dist/index.js");
 const { TypeScriptLoader } = require("cosmiconfig-typescript-loader");
 const { version } = require("./package.json");
 const { writeFileSync } = require("node:fs");
@@ -39,6 +43,16 @@ program
   .version(version, "-v, --version")
   .action(async (cliOptions) => {
     const result = await getUserConfig(cliOptions);
+
+    if (cliOptions.listFiles) {
+      const filepaths = await getFilepaths(
+        result?.config.documents ?? defaults.documents,
+      );
+
+      console.log(filepaths.join("\n"));
+      process.exit(0);
+    }
+
     const outputPath = result?.config.output ?? defaults.output;
 
     const manifest = await generatePersistedQueryManifest(

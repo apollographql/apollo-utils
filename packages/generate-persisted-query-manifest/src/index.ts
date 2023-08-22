@@ -176,6 +176,10 @@ function uniq<T>(arr: T[]) {
   return [...new Set(arr)];
 }
 
+export async function getFilepaths(documents: string | string[]) {
+  return uniq(await globby(documents));
+}
+
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
   configFilePath: string | undefined,
@@ -190,8 +194,8 @@ export async function generatePersistedQueryManifest(
       ? relative(process.cwd(), configFilePath)
       : "<virtual>",
   });
-  const filepaths = await globby(documents);
-  const sources = uniq(filepaths).flatMap(getDocumentSources);
+  const filepaths = await getFilepaths(documents);
+  const sources = filepaths.flatMap(getDocumentSources);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();
