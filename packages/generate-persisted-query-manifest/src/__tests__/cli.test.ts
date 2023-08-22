@@ -637,6 +637,30 @@ export default config;
   await cleanup();
 });
 
+test("errors on anonymous operations", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+  const query = gql`
+    query {
+      greeting
+    }
+  `;
+
+  await writeFile("./src/query.graphql", print(query));
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "src/query.graphql",
+      "1:1  error  Anonymous GraphQL operations are not supported. Please name your query.",
+      "✖ 1 error",
+    ]
+  `);
+
+  await cleanup();
+});
+
 async function setup() {
   const utils = await prepareEnvironment();
 
