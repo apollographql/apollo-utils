@@ -1,7 +1,8 @@
-import path from "path";
+import path from "node:path";
 import { prepareEnvironment } from "@gmrchk/cli-testing-library";
 import { createHash } from "node:crypto";
 import { equal } from "@wry/equality";
+import { readFileSync } from "node:fs";
 import type { PersistedQueryManifestOperation } from "../index";
 
 test("prints help message with --help", async () => {
@@ -20,6 +21,20 @@ test("prints help message with --help", async () => {
       "-h, --help           display help for command",
     ]
   `);
+
+  await cleanup();
+});
+
+test("prints version number with --version", async () => {
+  const { execute, cleanup } = await prepareEnvironment();
+  const { version } = JSON.parse(
+    readFileSync(path.resolve(__dirname, "../../package.json"), "utf8"),
+  );
+
+  const { code, stdout } = await execute("node", getCommand("--version"));
+
+  expect(code).toBe(0);
+  expect(stdout).toEqual([version]);
 
   await cleanup();
 });
