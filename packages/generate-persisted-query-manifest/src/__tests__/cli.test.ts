@@ -1,4 +1,6 @@
 import path from "node:path";
+import { gql } from "@apollo/client/core";
+import { type DocumentNode, print } from "graphql";
 import { prepareEnvironment } from "@gmrchk/cli-testing-library";
 import { createHash } from "node:crypto";
 import { equal } from "@wry/equality";
@@ -52,14 +54,14 @@ test("writes manifest file and prints location", async () => {
 });
 
 test("can read operations from .graphql files", async () => {
-  const query = `
-query GreetingQuery {
-  greeting
-}
-`.trim();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
   const { cleanup, writeFile, readFile, runCommand } = await setup();
 
-  await writeFile("./src/query.graphql", query);
+  await writeFile("./src/query.graphql", print(query));
 
   const { code } = await runCommand();
 
@@ -67,21 +69,26 @@ query GreetingQuery {
 
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([
-    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
   ]);
 
   await cleanup();
 });
 
 test("can read operations from .gql files", async () => {
-  const query = `
-query GreetingQuery {
-  greeting
-}
-`.trim();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
   const { cleanup, writeFile, readFile, runCommand } = await setup();
 
-  await writeFile("./src/query.gql", query);
+  await writeFile("./src/query.gql", print(query));
 
   const { code } = await runCommand();
 
@@ -89,7 +96,12 @@ query GreetingQuery {
 
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([
-    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
   ]);
 
   await cleanup();
@@ -97,11 +109,11 @@ query GreetingQuery {
 
 test("can extract operations from JavaScript files", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
-  const query = `
-query GreetingQuery {
-  greeting
-}
-`.trim();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
 
   await writeFile(
     "./src/my-component.js",
@@ -122,7 +134,12 @@ const QUERY = gql\`
 
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([
-    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
   ]);
 
   await cleanup();
@@ -130,11 +147,11 @@ const QUERY = gql\`
 
 test("can extract operations from TypeScript files", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
-  const query = `
-query GreetingQuery {
-  greeting
-}
-`.trim();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
 
   await writeFile(
     "./src/my-component.ts",
@@ -156,7 +173,12 @@ const QUERY: TypedDocumentNode<GreetingQueryType> = gql\`
 
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([
-    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
   ]);
 
   await cleanup();
@@ -164,11 +186,11 @@ const QUERY: TypedDocumentNode<GreetingQueryType> = gql\`
 
 test("can extract operations from TypeScript React files", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
-  const query = `
-query GreetingQuery {
-  greeting
-}
-`.trim();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
 
   await writeFile(
     "./src/my-component.tsx",
@@ -198,7 +220,12 @@ export default Greeting;
 
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([
-    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
   ]);
 
   await cleanup();
@@ -206,20 +233,20 @@ export default Greeting;
 
 test("can extract multiple operations", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
-  const query = `
-query GreetingQuery {
-  greeting
-}
-`.trim();
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
 
-  const query2 = `
-query HelloQuery {
-  hello
-}
-`.trim();
+  const query2 = gql`
+    query HelloQuery {
+      hello
+    }
+  `;
 
-  await writeFile("./src/greeting-query.graphql", query);
-  await writeFile("./src/hello-query.graphql", query2);
+  await writeFile("./src/greeting-query.graphql", print(query));
+  await writeFile("./src/hello-query.graphql", print(query2));
 
   const { code } = await runCommand();
 
@@ -227,8 +254,18 @@ query HelloQuery {
 
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([
-    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
-    { id: sha256(query2), name: "HelloQuery", body: query2, type: "query" },
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
+    {
+      id: sha256(query2),
+      name: "HelloQuery",
+      body: print(query2),
+      type: "query",
+    },
   ]);
 
   await cleanup();
@@ -236,16 +273,16 @@ query HelloQuery {
 
 test("can extract mutations", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
-  const mutation = `
-mutation CreateUserMutation($user: UserInput!) {
-  createUser(user: $user) {
-    __typename
-    id
-  }
-}
-`.trim();
+  const mutation = gql`
+    mutation CreateUserMutation($user: UserInput!) {
+      createUser(user: $user) {
+        __typename
+        id
+      }
+    }
+  `;
 
-  await writeFile("./src/create-user-mutation.graphql", mutation);
+  await writeFile("./src/create-user-mutation.graphql", print(mutation));
 
   const { code } = await runCommand();
 
@@ -256,7 +293,7 @@ mutation CreateUserMutation($user: UserInput!) {
     {
       id: sha256(mutation),
       name: "CreateUserMutation",
-      body: mutation,
+      body: print(mutation),
       type: "mutation",
     },
   ]);
@@ -266,16 +303,19 @@ mutation CreateUserMutation($user: UserInput!) {
 
 test("can extract subscriptions", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
-  const subscription = `
-subscription UserCreatedSubscription($id: ID!) {
-  userCreated(id: $id) {
-    __typename
-    id
-  }
-}
-`.trim();
+  const subscription = gql`
+    subscription UserCreatedSubscription($id: ID!) {
+      userCreated(id: $id) {
+        __typename
+        id
+      }
+    }
+  `;
 
-  await writeFile("./src/user-created-subscription.graphql", subscription);
+  await writeFile(
+    "./src/user-created-subscription.graphql",
+    print(subscription),
+  );
 
   const { code } = await runCommand();
 
@@ -286,7 +326,7 @@ subscription UserCreatedSubscription($id: ID!) {
     {
       id: sha256(subscription),
       name: "UserCreatedSubscription",
-      body: subscription,
+      body: print(subscription),
       type: "subscription",
     },
   ]);
@@ -321,8 +361,8 @@ async function setup() {
   return { ...utils, writeFile, runCommand };
 }
 
-function sha256(query: string) {
-  return createHash("sha256").update(query.trim()).digest("hex");
+function sha256(query: DocumentNode) {
+  return createHash("sha256").update(print(query)).digest("hex");
 }
 
 function getCommand(args: string = "") {
