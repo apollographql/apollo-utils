@@ -347,6 +347,58 @@ test("writes manifest file with no operations when none found", async () => {
   await cleanup();
 });
 
+test("can specify custom document location with config file", async () => {
+  const { cleanup, readFile, runCommand, writeFile } = await setup();
+  const rootQuery = gql`
+    query RootQuery {
+      currentUser {
+        __typename
+        id
+      }
+    }
+  `;
+
+  const greetingQuery = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+
+  await writeFile("./root-query.graphql", print(rootQuery));
+  await writeFile("./queries/greeting-query.graphql", print(greetingQuery));
+  // Ensure we have at least one file that doesn't match the search pattern
+  await writeFile("./ignored-query.graphql", `query IgnoredQuery { ignored }`);
+
+  await writeFile(
+    "./persisted-query-manifest.config.json",
+    JSON.stringify({
+      documents: ["./root-query.graphql", "./queries/**/*.graphql"],
+    }),
+  );
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(greetingQuery),
+      name: "GreetingQuery",
+      body: print(greetingQuery),
+      type: "query",
+    },
+    {
+      id: sha256(rootQuery),
+      name: "RootQuery",
+      body: print(rootQuery),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
 async function setup() {
   const utils = await prepareEnvironment();
 
