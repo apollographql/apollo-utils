@@ -359,6 +359,181 @@ test("can extract subscriptions", async () => {
   await cleanup();
 });
 
+test("handles fragments imported from other files in .graphql files", async () => {
+  const { cleanup, writeFile, readFile, runCommand } = await setup();
+  const query = gql`
+    query CurrentUserQuery {
+      currentUser {
+        ...CurrentUserFragment
+      }
+    }
+  `;
+  const fragment = gql`
+    fragment CurrentUserFragment on CurrentUser {
+      id
+    }
+  `;
+
+  await writeFile(
+    "./src/query.graphql",
+    `
+#import "./fragment.graphql"
+
+${print(query)}
+`,
+  );
+  await writeFile("./src/fragment.graphql", print(fragment));
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+  const combined = gql`
+    ${query}
+    ${fragment}
+  `;
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(addTypenameToDocument(combined)),
+      name: "CurrentUserQuery",
+      body: print(addTypenameToDocument(combined)),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
+test("handles interpolated fragments in queries used with `gql`", async () => {
+  const { cleanup, writeFile, readFile, runCommand } = await setup();
+  const query = gql`
+    query CurrentUserQuery {
+      currentUser {
+        ...CurrentUserFragment
+      }
+    }
+  `;
+  const fragment = gql`
+    fragment CurrentUserFragment on CurrentUser {
+      id
+    }
+  `;
+
+  await writeFile(
+    "./src/my-component.js",
+    `
+import { gql } from '@apollo/client';
+import { fragment } from './fragment';
+
+const query = gql\`
+  query CurrentUserQuery {
+    currentUser {
+      ...CurrentUserFragment
+    }
+  }
+
+  \${fragment}
+\`
+`,
+  );
+  await writeFile(
+    "./src/fragment.js",
+    `
+import { gql } from '@apollo/client';
+
+export const fragment = gql\`
+  fragment CurrentUserFragment on CurrentUser {
+    id
+  }
+\`;
+`,
+  );
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+  const combined = addTypenameToDocument(gql`
+    ${query}
+    ${fragment}
+  `);
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(addTypenameToDocument(combined)),
+      name: "CurrentUserQuery",
+      body: print(combined),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
+test("handles implied fragments in queries from `gql`", async () => {
+  const { cleanup, writeFile, readFile, runCommand } = await setup();
+  const query = gql`
+    query CurrentUserQuery {
+      currentUser {
+        ...CurrentUserFragment
+      }
+    }
+  `;
+  const fragment = gql`
+    fragment CurrentUserFragment on CurrentUser {
+      id
+    }
+  `;
+
+  await writeFile(
+    "./src/my-component.js",
+    `
+import { gql } from '@apollo/client';
+
+const query = gql\`
+  query CurrentUserQuery {
+    currentUser {
+      ...CurrentUserFragment
+    }
+  }
+\`
+`,
+  );
+  await writeFile(
+    "./src/fragment.js",
+    `
+import { gql } from '@apollo/client';
+
+export const fragment = gql\`
+  fragment CurrentUserFragment on CurrentUser {
+    id
+  }
+\`;
+`,
+  );
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+  const combined = addTypenameToDocument(gql`
+    ${query}
+    ${fragment}
+  `);
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(addTypenameToDocument(combined)),
+      name: "CurrentUserQuery",
+      body: print(combined),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
 test("writes manifest file with no operations when none found", async () => {
   const { cleanup, readFile, runCommand } = await setup();
 
