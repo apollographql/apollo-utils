@@ -576,24 +576,63 @@ test("can specify manifest output location using config file", async () => {
 });
 
 test("can specify custom query ID using createOperationId function", async () => {
-  const { cleanup, runCommand, writeFile, exists } = await setup();
+  const { cleanup, runCommand, writeFile, readFile } = await setup();
   const query = gql`
     query GreetingQuery {
       greeting
     }
   `;
 
-  await writeFile("./src/greeting-query.graphql", print(query));
+  const mutation = gql`
+    mutation CreateUserMutation($user: UserInput!) {
+      createUser(user: $user) {
+        id
+      }
+    }
+  `;
 
+  await writeFile("./src/greeting-query.graphql", print(query));
+  await writeFile("./src/create-user-mutation.graphql", print(mutation));
   await writeFile(
-    "./persisted-query-manifest.config.json",
-    JSON.stringify({ output: "./pql.json" }),
+    "./persisted-query-manifest.config.ts",
+    `
+import { PersistedQueryManifestConfig } from '@apollo/generate-persisted-query-manifest';
+import { Buffer } from "node:buffer";
+
+const config: PersistedQueryManifestConfig = {
+  createOperationId(query, { type, createDefaultId }) {
+    switch (type) {
+      case "query":
+        return Buffer.from(query).toString("base64");
+      default:
+        return createDefaultId();
+    }  
+  }
+};
+
+export default config;
+`,
   );
 
   const { code } = await runCommand();
 
+  const manifest = await readFile("./persisted-query-manifest.json");
+
   expect(code).toBe(0);
-  expect(await exists("./pql.json")).toBe(true);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(addTypenameToDocument(mutation)),
+      name: "CreateUserMutation",
+      body: print(addTypenameToDocument(mutation)),
+      type: "mutation",
+    },
+    {
+      id: base64(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
+  ]);
 
   await cleanup();
 });
@@ -614,6 +653,10 @@ async function setup() {
 
 function sha256(query: DocumentNode) {
   return createHash("sha256").update(print(query)).digest("hex");
+}
+
+function base64(query: DocumentNode) {
+  return Buffer.from(print(query)).toString("base64");
 }
 
 function getCommand(args: string = "") {
