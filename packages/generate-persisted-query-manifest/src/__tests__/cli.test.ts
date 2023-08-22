@@ -4,22 +4,39 @@ import { createHash } from "node:crypto";
 import { equal } from "@wry/equality";
 import type { PersistedQueryManifestOperation } from "../index";
 
-test("Succeeds and writes manifest file with no operations", async () => {
-  const { execute, cleanup, readFile } = await prepareEnvironment();
+test("prints help message with --help", async () => {
+  const { execute, cleanup } = await prepareEnvironment();
 
-  const { code, stdout } = await execute("node", getCommand());
+  const { code, stdout } = await execute("node", getCommand("--help"));
 
-  const manifest = await readFile("./persisted-query-manifest.json");
-
-  expect(stdout).toEqual(["Manifest written to persisted-query-manifest.json"]);
   expect(code).toBe(0);
-
-  expect(manifest).toBeManifestWithOperations([]);
+  expect(stdout).toMatchInlineSnapshot(`
+    [
+      "Usage: generate-persisted-query-manifest [options]",
+      "Generate a persisted query manifest file",
+      "Options:",
+      "-c, --config <path>  path to the config file",
+      "-v, --version        output the version number",
+      "-h, --help           display help for command",
+    ]
+  `);
 
   await cleanup();
 });
 
-test("Can read operations from .graphql files by default", async () => {
+test("writes manifest file and prints location", async () => {
+  const { execute, cleanup, exists } = await prepareEnvironment();
+
+  const { code, stdout } = await execute("node", getCommand());
+
+  expect(stdout).toEqual(["Manifest written to persisted-query-manifest.json"]);
+  expect(code).toBe(0);
+  expect(await exists("./persisted-query-manifest.json")).toBe(true);
+
+  await cleanup();
+});
+
+test("can read operations from .graphql files", async () => {
   const query = `
 query GreetingQuery {
   greeting
@@ -37,6 +54,240 @@ query GreetingQuery {
   expect(manifest).toBeManifestWithOperations([
     { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
   ]);
+
+  await cleanup();
+});
+
+test("can read operations from .gql files", async () => {
+  const query = `
+query GreetingQuery {
+  greeting
+}
+`.trim();
+  const { execute, cleanup, writeFile, readFile } = await prepareEnvironment();
+
+  await writeFile("./src/query.gql", query);
+
+  const { code } = await execute("node", getCommand());
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+  ]);
+
+  await cleanup();
+});
+
+test("can extract operations from JavaScript files", async () => {
+  const { execute, cleanup, writeFile, readFile } = await prepareEnvironment();
+  const query = `
+query GreetingQuery {
+  greeting
+}
+`.trim();
+
+  await writeFile(
+    "./src/my-component.js",
+    `
+import { gql } from '@apollo/client';
+
+const QUERY = gql\`
+  query GreetingQuery {
+    greeting
+  }
+\`;
+`.trim(),
+  );
+
+  const { code } = await execute("node", getCommand());
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+  ]);
+
+  await cleanup();
+});
+
+test("can extract operations from TypeScript files", async () => {
+  const { execute, cleanup, writeFile, readFile } = await prepareEnvironment();
+  const query = `
+query GreetingQuery {
+  greeting
+}
+`.trim();
+
+  await writeFile(
+    "./src/my-component.ts",
+    `
+import { gql, TypedDocumentNode } from '@apollo/client';
+import { GreetingQueryType } from './types';
+
+const QUERY: TypedDocumentNode<GreetingQueryType> = gql\`
+  query GreetingQuery {
+    greeting
+  }
+\`;
+`.trim(),
+  );
+
+  const { code } = await execute("node", getCommand());
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+  ]);
+
+  await cleanup();
+});
+
+test("can extract operations from TypeScript React files", async () => {
+  const { execute, cleanup, writeFile, readFile } = await prepareEnvironment();
+  const query = `
+query GreetingQuery {
+  greeting
+}
+`.trim();
+
+  await writeFile(
+    "./src/my-component.tsx",
+    `
+import { gql, useQuery, TypedDocumentNode } from '@apollo/client';
+import { GreetingQueryType } from './types';
+
+const QUERY: TypedDocumentNode<GreetingQueryType> = gql\`
+  query GreetingQuery {
+    greeting
+  }
+\`;
+
+function Greeting() {
+  const { data } = useQuery(QUERY);
+
+  return <div>{data.greeting}</div>;
+}
+
+export default Greeting;
+`.trim(),
+  );
+
+  const { code } = await execute("node", getCommand());
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+  ]);
+
+  await cleanup();
+});
+
+test("can extract multiple operations", async () => {
+  const { execute, cleanup, writeFile, readFile } = await prepareEnvironment();
+  const query = `
+query GreetingQuery {
+  greeting
+}
+`.trim();
+
+  const query2 = `
+query HelloQuery {
+  hello
+}
+`.trim();
+
+  await writeFile("./src/greeting-query.graphql", query);
+  await writeFile("./src/hello-query.graphql", query2);
+
+  const { code } = await execute("node", getCommand());
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    { id: sha256(query), name: "GreetingQuery", body: query, type: "query" },
+    { id: sha256(query2), name: "HelloQuery", body: query2, type: "query" },
+  ]);
+
+  await cleanup();
+});
+
+test("can extract mutations", async () => {
+  const { execute, cleanup, writeFile, readFile } = await prepareEnvironment();
+  const mutation = `
+mutation CreateUserMutation($user: UserInput!) {
+  createUser(user: $user) {
+    __typename
+    id
+  }
+}
+`.trim();
+
+  await writeFile("./src/create-user-mutation.graphql", mutation);
+
+  const { code } = await execute("node", getCommand());
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(mutation),
+      name: "CreateUserMutation",
+      body: mutation,
+      type: "mutation",
+    },
+  ]);
+
+  await cleanup();
+});
+
+test("can extract subscriptions", async () => {
+  const { execute, cleanup, writeFile, readFile } = await prepareEnvironment();
+  const subscription = `
+subscription UserCreatedSubscription($id: ID!) {
+  userCreated(id: $id) {
+    __typename
+    id
+  }
+}
+`.trim();
+
+  await writeFile("./src/user-created-subscription.graphql", subscription);
+
+  const { code } = await execute("node", getCommand());
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(subscription),
+      name: "UserCreatedSubscription",
+      body: subscription,
+      type: "subscription",
+    },
+  ]);
+
+  await cleanup();
+});
+
+test("writes manifest file with no operations when none found", async () => {
+  const { execute, cleanup, readFile } = await prepareEnvironment();
+
+  const { code } = await execute("node", getCommand());
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([]);
 
   await cleanup();
 });
@@ -82,7 +333,7 @@ expect.extend({
 
         return `Expected manifest ${
           this.isNot ? "not " : ""
-        }to be persisted query manifest.\n\n${diff}`;
+        }to match persisted query manifest with operations.\n\n${diff}`;
       },
     };
   },
