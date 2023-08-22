@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { equal } from "@wry/equality";
 import { readFileSync } from "node:fs";
 import type { PersistedQueryManifestOperation } from "../index";
+import { addTypenameToDocument } from "@apollo/client/utilities";
 
 test("prints help message with --help", async () => {
   const { cleanup, runCommand } = await setup();
@@ -231,6 +232,36 @@ export default Greeting;
   await cleanup();
 });
 
+test("ensures manifest bodies and id hash applies document transforms", async () => {
+  const { cleanup, writeFile, readFile, runCommand } = await setup();
+  const query = gql`
+    query CurrentUserQuery {
+      currentUser {
+        id
+      }
+    }
+  `;
+
+  await writeFile("./src/current-user-query.graphql", print(query));
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+  const withTypename = addTypenameToDocument(query);
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(withTypename),
+      name: "CurrentUserQuery",
+      body: print(withTypename),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
 test("can extract multiple operations", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const query = gql`
@@ -275,10 +306,7 @@ test("can extract mutations", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const mutation = gql`
     mutation CreateUserMutation($user: UserInput!) {
-      createUser(user: $user) {
-        __typename
-        id
-      }
+      createUser(user: $user)
     }
   `;
 
@@ -305,10 +333,7 @@ test("can extract subscriptions", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const subscription = gql`
     subscription UserCreatedSubscription($id: ID!) {
-      userCreated(id: $id) {
-        __typename
-        id
-      }
+      userCreated(id: $id)
     }
   `;
 
@@ -351,10 +376,7 @@ test("can specify custom document location with config file", async () => {
   const { cleanup, readFile, runCommand, writeFile } = await setup();
   const rootQuery = gql`
     query RootQuery {
-      currentUser {
-        __typename
-        id
-      }
+      root
     }
   `;
 
