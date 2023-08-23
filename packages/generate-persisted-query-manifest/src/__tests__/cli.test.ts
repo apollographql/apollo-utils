@@ -1115,6 +1115,13 @@ test("gathers and reports all errors together", async () => {
     "./src/current-user-fragment2.graphql",
     print(currentUserFragment),
   );
+  await writeFile(
+    "./src/syntax-error.graphql",
+    `
+query {
+  greeting
+`,
+  );
 
   const { code, stderr } = await runCommand();
 
@@ -1131,7 +1138,19 @@ test("gathers and reports all errors together", async () => {
       "1:1  error  Operation named "HelloQuery" already defined in: src/hello-query.graphql",
       "src/query.graphql",
       "1:1  error  Anonymous GraphQL operations are not supported. Please name your query.",
-      "✖ 5 errors",
+      "src/syntax-error.graphql",
+      "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
+      "at syntaxError ({{homedir}}/code/apollo-utils/node_modules/graphql/error/syntaxError.js:15:10)",
+      "at Parser.expectToken ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1397:40)",
+      "at Parser.parseName ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:108:24)",
+      "at Parser.parseField ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:347:30)",
+      "at Parser.parseSelection ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:337:14)",
+      "at Parser.many ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
+      "at Parser.parseSelectionSet ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:320:24)",
+      "at Parser.parseOperationDefinition ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:248:26)",
+      "at Parser.parseDefinition ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:202:23)",
+      "at Parser.many ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
+      "✖ 6 errors",
     ]
   `);
 
