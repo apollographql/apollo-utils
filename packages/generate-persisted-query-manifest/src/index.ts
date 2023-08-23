@@ -215,6 +215,14 @@ function uniq<T>(arr: T[]) {
   return [...new Set(arr)];
 }
 
+// Unfortunately globby does not guarantee deterministic file sorting so we
+// apply some sorting on the files in this function.
+//
+// https://github.com/sindresorhus/globby/issues/131
+export async function getFilepaths(documents: string | string[]) {
+  return [...uniq(await globby(documents))].sort((a, b) => a.localeCompare(b));
+}
+
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
   configFilePath: string | undefined,
@@ -229,8 +237,8 @@ export async function generatePersistedQueryManifest(
       ? relative(process.cwd(), configFilePath)
       : "<virtual>",
   });
-  const filepaths = await globby(documents);
-  const sources = uniq(filepaths).flatMap(getDocumentSources);
+  const filepaths = await getFilepaths(documents);
+  const sources = filepaths.flatMap(getDocumentSources);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();

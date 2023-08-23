@@ -23,6 +23,7 @@ test("prints help message with --help", async () => {
       "Generate a persisted query manifest file",
       "Options:",
       "-c, --config <path>  path to the config file",
+      "-l, --list-files     prints the files matched from the documents pattern",
       "-v, --version        output the version number",
       "-h, --help           display help for command",
     ]
@@ -41,6 +42,31 @@ test("prints version number with --version", async () => {
 
   expect(code).toBe(0);
   expect(stdout).toEqual([version]);
+
+  await cleanup();
+});
+
+test("prints list of matched files with --list-files option", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+
+  await writeFile("./src/query.graphql", "");
+  await writeFile("./src/components/legacy.js", "");
+  await writeFile("./src/components/my-component.tsx", "");
+  await writeFile("./src/queries/root.graphql", "");
+  // Include a file that isn't part of the globbed pattern
+  await writeFile("./not-included.ts", "");
+
+  const { code, stdout } = await runCommand("--list-files");
+
+  expect(code).toBe(0);
+  expect(stdout).toMatchInlineSnapshot(`
+    [
+      "src/components/legacy.js",
+      "src/components/my-component.tsx",
+      "src/queries/root.graphql",
+      "src/query.graphql",
+    ]
+  `);
 
   await cleanup();
 });
