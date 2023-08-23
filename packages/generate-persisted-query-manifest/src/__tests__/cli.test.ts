@@ -77,7 +77,7 @@ test("writes manifest file and prints location", async () => {
   const { code, stdout } = await runCommand();
 
   expect(stdout).toEqual([
-    "Manifest written to persisted-query-manifest.json with 0 operations.",
+    "✓ Manifest written to persisted-query-manifest.json with 0 operations.",
   ]);
   expect(code).toBe(0);
   expect(await exists("./persisted-query-manifest.json")).toBe(true);
@@ -619,7 +619,7 @@ test("writes manifest file and logs warning when no operations are found", async
     ]
   `);
   expect(stdout).toEqual([
-    "Manifest written to persisted-query-manifest.json with 0 operations.",
+    "✓ Manifest written to persisted-query-manifest.json with 0 operations.",
   ]);
 
   await cleanup();

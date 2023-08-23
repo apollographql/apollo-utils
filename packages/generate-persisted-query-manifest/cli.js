@@ -78,7 +78,9 @@ program
     }
 
     console.log(
-      `Manifest written to ${outputPath} with ${manifest.operations.length} operations.`,
+      `${chalk.green("✓")} Manifest written to ${outputPath} with ${
+        manifest.operations.length
+      } operations.`,
     );
   });
 
