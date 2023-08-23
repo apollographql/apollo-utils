@@ -232,6 +232,42 @@ export default Greeting;
   await cleanup();
 });
 
+test("normalizes query documents to ensure consistent formatting", async () => {
+  const query = gql`
+    query GreetingQuery {
+      greeting
+    }
+  `;
+  const { cleanup, writeFile, readFile, runCommand } = await setup();
+
+  // Write a file with inconsistent formatting applied to the GraphQL query
+  // to ensure its formatted consistently
+  await writeFile(
+    "./src/query.graphql",
+    `
+query   GreetingQuery
+{
+      greeting }
+`,
+  );
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(query),
+      name: "GreetingQuery",
+      body: print(query),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
 test("ensures manifest bodies and id hash applies document transforms", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const query = gql`
