@@ -66,7 +66,9 @@ program
     );
     writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
 
-    if (manifest.operations.length === 0) {
+    const numOperations = manifest.operations.length;
+
+    if (numOperations === 0) {
       console.warn(
         chalk.yellow(
           "Warning: no operations found during manifest generation. " +
@@ -78,9 +80,11 @@ program
     }
 
     console.log(
-      `${chalk.green("✓")} Manifest written to ${outputPath} with ${
-        manifest.operations.length
-      } operations.`,
+      `${chalk.green(
+        "✓",
+      )} Manifest written to ${outputPath} with ${numOperations} ${
+        numOperations === 1 ? "operation" : "operations"
+      }.`,
     );
   });
 
