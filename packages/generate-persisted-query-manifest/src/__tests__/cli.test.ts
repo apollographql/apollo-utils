@@ -1021,6 +1021,61 @@ export default config;
   await cleanup();
 });
 
+test("handles syntax errors when parsing source files", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+
+  await writeFile(
+    "./src/greeting.graphql",
+    `
+query {
+  greeting
+`,
+  );
+  await writeFile(
+    "./src/components/my-component.js",
+    `
+import { gql } from '@apollo/client';
+
+const query;
+`,
+  );
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "src/greeting.graphql",
+      "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
+      "at syntaxError ({{homedir}}/code/apollo-utils/node_modules/graphql/error/syntaxError.js:15:10)",
+      "at Parser.expectToken ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1397:40)",
+      "at Parser.parseName ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:108:24)",
+      "at Parser.parseField ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:347:30)",
+      "at Parser.parseSelection ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:337:14)",
+      "at Parser.many ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
+      "at Parser.parseSelectionSet ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:320:24)",
+      "at Parser.parseOperationDefinition ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:248:26)",
+      "at Parser.parseDefinition ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:202:23)",
+      "at Parser.many ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
+      "src/components/my-component.js",
+      "3:11  error  SyntaxError: Missing initializer in const declaration. (3:11)",
+      "at instantiate ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:64:32)",
+      "at constructor ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:361:12)",
+      "at JSXParserMixin.raise ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:3251:19)",
+      "at JSXParserMixin.parseVar ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:13186:16)",
+      "at JSXParserMixin.parseVarStatement ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:13017:10)",
+      "at JSXParserMixin.parseStatementContent ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:12621:23)",
+      "at JSXParserMixin.parseStatementLike ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:12535:17)",
+      "at JSXParserMixin.parseModuleItem ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:12519:17)",
+      "at JSXParserMixin.parseBlockOrModuleBlockBody ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:13106:36)",
+      "at JSXParserMixin.parseBlockBody ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:13099:10)",
+      "✖ 2 errors",
+    ]
+  `);
+
+  await cleanup();
+});
+
 test("gathers and reports all errors together", async () => {
   const { cleanup, runCommand, writeFile } = await setup();
   const anonymousQuery = gql`
