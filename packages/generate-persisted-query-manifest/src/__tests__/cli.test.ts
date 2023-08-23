@@ -1043,32 +1043,32 @@ const query;
   const { code, stderr } = await runCommand();
 
   expect(code).toBe(1);
-  expect(stderr).toMatchInlineSnapshot(`
+  expect(normalizeStacktracePath(stderr)).toMatchInlineSnapshot(`
     [
       "src/greeting.graphql",
       "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
-      "at syntaxError ({{homedir}}/code/apollo-utils/node_modules/graphql/error/syntaxError.js:15:10)",
-      "at Parser.expectToken ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1397:40)",
-      "at Parser.parseName ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:108:24)",
-      "at Parser.parseField ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:347:30)",
-      "at Parser.parseSelection ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:337:14)",
-      "at Parser.many ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
-      "at Parser.parseSelectionSet ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:320:24)",
-      "at Parser.parseOperationDefinition ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:248:26)",
-      "at Parser.parseDefinition ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:202:23)",
-      "at Parser.many ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
+      "at syntaxError (apollo-utils/node_modules/graphql/error/syntaxError.js:15:10)",
+      "at Parser.expectToken (apollo-utils/node_modules/graphql/language/parser.js:1397:40)",
+      "at Parser.parseName (apollo-utils/node_modules/graphql/language/parser.js:108:24)",
+      "at Parser.parseField (apollo-utils/node_modules/graphql/language/parser.js:347:30)",
+      "at Parser.parseSelection (apollo-utils/node_modules/graphql/language/parser.js:337:14)",
+      "at Parser.many (apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
+      "at Parser.parseSelectionSet (apollo-utils/node_modules/graphql/language/parser.js:320:24)",
+      "at Parser.parseOperationDefinition (apollo-utils/node_modules/graphql/language/parser.js:248:26)",
+      "at Parser.parseDefinition (apollo-utils/node_modules/graphql/language/parser.js:202:23)",
+      "at Parser.many (apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
       "src/components/my-component.js",
       "3:11  error  SyntaxError: Missing initializer in const declaration. (3:11)",
-      "at instantiate ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:64:32)",
-      "at constructor ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:361:12)",
-      "at JSXParserMixin.raise ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:3251:19)",
-      "at JSXParserMixin.parseVar ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:13186:16)",
-      "at JSXParserMixin.parseVarStatement ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:13017:10)",
-      "at JSXParserMixin.parseStatementContent ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:12621:23)",
-      "at JSXParserMixin.parseStatementLike ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:12535:17)",
-      "at JSXParserMixin.parseModuleItem ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:12519:17)",
-      "at JSXParserMixin.parseBlockOrModuleBlockBody ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:13106:36)",
-      "at JSXParserMixin.parseBlockBody ({{homedir}}/code/apollo-utils/node_modules/@babel/parser/lib/index.js:13099:10)",
+      "at instantiate (apollo-utils/node_modules/@babel/parser/lib/index.js:64:32)",
+      "at constructor (apollo-utils/node_modules/@babel/parser/lib/index.js:361:12)",
+      "at JSXParserMixin.raise (apollo-utils/node_modules/@babel/parser/lib/index.js:3251:19)",
+      "at JSXParserMixin.parseVar (apollo-utils/node_modules/@babel/parser/lib/index.js:13186:16)",
+      "at JSXParserMixin.parseVarStatement (apollo-utils/node_modules/@babel/parser/lib/index.js:13017:10)",
+      "at JSXParserMixin.parseStatementContent (apollo-utils/node_modules/@babel/parser/lib/index.js:12621:23)",
+      "at JSXParserMixin.parseStatementLike (apollo-utils/node_modules/@babel/parser/lib/index.js:12535:17)",
+      "at JSXParserMixin.parseModuleItem (apollo-utils/node_modules/@babel/parser/lib/index.js:12519:17)",
+      "at JSXParserMixin.parseBlockOrModuleBlockBody (apollo-utils/node_modules/@babel/parser/lib/index.js:13106:36)",
+      "at JSXParserMixin.parseBlockBody (apollo-utils/node_modules/@babel/parser/lib/index.js:13099:10)",
       "✖ 2 errors",
     ]
   `);
@@ -1126,7 +1126,7 @@ query {
   const { code, stderr } = await runCommand();
 
   expect(code).toBe(1);
-  expect(stderr).toMatchInlineSnapshot(`
+  expect(normalizeStacktracePath(stderr)).toMatchInlineSnapshot(`
     [
       "src/current-user-fragment.graphql",
       "1:1  error  Fragment named "CurrentUserFragment" already defined in: src/current-user-fragment2.graphql",
@@ -1140,16 +1140,16 @@ query {
       "1:1  error  Anonymous GraphQL operations are not supported. Please name your query.",
       "src/syntax-error.graphql",
       "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
-      "at syntaxError ({{homedir}}/code/apollo-utils/node_modules/graphql/error/syntaxError.js:15:10)",
-      "at Parser.expectToken ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1397:40)",
-      "at Parser.parseName ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:108:24)",
-      "at Parser.parseField ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:347:30)",
-      "at Parser.parseSelection ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:337:14)",
-      "at Parser.many ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
-      "at Parser.parseSelectionSet ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:320:24)",
-      "at Parser.parseOperationDefinition ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:248:26)",
-      "at Parser.parseDefinition ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:202:23)",
-      "at Parser.many ({{homedir}}/code/apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
+      "at syntaxError (apollo-utils/node_modules/graphql/error/syntaxError.js:15:10)",
+      "at Parser.expectToken (apollo-utils/node_modules/graphql/language/parser.js:1397:40)",
+      "at Parser.parseName (apollo-utils/node_modules/graphql/language/parser.js:108:24)",
+      "at Parser.parseField (apollo-utils/node_modules/graphql/language/parser.js:347:30)",
+      "at Parser.parseSelection (apollo-utils/node_modules/graphql/language/parser.js:337:14)",
+      "at Parser.many (apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
+      "at Parser.parseSelectionSet (apollo-utils/node_modules/graphql/language/parser.js:320:24)",
+      "at Parser.parseOperationDefinition (apollo-utils/node_modules/graphql/language/parser.js:248:26)",
+      "at Parser.parseDefinition (apollo-utils/node_modules/graphql/language/parser.js:202:23)",
+      "at Parser.many (apollo-utils/node_modules/graphql/language/parser.js:1511:26)",
       "✖ 6 errors",
     ]
   `);
@@ -1179,6 +1179,12 @@ function sha256(query: DocumentNode) {
 
 function base64(query: DocumentNode) {
   return Buffer.from(print(query)).toString("base64");
+}
+
+function normalizeStacktracePath(stderr: string[]) {
+  return stderr.map((line) => {
+    return line.replace(/\{\{homedir\}\}\/.+?\/(apollo-utils)/, "$1");
+  });
 }
 
 interface ApolloCustomMatchers<R = void> {
