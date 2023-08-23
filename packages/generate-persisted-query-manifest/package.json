@@ -38,5 +38,9 @@
   "peerDependencies": {
     "@apollo/client": "^3.7.0 || ^3.8.0-alpha",
     "graphql": "14.x || 15.x || 16.x"
+  },
+  "devDependencies": {
+    "@gmrchk/cli-testing-library": "^0.1.2",
+    "@wry/equality": "^0.5.6"
   }
 }
