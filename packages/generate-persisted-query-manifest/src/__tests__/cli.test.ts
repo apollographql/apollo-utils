@@ -61,10 +61,10 @@ test("prints list of matched files with --list-files option", async () => {
   expect(code).toBe(0);
   expect(stdout).toMatchInlineSnapshot(`
     [
-      "src/query.graphql",
       "src/components/legacy.js",
       "src/components/my-component.tsx",
       "src/queries/root.graphql",
+      "src/query.graphql",
     ]
   `);
 
