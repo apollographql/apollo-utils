@@ -128,7 +128,7 @@ const ERROR_MESSAGES = {
     )}".`;
   },
   parseError(error: Error) {
-    return error.stack ? error.stack : `${error.name}: ${error.message}`;
+    return `${error.name}: ${error.message}`;
   },
 };
 

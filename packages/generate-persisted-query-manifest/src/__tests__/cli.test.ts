@@ -1043,32 +1043,12 @@ const query;
   const { code, stderr } = await runCommand();
 
   expect(code).toBe(1);
-  expect(normalizeStacktracePath(stderr)).toMatchInlineSnapshot(`
+  expect(stderr).toMatchInlineSnapshot(`
     [
       "src/greeting.graphql",
       "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
-      "at syntaxError (node_modules/graphql/error/syntaxError.js:15:10)",
-      "at Parser.expectToken (node_modules/graphql/language/parser.js:1397:40)",
-      "at Parser.parseName (node_modules/graphql/language/parser.js:108:24)",
-      "at Parser.parseField (node_modules/graphql/language/parser.js:347:30)",
-      "at Parser.parseSelection (node_modules/graphql/language/parser.js:337:14)",
-      "at Parser.many (node_modules/graphql/language/parser.js:1511:26)",
-      "at Parser.parseSelectionSet (node_modules/graphql/language/parser.js:320:24)",
-      "at Parser.parseOperationDefinition (node_modules/graphql/language/parser.js:248:26)",
-      "at Parser.parseDefinition (node_modules/graphql/language/parser.js:202:23)",
-      "at Parser.many (node_modules/graphql/language/parser.js:1511:26)",
       "src/components/my-component.js",
       "3:11  error  SyntaxError: Missing initializer in const declaration. (3:11)",
-      "at instantiate (node_modules/@babel/parser/lib/index.js:64:32)",
-      "at constructor (node_modules/@babel/parser/lib/index.js:361:12)",
-      "at JSXParserMixin.raise (node_modules/@babel/parser/lib/index.js:3251:19)",
-      "at JSXParserMixin.parseVar (node_modules/@babel/parser/lib/index.js:13186:16)",
-      "at JSXParserMixin.parseVarStatement (node_modules/@babel/parser/lib/index.js:13017:10)",
-      "at JSXParserMixin.parseStatementContent (node_modules/@babel/parser/lib/index.js:12621:23)",
-      "at JSXParserMixin.parseStatementLike (node_modules/@babel/parser/lib/index.js:12535:17)",
-      "at JSXParserMixin.parseModuleItem (node_modules/@babel/parser/lib/index.js:12519:17)",
-      "at JSXParserMixin.parseBlockOrModuleBlockBody (node_modules/@babel/parser/lib/index.js:13106:36)",
-      "at JSXParserMixin.parseBlockBody (node_modules/@babel/parser/lib/index.js:13099:10)",
       "✖ 2 errors",
     ]
   `);
@@ -1126,7 +1106,7 @@ query {
   const { code, stderr } = await runCommand();
 
   expect(code).toBe(1);
-  expect(normalizeStacktracePath(stderr)).toMatchInlineSnapshot(`
+  expect(stderr).toMatchInlineSnapshot(`
     [
       "src/current-user-fragment.graphql",
       "1:1  error  Fragment named "CurrentUserFragment" already defined in: src/current-user-fragment2.graphql",
@@ -1140,16 +1120,6 @@ query {
       "1:1  error  Anonymous GraphQL operations are not supported. Please name your query.",
       "src/syntax-error.graphql",
       "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
-      "at syntaxError (node_modules/graphql/error/syntaxError.js:15:10)",
-      "at Parser.expectToken (node_modules/graphql/language/parser.js:1397:40)",
-      "at Parser.parseName (node_modules/graphql/language/parser.js:108:24)",
-      "at Parser.parseField (node_modules/graphql/language/parser.js:347:30)",
-      "at Parser.parseSelection (node_modules/graphql/language/parser.js:337:14)",
-      "at Parser.many (node_modules/graphql/language/parser.js:1511:26)",
-      "at Parser.parseSelectionSet (node_modules/graphql/language/parser.js:320:24)",
-      "at Parser.parseOperationDefinition (node_modules/graphql/language/parser.js:248:26)",
-      "at Parser.parseDefinition (node_modules/graphql/language/parser.js:202:23)",
-      "at Parser.many (node_modules/graphql/language/parser.js:1511:26)",
       "✖ 6 errors",
     ]
   `);
@@ -1179,12 +1149,6 @@ function sha256(query: DocumentNode) {
 
 function base64(query: DocumentNode) {
   return Buffer.from(print(query)).toString("base64");
-}
-
-function normalizeStacktracePath(stderr: string[]) {
-  return stderr.map((line) => {
-    return line.replace(/\{\{homedir\}\}\/.+?\/(node_modules)/, "$1");
-  });
 }
 
 interface ApolloCustomMatchers<R = void> {
