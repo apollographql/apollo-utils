@@ -1021,6 +1021,41 @@ export default config;
   await cleanup();
 });
 
+test("handles syntax errors when parsing source files", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+
+  await writeFile(
+    "./src/greeting.graphql",
+    `
+query {
+  greeting
+`,
+  );
+  await writeFile(
+    "./src/components/my-component.js",
+    `
+import { gql } from '@apollo/client';
+
+const query;
+`,
+  );
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "src/greeting.graphql",
+      "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
+      "src/components/my-component.js",
+      "3:11  error  SyntaxError: Missing initializer in const declaration. (3:11)",
+      "✖ 2 errors",
+    ]
+  `);
+
+  await cleanup();
+});
+
 test("gathers and reports all errors together", async () => {
   const { cleanup, runCommand, writeFile } = await setup();
   const anonymousQuery = gql`
@@ -1060,6 +1095,13 @@ test("gathers and reports all errors together", async () => {
     "./src/current-user-fragment2.graphql",
     print(currentUserFragment),
   );
+  await writeFile(
+    "./src/syntax-error.graphql",
+    `
+query {
+  greeting
+`,
+  );
 
   const { code, stderr } = await runCommand();
 
@@ -1076,7 +1118,9 @@ test("gathers and reports all errors together", async () => {
       "1:1  error  Operation named "HelloQuery" already defined in: src/hello-query.graphql",
       "src/query.graphql",
       "1:1  error  Anonymous GraphQL operations are not supported. Please name your query.",
-      "✖ 5 errors",
+      "src/syntax-error.graphql",
+      "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
+      "✖ 6 errors",
     ]
   `);
 

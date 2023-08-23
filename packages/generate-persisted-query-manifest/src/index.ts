@@ -14,6 +14,7 @@ import {
   print,
   type DocumentNode,
   visit,
+  GraphQLError,
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
@@ -88,9 +89,9 @@ interface Location {
 }
 
 interface DocumentSource {
-  node: DocumentNode;
+  node: DocumentNode | null;
   file: VFile;
-  location: Location;
+  location: Location | undefined;
 }
 
 const COLORS = {
@@ -126,6 +127,9 @@ const ERROR_MESSAGES = {
       definedOperationName,
     )}".`;
   },
+  parseError(error: Error) {
+    return `${error.name}: ${error.message}`;
+  },
 };
 
 function addError(
@@ -136,29 +140,64 @@ function addError(
   vfileMessage.fatal = true;
 }
 
+function parseLocationFromError(error: Error) {
+  if (error instanceof GraphQLError && error.locations) {
+    return error.locations[0];
+  }
+
+  const loc =
+    "loc" in error &&
+    typeof error.loc === "object" &&
+    error.loc !== null &&
+    error.loc;
+
+  const line = loc && "line" in loc && typeof loc.line === "number" && loc.line;
+  const column =
+    loc && "column" in loc && typeof loc.column === "number" && loc.column;
+
+  if (typeof line === "number" && typeof column === "number") {
+    return { line, column };
+  }
+
+  return;
+}
+
 function getDocumentSources(filepath: string): DocumentSource[] {
   const file = vfile({
     path: filepath,
     contents: readFileSync(filepath, "utf-8"),
   });
 
-  if (file.extname === ".graphql" || file.extname === ".gql") {
-    return [
-      {
-        node: parse(file.toString()),
-        file,
-        location: { line: 1, column: 1 },
-      },
-    ];
-  }
+  try {
+    if (file.extname === ".graphql" || file.extname === ".gql") {
+      return [
+        {
+          node: parse(file.toString()),
+          file,
+          location: { line: 1, column: 1 },
+        },
+      ];
+    }
 
-  return gqlPluckFromCodeStringSync(filepath, file.toString()).map(
-    (source) => ({
-      node: parse(source.body),
+    return gqlPluckFromCodeStringSync(filepath, file.toString()).map(
+      (source) => ({
+        node: parse(source.body),
+        file,
+        location: source.locationOffset,
+      }),
+    );
+  } catch (e: unknown) {
+    const error = e as Error;
+    const source = {
+      node: null,
       file,
-      location: source.locationOffset,
-    }),
-  );
+      location: parseLocationFromError(error),
+    };
+
+    addError(source, ERROR_MESSAGES.parseError(error));
+
+    return [source];
+  }
 }
 
 function maybeReportErrorsAndExit(files: VFile | VFile[]) {
@@ -197,6 +236,10 @@ export async function generatePersistedQueryManifest(
   const operationsByName = new Map<string, DocumentSource[]>();
 
   for (const source of sources) {
+    if (!source.node) {
+      continue;
+    }
+
     visit(source.node, {
       FragmentDefinition(node) {
         const name = node.name.value;
@@ -243,7 +286,9 @@ export async function generatePersistedQueryManifest(
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
-  const fragments = createFragmentRegistry(...sources.map(({ node }) => node));
+  const fragments = createFragmentRegistry(
+    ...sources.map(({ node }) => node).filter(Boolean),
+  );
   const manifestOperationIds = new Map<string, string>();
 
   const manifestOperations: PersistedQueryManifestOperation[] = [];
@@ -293,7 +338,9 @@ export async function generatePersistedQueryManifest(
 
   for (const [_, sources] of sortBy([...operationsByName.entries()], first)) {
     for (const source of sources) {
-      await client.query({ query: source.node, fetchPolicy: "no-cache" });
+      if (source.node) {
+        await client.query({ query: source.node, fetchPolicy: "no-cache" });
+      }
     }
   }
 
