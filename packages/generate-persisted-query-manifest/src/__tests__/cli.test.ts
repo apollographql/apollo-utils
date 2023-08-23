@@ -1071,10 +1071,10 @@ const query;
   expect(code).toBe(1);
   expect(stderr).toMatchInlineSnapshot(`
     [
-      "src/greeting.graphql",
-      "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
       "src/components/my-component.js",
       "3:11  error  SyntaxError: Missing initializer in const declaration. (3:11)",
+      "src/greeting.graphql",
+      "2:11  error  GraphQLError: Syntax Error: Expected Name, found <EOF>.",
       "✖ 2 errors",
     ]
   `);
