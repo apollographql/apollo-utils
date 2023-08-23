@@ -10,6 +10,7 @@ const {
 const { TypeScriptLoader } = require("cosmiconfig-typescript-loader");
 const { version } = require("./package.json");
 const { writeFileSync } = require("node:fs");
+const chalk = require("chalk");
 
 const program = new Command();
 
@@ -65,7 +66,20 @@ program
     );
     writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
 
-    console.log(`Manifest written to ${outputPath}`);
+    if (manifest.operations.length === 0) {
+      console.warn(
+        chalk.yellow(
+          "Warning: no operations found during manifest generation. " +
+            "You may need to adjust the glob pattern used to search " +
+            "files in this project. See the README for more information on how to configure the glob pattern: " +
+            "https://www.npmjs.com/package/@apollo/generate-persisted-query-manifest\n",
+        ),
+      );
+    }
+
+    console.log(
+      `Manifest written to ${outputPath} with ${manifest.operations.length} operations.`,
+    );
   });
 
 program.parse();
