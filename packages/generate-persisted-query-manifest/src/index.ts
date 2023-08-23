@@ -140,7 +140,7 @@ function addError(
   vfileMessage.fatal = true;
 }
 
-function parsePositionFromError(error: Error) {
+function parseLocationFromError(error: Error) {
   if (error instanceof GraphQLError && error.locations) {
     return error.locations[0];
   }
@@ -191,7 +191,7 @@ function getDocumentSources(filepath: string): DocumentSource[] {
     const source = {
       node: null,
       file,
-      location: parsePositionFromError(error),
+      location: parseLocationFromError(error),
     };
 
     addError(source, ERROR_MESSAGES.parseError(error));
