@@ -76,7 +76,9 @@ test("writes manifest file and prints location", async () => {
 
   const { code, stdout } = await runCommand();
 
-  expect(stdout).toEqual(["Manifest written to persisted-query-manifest.json"]);
+  expect(stdout).toEqual([
+    "✓ Manifest written to persisted-query-manifest.json with 0 operations.",
+  ]);
   expect(code).toBe(0);
   expect(await exists("./persisted-query-manifest.json")).toBe(true);
 
@@ -602,15 +604,23 @@ export const fragment = gql\`
   await cleanup();
 });
 
-test("writes manifest file with no operations when none found", async () => {
+test("writes manifest file and logs warning when no operations are found", async () => {
   const { cleanup, readFile, runCommand } = await setup();
 
-  const { code } = await runCommand();
+  const { code, stdout, stderr } = await runCommand();
 
   const manifest = await readFile("./persisted-query-manifest.json");
 
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([]);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "Warning: no operations found during manifest generation. You may need to adjust the glob pattern used to search files in this project. See the README for more information on how to configure the glob pattern: https://www.npmjs.com/package/@apollo/generate-persisted-query-manifest",
+    ]
+  `);
+  expect(stdout).toEqual([
+    "✓ Manifest written to persisted-query-manifest.json with 0 operations.",
+  ]);
 
   await cleanup();
 });
