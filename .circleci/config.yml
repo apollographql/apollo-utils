@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.0.2
+  node: circleci/node@5.1.0
 
 commands:
   install-volta:
@@ -75,7 +75,6 @@ jobs:
       - run: npm run lint
 
 workflows:
-  version: 2
   Build:
     jobs:
       - NodeJS:
@@ -89,3 +88,4 @@ workflows:
       - GraphQL v14 - backcompat
       - GraphQL v15 - backcompat
       - Prettier
+      - Lint
