@@ -82,7 +82,7 @@ workflows:
           matrix:
             parameters:
               node-version:
-                - "16.0.0"
+                - "16"
                 - "18"
                 - "20"
       - GraphQL v14 - backcompat
