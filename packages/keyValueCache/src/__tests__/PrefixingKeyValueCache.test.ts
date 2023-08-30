@@ -1,7 +1,7 @@
-import { InMemoryLRUCache, type KeyValueCacheSetOptions } from "..";
+import { InMemoryLRUCache, type InMemoryLRUCacheSetOptions } from "..";
 import { PrefixingKeyValueCache } from "../PrefixingKeyValueCache";
 
-interface CustomKeyValueCacheSetOptions extends KeyValueCacheSetOptions {
+interface CustomKeyValueCacheSetOptions extends InMemoryLRUCacheSetOptions {
   tags?: string[];
 }
 

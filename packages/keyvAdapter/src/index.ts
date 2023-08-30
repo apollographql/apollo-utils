@@ -12,8 +12,7 @@ interface KeyvAdapterOptions {
 export class KeyvAdapter<
   V = string,
   O extends Record<string, any> = Record<string, unknown>,
-  SO extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
-> implements KeyValueCache<V, SO>
+> implements KeyValueCache<V, KeyValueCacheSetOptions>
 {
   private readonly keyv: Keyv<V, O>;
   private readonly dataLoader: DataLoader<string, V | undefined> | undefined;
@@ -40,7 +39,11 @@ export class KeyvAdapter<
     return this.dataLoader ? this.dataLoader.load(key) : this.keyv.get(key);
   }
 
-  async set(key: string, value: V, opts?: SO): Promise<void> {
+  async set(
+    key: string,
+    value: V,
+    opts?: KeyValueCacheSetOptions,
+  ): Promise<void> {
     // Maybe an unnecessary precaution, just being careful with 0 here. Keyv
     // currently handles 0 as `undefined`. Also `NaN` is typeof `number`
     if (typeof opts?.ttl === "number" && !Number.isNaN(opts.ttl)) {
