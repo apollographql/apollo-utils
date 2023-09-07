@@ -15,6 +15,7 @@ describe("PrefixingKeyValueCache", () => {
     await prefixing.delete("foo");
     expect(await prefixing.get("foo")).toBe(undefined);
   });
+
   it("PrefixesAreUnnecessaryForIsolationCache", async () => {
     const inner = new InMemoryLRUCache();
     const prefixesAreUnnecessaryForIsolationCache =
@@ -49,6 +50,7 @@ describe("PrefixingKeyValueCache", () => {
       PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(prefixing),
     ).toBe(true);
   });
+
   it("prefixes with custom extended options", async () => {
     const inner = new InMemoryLRUCache<string, CustomKeyValueCacheSetOptions>();
     const spyOnCacheSet = jest.spyOn(inner, "set");
