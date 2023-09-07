@@ -41,6 +41,7 @@ describe("KeyValueCache", () => {
         expectType<KeyValueCache<string>>(cacheBadGet);
       }
     });
+
     it("set", () => {
       const { set, ...cacheNoSet } = minimalCompatibleCache;
 
@@ -68,6 +69,7 @@ describe("KeyValueCache", () => {
         expectType<KeyValueCache<string>>(cacheBadSet);
       }
     });
+
     it("delete", () => {
       const { delete: _delete, ...cacheNoDelete } = minimalCompatibleCache;
 
