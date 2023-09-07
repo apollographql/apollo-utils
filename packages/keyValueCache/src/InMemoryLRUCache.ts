@@ -1,10 +1,10 @@
 import { LRUCache } from "lru-cache";
-import type { KeyValueCache } from "./KeyValueCache";
+import type { KeyValueCache, KeyValueCacheSetOptions } from "./KeyValueCache";
 
 export type InMemoryLRUCacheSetOptions<
   V extends {} = string,
   FC = unknown,
-> = LRUCache.SetOptions<string, V, FC>;
+> = Omit<LRUCache.SetOptions<string, V, FC>, "ttl"> & KeyValueCacheSetOptions;
 
 // LRUCache wrapper to implement the KeyValueCache interface.
 export class InMemoryLRUCache<
@@ -40,11 +40,12 @@ export class InMemoryLRUCache<
   }
 
   async set(key: string, value: V, options?: SO) {
-    if (options?.ttl) {
-      this.cache.set(key, value, { ...options, ttl: options.ttl * 1000 });
-    } else {
-      this.cache.set(key, value, options);
-    }
+    // If a TTL in seconds is provided, convert it to milliseconds.
+    // Otherwise, default it to 0 to indicate "no TTL".
+    this.cache.set(key, value, {
+      ...options,
+      ttl: options?.ttl ? options.ttl * 1000 : 0,
+    });
   }
 
   async get(key: string) {

@@ -40,7 +40,7 @@ describe("InMemoryLRUCache", () => {
   });
 
   it("does not expire when ttl is null", async () => {
-    await cache.set("forever", "yours", { noUpdateTTL: true });
+    await cache.set("forever", "yours", { ttl: null });
     expect(await cache.get("forever")).toEqual("yours");
 
     await sleep(1000);
@@ -55,7 +55,7 @@ describe("InMemoryLRUCache", () => {
     const spyOnCacheSet = jest.spyOn((customCache as any).cache, "set");
 
     await customCache.set("key", "foo");
-    expect(spyOnCacheSet).toBeCalledWith("key", "foo", undefined);
+    expect(spyOnCacheSet).toBeCalledWith("key", "foo", { ttl: 0 });
 
     expect(await customCache.get("key")).toBe("foo");
     await customCache.delete("key");
