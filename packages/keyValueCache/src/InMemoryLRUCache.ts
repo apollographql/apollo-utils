@@ -42,10 +42,10 @@ export class InMemoryLRUCache<
   async set(key: string, value: V, options?: SO) {
     // If a TTL in seconds is provided, convert it to milliseconds.
     // Otherwise, default it to 0 to indicate "no TTL".
-    this.cache.set(key, value, {
-      ...options,
-      ttl: options?.ttl ? options.ttl * 1000 : 0,
-    });
+    const lruOptions = options
+      ? { ...options, ttl: options.ttl ? options.ttl * 1000 : 0 }
+      : undefined;
+    this.cache.set(key, value, lruOptions);
   }
 
   async get(key: string) {

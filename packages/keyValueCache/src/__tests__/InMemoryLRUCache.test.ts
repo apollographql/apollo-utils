@@ -55,7 +55,7 @@ describe("InMemoryLRUCache", () => {
     const spyOnCacheSet = jest.spyOn((customCache as any).cache, "set");
 
     await customCache.set("key", "foo");
-    expect(spyOnCacheSet).toBeCalledWith("key", "foo", { ttl: 0 });
+    expect(spyOnCacheSet).toBeCalledWith("key", "foo", undefined);
 
     expect(await customCache.get("key")).toBe("foo");
     await customCache.delete("key");
