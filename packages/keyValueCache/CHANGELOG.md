@@ -1,5 +1,11 @@
 # @apollo/utils.keyvaluecache
 
+## 3.1.0
+
+### Minor Changes
+
+- [#337](https://github.com/apollographql/apollo-utils/pull/337) [`e02f708`](https://github.com/apollographql/apollo-utils/commit/e02f708579651a828b75d7148b1513fc45f0ad77) Thanks [@HishamAli81](https://github.com/HishamAli81)! - Updated the KeyValueCache.KeyValueCacheSetOptions type to be configurable, to be able to support custom key value caches that require additional cache set options.
+
 ## 3.0.0
 
 ### Major Changes
