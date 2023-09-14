@@ -1,4 +1,10 @@
+import type { LRUCache } from "lru-cache";
 import { InMemoryLRUCache } from "..";
+
+interface CustomKeyValueCacheSetOptions
+  extends LRUCache.SetOptions<string, string, Record<string, string>> {
+  tags?: string[];
+}
 
 describe("InMemoryLRUCache", () => {
   const cache = new InMemoryLRUCache();
@@ -39,6 +45,34 @@ describe("InMemoryLRUCache", () => {
 
     await sleep(1000);
     expect(await cache.get("forever")).toEqual("yours");
+  });
+
+  it("with custom extended options", async () => {
+    const customCache = new InMemoryLRUCache<
+      string,
+      CustomKeyValueCacheSetOptions
+    >();
+    const spyOnCacheSet = jest.spyOn((customCache as any).cache, "set");
+
+    await customCache.set("key", "foo");
+    expect(spyOnCacheSet).toBeCalledWith("key", "foo", undefined);
+
+    expect(await customCache.get("key")).toBe("foo");
+    await customCache.delete("key");
+    expect(await customCache.get("key")).toBe(undefined);
+
+    await customCache.set("keyWithOptions", "bar", {
+      ttl: 1000,
+      tags: ["tag1", "tag2"],
+    });
+    expect(spyOnCacheSet).toBeCalledWith("keyWithOptions", "bar", {
+      ttl: 1000000,
+      tags: ["tag1", "tag2"],
+    });
+
+    expect(await customCache.get("keyWithOptions")).toBe("bar");
+    await customCache.delete("keyWithOptions");
+    expect(await customCache.get("keyWithOptions")).toBe(undefined);
   });
 });
 

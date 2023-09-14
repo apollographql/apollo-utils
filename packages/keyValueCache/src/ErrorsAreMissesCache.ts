@@ -1,4 +1,4 @@
-import type { KeyValueCache } from "./KeyValueCache";
+import type { KeyValueCache, KeyValueCacheSetOptions } from "./KeyValueCache";
 import type { Logger } from "@apollo/utils.logger";
 
 /**
@@ -6,9 +6,13 @@ import type { Logger } from "@apollo/utils.logger";
  * errors thrown by the underlying cache. You can also provide a logger to
  * capture these errors rather than just swallow them.
  */
-export class ErrorsAreMissesCache<V = string> implements KeyValueCache<V> {
+export class ErrorsAreMissesCache<
+  V = string,
+  SO extends KeyValueCacheSetOptions = KeyValueCacheSetOptions,
+> implements KeyValueCache<V, SO>
+{
   constructor(
-    private cache: KeyValueCache<V>,
+    private cache: KeyValueCache<V, SO>,
     private logger?: Logger,
   ) {}
 
@@ -27,7 +31,7 @@ export class ErrorsAreMissesCache<V = string> implements KeyValueCache<V> {
     }
   }
 
-  async set(key: string, value: V, opts?: { ttl?: number }): Promise<void> {
+  async set(key: string, value: V, opts?: SO): Promise<void> {
     return this.cache.set(key, value, opts);
   }
 

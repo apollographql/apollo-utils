@@ -1,5 +1,9 @@
-import { InMemoryLRUCache } from "..";
+import { InMemoryLRUCache, type InMemoryLRUCacheSetOptions } from "..";
 import { PrefixingKeyValueCache } from "../PrefixingKeyValueCache";
+
+interface CustomKeyValueCacheSetOptions extends InMemoryLRUCacheSetOptions {
+  tags?: string[];
+}
 
 describe("PrefixingKeyValueCache", () => {
   it("prefixes", async () => {
@@ -11,6 +15,7 @@ describe("PrefixingKeyValueCache", () => {
     await prefixing.delete("foo");
     expect(await prefixing.get("foo")).toBe(undefined);
   });
+
   it("PrefixesAreUnnecessaryForIsolationCache", async () => {
     const inner = new InMemoryLRUCache();
     const prefixesAreUnnecessaryForIsolationCache =
@@ -44,5 +49,33 @@ describe("PrefixingKeyValueCache", () => {
     expect(
       PrefixingKeyValueCache.prefixesAreUnnecessaryForIsolation(prefixing),
     ).toBe(true);
+  });
+
+  it("prefixes with custom extended options", async () => {
+    const inner = new InMemoryLRUCache<string, CustomKeyValueCacheSetOptions>();
+    const spyOnCacheSet = jest.spyOn(inner, "set");
+    const prefixing = new PrefixingKeyValueCache(inner, "prefix:");
+
+    await prefixing.set("key", "foo");
+    expect(spyOnCacheSet).toBeCalledWith("prefix:key", "foo", undefined);
+
+    expect(await prefixing.get("key")).toBe("foo");
+    expect(await inner.get("prefix:key")).toBe("foo");
+    await prefixing.delete("key");
+    expect(await prefixing.get("key")).toBe(undefined);
+
+    await prefixing.set("keyWithOptions", "bar", {
+      ttl: 1000,
+      tags: ["tag1", "tag2"],
+    });
+    expect(spyOnCacheSet).toBeCalledWith("prefix:keyWithOptions", "bar", {
+      ttl: 1000,
+      tags: ["tag1", "tag2"],
+    });
+
+    expect(await prefixing.get("keyWithOptions")).toBe("bar");
+    expect(await inner.get("prefix:keyWithOptions")).toBe("bar");
+    await prefixing.delete("keyWithOptions");
+    expect(await prefixing.get("keyWithOptions")).toBe(undefined);
   });
 });
