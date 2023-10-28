@@ -41,6 +41,6 @@
   },
   "devDependencies": {
     "@gmrchk/cli-testing-library": "0.1.2",
-    "@wry/equality": "0.5.6"
+    "@wry/equality": "0.5.7"
   }
 }
