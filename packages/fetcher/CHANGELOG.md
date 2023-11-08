@@ -1,5 +1,11 @@
 # @apollo/utils.fetcher
 
+## 3.1.0
+
+### Minor Changes
+
+- [#376](https://github.com/apollographql/apollo-utils/pull/376) [`7af650b`](https://github.com/apollographql/apollo-utils/commit/7af650b5cc17f5cd599ec7c2acd32679dd18af19) Thanks [@rportugal](https://github.com/rportugal)! - Add `redirect` to `FetcherRequestInit`
+
 ## 3.0.0
 
 ### Major Changes
