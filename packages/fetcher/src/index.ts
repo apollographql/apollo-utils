@@ -5,6 +5,7 @@ export interface FetcherRequestInit {
   // objects.
   headers?: Record<string, string>;
   body?: string | Buffer;
+  redirect?: "follow" | "error" | "manual";
 
   // A provided `signal` should be an object created by a class named
   // `AbortSignal` (the constructor name is checked by some implementations like
