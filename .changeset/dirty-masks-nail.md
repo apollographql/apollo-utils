@@ -4,7 +4,11 @@
 
 Add ability to specify a custom document transform used during manifest generation.
 
-NOTE: This should be the same document transform that is passed to your `ApolloClient` instance.
+> [!NOTE]
+> You must be running Apollo Client 3.8.0 or greater to use this feature.
+
+> [!IMPORTANT]
+> This should be the same document transform that is passed to your `ApolloClient` instance, otherwise you risk mismatches in the query output.
 
 ```ts
 // persisted-query-manifest.config.ts
