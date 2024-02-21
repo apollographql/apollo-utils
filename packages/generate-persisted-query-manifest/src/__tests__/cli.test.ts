@@ -677,7 +677,7 @@ test("can specify custom document location with config file", async () => {
 
 {
   const ymlConfig = `
-documents: 
+documents:
   - queries/**/*.graphql
 `;
 
@@ -691,7 +691,7 @@ module.exports = {
 import { PersistedQueryManifestConfig } from '@apollo/generate-persisted-query-manifest';
 
 const config: PersistedQueryManifestOperation = {
-  documents: ['queries/**/*.graphql'] 
+  documents: ['queries/**/*.graphql']
 }
 
 export default config;
@@ -895,7 +895,7 @@ const config: PersistedQueryManifestConfig = {
         return Buffer.from(query).toString("base64");
       default:
         return createDefaultId();
-    }  
+    }
   }
 };
 
