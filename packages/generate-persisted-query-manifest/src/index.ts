@@ -51,6 +51,11 @@ export interface PersistedQueryManifestConfig {
    * For more information about document transforms, see the [Document
    * transforms](https://www.apollographql.com/docs/react/data/document-transforms)
    * documentation page.
+   *
+   * IMPORTANT: You must be running `@apollo/client` 3.8.0 or greater to use
+   * this feature.
+   *
+   * @since 1.2.0
    */
   documentTransform?: DocumentTransform;
 
