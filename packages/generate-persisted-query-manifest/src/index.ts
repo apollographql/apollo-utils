@@ -5,6 +5,10 @@ import {
   InMemoryCache,
   Observable,
 } from "@apollo/client/core";
+import type {
+  ApolloClientOptions,
+  DocumentTransform,
+} from "@apollo/client/core";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
 import globby from "globby";
@@ -39,6 +43,16 @@ export interface PersistedQueryManifestConfig {
    * Prefix the pattern with `!` to specify a path that should be ignored.
    */
   documents?: string | string[];
+
+  /**
+   * A `DocumentTransform` instance that will be used to transform the GraphQL
+   * document before it is saved to the manifest.
+   *
+   * For more information about document transforms, see the [Document
+   * transforms](https://www.apollographql.com/docs/react/data/document-transforms)
+   * documentation page.
+   */
+  documentTransform?: DocumentTransform;
 
   /**
    * Path where the manifest file will be written.
@@ -298,10 +312,15 @@ export async function generatePersistedQueryManifest(
     ...sources.map(({ node }) => node).filter(Boolean),
   );
   const manifestOperationIds = new Map<string, string>();
-
   const manifestOperations: PersistedQueryManifestOperation[] = [];
+  const clientConfig: Partial<ApolloClientOptions<any>> = {};
+
+  if (config.documentTransform) {
+    clientConfig.documentTransform = config.documentTransform;
+  }
 
   const client = new ApolloClient({
+    ...clientConfig,
     cache: new InMemoryCache({
       fragments,
     }),

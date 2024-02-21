@@ -10,6 +10,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { PersistedQueryManifestOperation } from "../index";
+import packageJson from "../../package.json";
 
 test("prints help message with --help", async () => {
   const { cleanup, runCommand } = await setup();
@@ -918,6 +919,71 @@ export default config;
       id: base64(query),
       name: "GreetingQuery",
       body: print(query),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
+test("can specify custom document transform in config", async () => {
+  const { cleanup, runCommand, writeFile, readFile, execute } = await setup();
+  const query = gql`
+    query GreetingQuery {
+      user {
+        id
+        name @custom
+      }
+    }
+  `;
+
+  const expectedQuery = gql`
+    query GreetingQuery {
+      user {
+        id
+        name
+      }
+    }
+  `;
+
+  await writeFile(
+    "./package.json",
+    JSON.stringify({
+      dependencies: {
+        "@apollo/client": packageJson.devDependencies["@apollo/client"],
+      },
+    }),
+  );
+  await execute("npm", "install");
+  await writeFile("./src/greeting-query.graphql", print(query));
+  await writeFile(
+    "./persisted-query-manifest.config.ts",
+    `
+import { PersistedQueryManifestConfig } from '@apollo/generate-persisted-query-manifest';
+import { DocumentTransform } from '@apollo/client/core';
+import { removeDirectivesFromDocument } from '@apollo/client/utilities';
+
+const documentTransform = new DocumentTransform((document) => {
+  return removeDirectivesFromDocument([{ name: 'custom' }], document);
+});
+
+const config: PersistedQueryManifestConfig = {
+  documentTransform,
+};
+
+export default config;
+`,
+  );
+
+  const { code } = await runCommand();
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(addTypenameToDocument(expectedQuery)),
+      name: "GreetingQuery",
+      body: print(addTypenameToDocument(expectedQuery)),
       type: "query",
     },
   ]);
