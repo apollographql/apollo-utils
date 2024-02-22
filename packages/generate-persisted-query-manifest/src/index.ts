@@ -5,6 +5,11 @@ import {
   InMemoryCache,
   Observable,
 } from "@apollo/client/core";
+import type {
+  ApolloClientOptions,
+  // @ts-ignore
+  DocumentTransform as RealDocumentTransform,
+} from "@apollo/client/core";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
 import globby from "globby";
@@ -27,6 +32,13 @@ import chalk from "chalk";
 
 type OperationType = "query" | "mutation" | "subscription";
 
+// If the user uses Apollo Client 3.7, `DocumentTransform` won't exist.
+// TypeScript will default the value to `any` in this case. We don't want to
+// allow this property in this case, so we set the type to `never`.
+type DocumentTransform = any extends RealDocumentTransform
+  ? never
+  : RealDocumentTransform;
+
 interface CreateOperationIdOptions {
   operationName: string;
   type: OperationType;
@@ -39,6 +51,34 @@ export interface PersistedQueryManifestConfig {
    * Prefix the pattern with `!` to specify a path that should be ignored.
    */
   documents?: string | string[];
+
+  /**
+   * A `DocumentTransform` instance that will be used to transform the GraphQL
+   * document before it is saved to the manifest.
+   *
+   * For more information about document transforms, see the [Document
+   * transforms](https://www.apollographql.com/docs/react/data/document-transforms)
+   * documentation page.
+   *
+   * IMPORTANT: You must be running `@apollo/client` 3.8.0 or greater to use
+   * this feature.
+   *
+   * @example
+   * ```ts
+   * import { DocumentTransform } from "@apollo/client/core";
+   *
+   * const config = {
+   *   documentTransform: new DocumentTransform((document) => {
+   *     // ... transform the document
+   *
+   *     return transformedDocument;
+   *   })
+   * }
+   * ```
+   *
+   * @since 1.2.0
+   */
+  documentTransform?: DocumentTransform;
 
   /**
    * Path where the manifest file will be written.
@@ -298,10 +338,15 @@ export async function generatePersistedQueryManifest(
     ...sources.map(({ node }) => node).filter(Boolean),
   );
   const manifestOperationIds = new Map<string, string>();
-
   const manifestOperations: PersistedQueryManifestOperation[] = [];
+  const clientConfig: Partial<ApolloClientOptions<any>> = {};
+
+  if (config.documentTransform) {
+    clientConfig.documentTransform = config.documentTransform;
+  }
 
   const client = new ApolloClient({
+    ...clientConfig,
     cache: new InMemoryCache({
       fragments,
     }),

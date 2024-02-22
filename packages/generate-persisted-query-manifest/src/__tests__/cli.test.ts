@@ -676,7 +676,7 @@ test("can specify custom document location with config file", async () => {
 
 {
   const ymlConfig = `
-documents: 
+documents:
   - queries/**/*.graphql
 `;
 
@@ -690,7 +690,7 @@ module.exports = {
 import { PersistedQueryManifestConfig } from '@apollo/generate-persisted-query-manifest';
 
 const config: PersistedQueryManifestOperation = {
-  documents: ['queries/**/*.graphql'] 
+  documents: ['queries/**/*.graphql']
 }
 
 export default config;
@@ -894,7 +894,7 @@ const config: PersistedQueryManifestConfig = {
         return Buffer.from(query).toString("base64");
       default:
         return createDefaultId();
-    }  
+    }
   }
 };
 
@@ -918,6 +918,71 @@ export default config;
       id: base64(query),
       name: "GreetingQuery",
       body: print(query),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
+test("can specify custom document transform in config using Apollo Client > 3.8", async () => {
+  const { cleanup, runCommand, writeFile, readFile, execute } = await setup();
+  const query = gql`
+    query GreetingQuery {
+      user {
+        id
+        name @custom
+      }
+    }
+  `;
+
+  const expectedQuery = gql`
+    query GreetingQuery {
+      user {
+        id
+        name
+      }
+    }
+  `;
+
+  await writeFile(
+    "./package.json",
+    JSON.stringify({
+      dependencies: {
+        "@apollo/client": "^3.8.0",
+      },
+    }),
+  );
+  await execute("npm", "install");
+  await writeFile("./src/greeting-query.graphql", print(query));
+  await writeFile(
+    "./persisted-query-manifest.config.ts",
+    `
+import { PersistedQueryManifestConfig } from '@apollo/generate-persisted-query-manifest';
+import { DocumentTransform } from '@apollo/client/core';
+import { removeDirectivesFromDocument } from '@apollo/client/utilities';
+
+const documentTransform = new DocumentTransform((document) => {
+  return removeDirectivesFromDocument([{ name: 'custom' }], document);
+});
+
+const config: PersistedQueryManifestConfig = {
+  documentTransform,
+};
+
+export default config;
+`,
+  );
+
+  const { code } = await runCommand();
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(addTypenameToDocument(expectedQuery)),
+      name: "GreetingQuery",
+      body: print(addTypenameToDocument(expectedQuery)),
       type: "query",
     },
   ]);

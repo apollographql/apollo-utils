@@ -36,7 +36,7 @@
     "vfile-reporter": "^6.0.2"
   },
   "peerDependencies": {
-    "@apollo/client": "^3.7.0 || ^3.8.0-alpha",
+    "@apollo/client": "^3.7.0",
     "graphql": "14.x || 15.x || 16.x"
   },
   "devDependencies": {

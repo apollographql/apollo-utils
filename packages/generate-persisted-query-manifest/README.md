@@ -143,3 +143,25 @@ const config = {
   },
 };
 ```
+
+- `documentTransform` - `DocumentTransform`
+
+An `@apollo/client` `DocumentTransform` instance used to transform GraphQL documents before they are saved to the manifest. Use this option if you pass a `documentTransform` option to your Apollo Client instance.
+
+For more information, see the Apollo Client [Document transforms](https://www.apollographql.com/docs/react/data/document-transforms) documentation.
+
+> NOTE: This feature is only available if you use Apollo Client 3.8.0 or greater.
+
+```ts
+import { DocumentTransform } from "@apollo/client/core";
+
+const config = {
+  // Inlined for this example, but ideally this should use the same instance
+  // that is passed to your Apollo Client instance
+  documentTransform: new DocumentTransform((document) => {
+    // ... transform the document
+
+    return transformedDocument;
+  }),
+};
+```
