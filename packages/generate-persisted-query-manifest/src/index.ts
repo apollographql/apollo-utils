@@ -318,6 +318,11 @@ function uniq<T>(arr: T[]) {
   return [...new Set(arr)];
 }
 
+async function fromFilepathList(documents: string | string[]) {
+  const filepaths = await getFilepaths(documents);
+  return filepaths.flatMap(getDocumentSources);
+}
+
 // Unfortunately globby does not guarantee deterministic file sorting so we
 // apply some sorting on the files in this function.
 //
@@ -340,8 +345,10 @@ export async function generatePersistedQueryManifest(
       ? relative(process.cwd(), configFilePath)
       : "<virtual>",
   });
-  const filepaths = await getFilepaths(documents);
-  const sources = filepaths.flatMap(getDocumentSources);
+
+  const sources = isCustomDocumentsSource(documents)
+    ? documents[CUSTOM_DOCUMENTS_SYMBOL]()
+    : await fromFilepathList(documents);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();
