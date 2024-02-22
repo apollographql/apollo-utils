@@ -40,7 +40,6 @@
     "graphql": "14.x || 15.x || 16.x"
   },
   "devDependencies": {
-    "@apollo/client": "3.9.5",
     "@gmrchk/cli-testing-library": "0.1.2",
     "@wry/equality": "0.5.7"
   }
