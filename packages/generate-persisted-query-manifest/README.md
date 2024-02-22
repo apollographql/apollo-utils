@@ -162,6 +162,6 @@ const config = {
     // ... transform the document
 
     return transformedDocument;
-  })
-}
+  }),
+};
 ```
