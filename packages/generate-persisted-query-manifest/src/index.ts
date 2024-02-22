@@ -243,6 +243,7 @@ function isParseableGraphQLCodegenManifest(
   return (
     typeof manifest === "object" &&
     manifest !== null &&
+    !Array.isArray(manifest) &&
     Object.entries(manifest).every(
       ([key, value]) => typeof key === "string" && typeof value === "string",
     )
