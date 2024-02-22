@@ -1098,7 +1098,10 @@ export default config;
   await writeFile(
     "./persisted-query-manifest.config.ts",
     `
-import { PersistedQueryManifestConfig, fromGraphQLCodegenPersistedDocuments } from '@apollo/generate-persisted-query-manifest';
+import {
+  PersistedQueryManifestConfig,
+  fromGraphQLCodegenPersistedDocuments
+} from '@apollo/generate-persisted-query-manifest';
 
 const config: PersistedQueryManifestConfig = {
   documents: fromGraphQLCodegenPersistedDocuments('./src/gql/persisted-documents.json'),
