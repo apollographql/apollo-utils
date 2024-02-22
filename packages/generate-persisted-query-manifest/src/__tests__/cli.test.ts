@@ -9,6 +9,8 @@ import { print, type DocumentNode } from "graphql";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { generate } from "@graphql-codegen/cli";
+import { addTypenameSelectionDocumentTransform } from "@graphql-codegen/client-preset";
 import type { PersistedQueryManifestOperation } from "../index";
 
 test("prints help message with --help", async () => {
@@ -992,7 +994,7 @@ test("integrates with GraphQL codegen persisted documents", async () => {
     writeFile,
     readFile,
     installDependencies,
-    execute,
+    path: testPath,
   } = await setup();
 
   const greetingQuery = gql`
@@ -1052,49 +1054,29 @@ test("integrates with GraphQL codegen persisted documents", async () => {
     }
   `;
 
-  await installDependencies(
-    {
-      "@apollo/generate-persisted-query-manifest": `file:${path.resolve(
-        __dirname,
-        "../index.ts",
-      )}`,
-      "@graphql-codegen/cli": "^5.0.0",
-      "@graphql-codegen/client-preset": "^4.0.0",
-    },
-    {
-      scripts: {
-        codegen: "graphql-codegen",
-      },
-    },
-  );
+  await installDependencies({
+    "@apollo/generate-persisted-query-manifest": `file:${path.resolve(
+      __dirname,
+      "../index.ts",
+    )}`,
+  });
 
   await writeFile("./schema.graphql", print(schema));
   await writeFile("./src/greeting-query.graphql", print(greetingQuery));
   await writeFile("./src/current-user-query.graphql", print(currentUserQuery));
-  await writeFile(
-    "./codegen.ts",
-    `
-import type { CodegenConfig } from '@graphql-codegen/cli';
-import { addTypenameSelectionDocumentTransform } from '@graphql-codegen/client-preset';
-
-const config: CodegenConfig = {
-  generates: {
-    './src/gql/': {
-      schema: './schema.graphql',
-      documents: ['./src/**/*.graphql'],
-      preset: 'client',
-      presetConfig: {
-        persistedDocuments: true,
+  await generate({
+    generates: {
+      [path.join(testPath, "./src/gql/")]: {
+        schema: path.resolve(testPath, "./schema.graphql"),
+        documents: [path.join(testPath, "./src/**/*.graphql")],
+        preset: "client",
+        presetConfig: {
+          persistedDocuments: true,
+        },
+        documentTransforms: [addTypenameSelectionDocumentTransform],
       },
-      documentTransforms: [addTypenameSelectionDocumentTransform],
-    }
-  }
-}
-
-export default config;
-`,
-  );
-  await execute("./node_modules/.bin/graphql-codegen", "");
+    },
+  });
 
   await writeFile(
     "./persisted-query-manifest.config.ts",
