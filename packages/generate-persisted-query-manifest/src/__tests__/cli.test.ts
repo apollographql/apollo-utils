@@ -1053,6 +1053,10 @@ test.only("integrates with GraphQL codegen persisted documents", async () => {
 
   await installDependencies(
     {
+      "@apollo/generate-persisted-query-manifest": `file:${path.resolve(
+        __dirname,
+        "../index.ts",
+      )}`,
       "@graphql-codegen/cli": "^5.0.0",
       "@graphql-codegen/client-preset": "^4.0.0",
     },
