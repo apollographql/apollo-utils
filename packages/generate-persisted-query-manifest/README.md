@@ -103,13 +103,13 @@ generation utility used with GraphQL. You can use GraphQL Codegen's [persisted
 documents](https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#persisted-documents) feature with `generate-persisted-query-manifest` by providing the `documents` option with the `fromGraphQLCodegenPersistedDocuments` utility exported by this package. Doing so will skip file system traversal and instead use the GraphQL documents defined in the persisted documents manifest as the documents source.
 
 ```ts
-import type { PersistedQueryManifestConfig } from '@apollo/generate-persisted-query-manifest';
-import {
-  fromGraphQLCodegenPersistedDocuments
-} from '@apollo/generate-persisted-query-manifest';
+import type { PersistedQueryManifestConfig } from "@apollo/generate-persisted-query-manifest";
+import { fromGraphQLCodegenPersistedDocuments } from "@apollo/generate-persisted-query-manifest";
 
 const config: PersistedQueryManifestConfig = {
-  documents: fromGraphQLCodegenPersistedDocuments('./src/gql/persisted-documents.json'),
+  documents: fromGraphQLCodegenPersistedDocuments(
+    "./src/gql/persisted-documents.json",
+  ),
 };
 
 export default config;
