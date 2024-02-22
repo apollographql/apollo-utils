@@ -985,7 +985,7 @@ export default config;
   await cleanup();
 });
 
-test.only("integrates with GraphQL codegen persisted documents", async () => {
+test("integrates with GraphQL codegen persisted documents", async () => {
   const {
     cleanup,
     runCommand,
@@ -1118,15 +1118,15 @@ export default config;
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([
     {
-      id: sha256(greetingExpectedQuery),
-      name: "GreetingQuery",
-      body: print(greetingExpectedQuery),
-      type: "query",
-    },
-    {
       id: sha256(currentUserExpectedQuery),
       name: "CurrentUserQuery",
       body: print(currentUserExpectedQuery),
+      type: "query",
+    },
+    {
+      id: sha256(greetingExpectedQuery),
+      name: "GreetingQuery",
+      body: print(greetingExpectedQuery),
       type: "query",
     },
   ]);
