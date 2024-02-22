@@ -50,7 +50,7 @@ export interface PersistedQueryManifestConfig {
    * Paths to your GraphQL documents: queries, mutations, subscriptions, and fragments.
    * Prefix the pattern with `!` to specify a path that should be ignored.
    */
-  documents?: string | string[];
+  documents?: string | string[] | CustomDocumentSourceConfig;
 
   /**
    * A `DocumentTransform` instance that will be used to transform the GraphQL
