@@ -10,7 +10,6 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { PersistedQueryManifestOperation } from "../index";
-import packageJson from "../../package.json";
 
 test("prints help message with --help", async () => {
   const { cleanup, runCommand } = await setup();
@@ -926,7 +925,7 @@ export default config;
   await cleanup();
 });
 
-test("can specify custom document transform in config", async () => {
+test("can specify custom document transform in config using Apollo Client > 3.8", async () => {
   const { cleanup, runCommand, writeFile, readFile, execute } = await setup();
   const query = gql`
     query GreetingQuery {
@@ -950,7 +949,7 @@ test("can specify custom document transform in config", async () => {
     "./package.json",
     JSON.stringify({
       dependencies: {
-        "@apollo/client": packageJson.devDependencies["@apollo/client"],
+        "@apollo/client": "^3.8.0",
       },
     }),
   );
