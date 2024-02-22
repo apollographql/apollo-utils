@@ -417,10 +417,12 @@ async function fromFilepathList(documents: string | string[]) {
 // apply some sorting on the files in this function.
 //
 // https://github.com/sindresorhus/globby/issues/131
+/** @internal */
 export async function getFilepaths(documents: string | string[]) {
   return [...uniq(await globby(documents))].sort((a, b) => a.localeCompare(b));
 }
 
+/** @internal */
 export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
   configFilePath: string | undefined,
