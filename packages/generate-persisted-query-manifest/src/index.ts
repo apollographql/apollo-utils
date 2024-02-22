@@ -1,4 +1,5 @@
 import { createFragmentRegistry } from "@apollo/client/cache";
+import type { FragmentRegistryAPI } from "@apollo/client/cache";
 import {
   ApolloClient,
   ApolloLink,
@@ -96,8 +97,13 @@ export interface PersistedQueryManifestConfig {
   ) => string;
 }
 
+interface DocumentSourceConfig {
+  fragmentRegistry?: FragmentRegistryAPI;
+  sources: DocumentSource[];
+}
+
 interface CustomDocumentSourceConfig {
-  [CUSTOM_DOCUMENTS_SOURCE]: () => DocumentSource[];
+  [CUSTOM_DOCUMENTS_SOURCE]: () => DocumentSourceConfig;
 }
 
 const CUSTOM_DOCUMENTS_SOURCE = Symbol.for(
@@ -151,30 +157,38 @@ export function fromGraphQLCodegenPersistedDocuments(
       }
 
       if (!existsSync(file.path!)) {
-        return getSourceWithError(
-          ERROR_MESSAGES.graphqlCodegenManifestFileNotFound(filepath),
-        );
+        return {
+          sources: getSourceWithError(
+            ERROR_MESSAGES.graphqlCodegenManifestFileNotFound(filepath),
+          ),
+        };
       }
 
       try {
         const manifest = JSON.parse(readFileSync(filepath, "utf-8"));
 
-        if (!isParseableGraphQLCodegenManifest(manifest)) {
-          return getSourceWithError(
-            ERROR_MESSAGES.malformedGraphQLCodegenManifest(),
-          );
+        if (isParseableGraphQLCodegenManifest(manifest)) {
+          // We don't run any validation on unique entries because we assume
+          // GraphQL Codegen has already handled this in the persisted documents
+          // generation.
+          return {
+            sources: Object.values(manifest).map((query) => ({
+              file,
+              node: parse(query),
+              location: undefined,
+            })),
+          };
+        } else {
+          return {
+            sources: getSourceWithError(
+              ERROR_MESSAGES.malformedGraphQLCodegenManifest(),
+            ),
+          };
         }
-
-        // We don't run any validation on unique entries because we assume
-        // GraphQL Codegen has already handled this in the persisted documents
-        // generation.
-        return Object.values(manifest).map((query) => ({
-          file,
-          node: parse(query),
-          location: undefined,
-        }));
       } catch (e) {
-        return getSourceWithError(ERROR_MESSAGES.parseError(e as Error));
+        return {
+          sources: getSourceWithError(ERROR_MESSAGES.parseError(e as Error)),
+        };
       }
     },
   };
@@ -358,7 +372,9 @@ function uniq<T>(arr: T[]) {
   return [...new Set(arr)];
 }
 
-async function fromFilepathList(documents: string | string[]) {
+async function fromFilepathList(
+  documents: string | string[],
+): Promise<DocumentSourceConfig> {
   const filepaths = await getFilepaths(documents);
   const sources = filepaths.flatMap(getDocumentSources);
   const fragmentsByName = new Map<string, DocumentSource[]>();
@@ -410,7 +426,12 @@ async function fromFilepathList(documents: string | string[]) {
     });
   }
 
-  return sources;
+  return {
+    fragmentRegistry: createFragmentRegistry(
+      ...sources.map(({ node }) => node).filter(Boolean),
+    ),
+    sources,
+  };
 }
 
 // Unfortunately globby does not guarantee deterministic file sorting so we
@@ -422,7 +443,7 @@ export async function getFilepaths(
   documents: string | string[] | CustomDocumentSourceConfig,
 ) {
   if (isCustomDocumentsSource(documents)) {
-    const sources = documents[CUSTOM_DOCUMENTS_SOURCE]();
+    const { sources } = documents[CUSTOM_DOCUMENTS_SOURCE]();
 
     return [
       ...new Set(
@@ -450,7 +471,7 @@ export async function generatePersistedQueryManifest(
       : "<virtual>",
   });
 
-  const sources = isCustomDocumentsSource(documents)
+  const { fragmentRegistry, sources } = isCustomDocumentsSource(documents)
     ? documents[CUSTOM_DOCUMENTS_SOURCE]()
     : await fromFilepathList(documents);
 
@@ -486,9 +507,9 @@ export async function generatePersistedQueryManifest(
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
-  const fragments = createFragmentRegistry(
-    ...sources.map(({ node }) => node).filter(Boolean),
-  );
+  const cache = fragmentRegistry
+    ? new InMemoryCache({ fragments: fragmentRegistry })
+    : new InMemoryCache();
   const manifestOperationIds = new Map<string, string>();
   const manifestOperations: PersistedQueryManifestOperation[] = [];
   const clientConfig: Partial<ApolloClientOptions<any>> = {};
@@ -499,9 +520,7 @@ export async function generatePersistedQueryManifest(
 
   const client = new ApolloClient({
     ...clientConfig,
-    cache: new InMemoryCache({
-      fragments,
-    }),
+    cache,
     link: new ApolloLink((operation) => {
       const body = print(sortTopLevelDefinitions(operation.query));
       const name = operation.operationName;
