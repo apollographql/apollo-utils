@@ -96,12 +96,12 @@ export interface PersistedQueryManifestConfig {
   ) => string;
 }
 
-interface CustomDocumentConfig {
-  [CUSTOM_DOCUMENTS_SYMBOL]: () => DocumentSource[];
+interface CustomDocumentSourceConfig {
+  [CUSTOM_DOCUMENTS_SOURCE]: () => DocumentSource[];
 }
 
-const CUSTOM_DOCUMENTS_SYMBOL = Symbol.for(
-  "apollo.generate-persisted-query-manifest.documents",
+const CUSTOM_DOCUMENTS_SOURCE = Symbol.for(
+  "apollo.generate-persisted-query-manifest.documents-source",
 );
 
 export interface PersistedQueryManifestOperation {
@@ -119,9 +119,9 @@ export interface PersistedQueryManifest {
 
 export function fromGraphQLCodegenPersistedDocuments(
   filepath: string,
-): CustomDocumentConfig {
+): CustomDocumentSourceConfig {
   return {
-    [CUSTOM_DOCUMENTS_SYMBOL]: () => {
+    [CUSTOM_DOCUMENTS_SOURCE]: () => {
       const file = vfile({
         filepath,
         contents: readFileSync(filepath, "utf-8"),
@@ -220,13 +220,13 @@ function addError(
 
 function isCustomDocumentsSource(
   documentsConfig: unknown,
-): documentsConfig is CustomDocumentConfig {
+): documentsConfig is CustomDocumentSourceConfig {
   return (
     typeof documentsConfig === "object" &&
     documentsConfig !== null &&
     Object.prototype.hasOwnProperty.call(
       documentsConfig,
-      CUSTOM_DOCUMENTS_SYMBOL,
+      CUSTOM_DOCUMENTS_SOURCE,
     )
   );
 }
@@ -347,7 +347,7 @@ export async function generatePersistedQueryManifest(
   });
 
   const sources = isCustomDocumentsSource(documents)
-    ? documents[CUSTOM_DOCUMENTS_SYMBOL]()
+    ? documents[CUSTOM_DOCUMENTS_SOURCE]()
     : await fromFilepathList(documents);
 
   const fragmentsByName = new Map<string, DocumentSource[]>();
