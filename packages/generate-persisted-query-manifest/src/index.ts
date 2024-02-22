@@ -7,7 +7,7 @@ import {
 } from "@apollo/client/core";
 import type {
   ApolloClientOptions,
-  DocumentTransform,
+  DocumentTransform as RealDocumentTransform,
 } from "@apollo/client/core";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
@@ -30,6 +30,13 @@ import reporter from "vfile-reporter";
 import chalk from "chalk";
 
 type OperationType = "query" | "mutation" | "subscription";
+
+// If the user uses Apollo Client 3.7, `DocumentTransform` won't exist.
+// TypeScript will default the value to `any` in this case. We prefer to set the
+// type as `never` in this situation to complain if the property is set.
+type DocumentTransform = any extends RealDocumentTransform
+  ? never
+  : RealDocumentTransform;
 
 interface CreateOperationIdOptions {
   operationName: string;
