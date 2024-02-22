@@ -100,7 +100,7 @@ Default:
 
 [GraphQL Codegen](https://the-guild.dev/graphql/codegen) is a popular code
 generation utility used with GraphQL. You can use GraphQL Codegen's [persisted
-documents](https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#persisted-documents) feature with `generate-persisted-query-manifest` by providing the `documents` option with the `fromGraphQLCodegenPersistedDocuments` utility exported by this package. Doing so will skip file system traversal and instead use the GraphQL documents defined in the persisted documents manifest as the documents source.
+documents](https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#persisted-documents) feature with `generate-persisted-query-manifest` by providing the `documents` option with the `fromGraphQLCodegenPersistedDocuments` utility exported by this package. This is useful to prevent traversing the file system to parse GraphQL documents sinceGraphQL Codegen has already done the hard work for you.
 
 ```ts
 import type { PersistedQueryManifestConfig } from "@apollo/generate-persisted-query-manifest";
@@ -115,7 +115,7 @@ const config: PersistedQueryManifestConfig = {
 export default config;
 ```
 
-> NOTE: Running these documents through this package is necessary to ensure all document transforms built into Apollo Client are also run on these documents. This ensures forward compatibility with any future changes introduced by Apollo Client that may alter the GraphQL document output.
+> NOTE: Running these documents through this package is necessary to ensure the GraphQL document sent to the server by Apollo Client matches that in the manifest. While GraphQL Codegen's persisted documents transforms are intended to be similar to Apollo Client's, there are subtle differences that may prevent correct usage of Apollo's persisted queries. This also ensures forward compatibility with any future transforms introduced by Apollo Client that may alter the GraphQL document output.
 
 - `output` - `string`
 
