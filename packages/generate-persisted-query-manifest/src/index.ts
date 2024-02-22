@@ -418,7 +418,19 @@ async function fromFilepathList(documents: string | string[]) {
 //
 // https://github.com/sindresorhus/globby/issues/131
 /** @internal */
-export async function getFilepaths(documents: string | string[]) {
+export async function getFilepaths(
+  documents: string | string[] | CustomDocumentSourceConfig,
+) {
+  if (isCustomDocumentsSource(documents)) {
+    const sources = documents[CUSTOM_DOCUMENTS_SOURCE]();
+
+    return [
+      ...new Set(
+        sources.filter(({ file }) => file.path).map(({ file }) => file.path!),
+      ),
+    ];
+  }
+
   return [...uniq(await globby(documents))].sort((a, b) => a.localeCompare(b));
 }
 
