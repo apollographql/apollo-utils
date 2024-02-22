@@ -156,8 +156,8 @@ For more information, see the Apollo Client [Document transforms](https://www.ap
 import { DocumentTransform } from "@apollo/client/core";
 
 const config = {
-  // Inlined for this example, but ideally this should be use the same
-  // instance that is shared with your Apollo Client config
+  // Inlined for this example, but ideally this should use the same instance
+  // that is passed to your Apollo Client instance
   documentTransform: new DocumentTransform((document) => {
     // ... transform the document
 
