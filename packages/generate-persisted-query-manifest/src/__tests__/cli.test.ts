@@ -1028,6 +1028,7 @@ test.only("integrates with GraphQL codegen persisted documents", async () => {
     query CurrentUserQuery {
       __typename
       currentUser {
+        __typename
         id
         username
       }
