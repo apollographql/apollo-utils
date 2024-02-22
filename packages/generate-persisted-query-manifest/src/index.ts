@@ -33,8 +33,8 @@ import chalk from "chalk";
 type OperationType = "query" | "mutation" | "subscription";
 
 // If the user uses Apollo Client 3.7, `DocumentTransform` won't exist.
-// TypeScript will default the value to `any` in this case. We prefer to set the
-// type as `never` in this situation to complain if the property is set.
+// TypeScript will default the value to `any` in this case. We don't want to
+// allow this property in this case, so we set the type to `never`.
 type DocumentTransform = any extends RealDocumentTransform
   ? never
   : RealDocumentTransform;
