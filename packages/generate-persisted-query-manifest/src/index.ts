@@ -7,6 +7,7 @@ import {
 } from "@apollo/client/core";
 import type {
   ApolloClientOptions,
+  // @ts-ignore
   DocumentTransform as RealDocumentTransform,
 } from "@apollo/client/core";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
