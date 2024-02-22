@@ -96,6 +96,33 @@ export interface PersistedQueryManifestConfig {
   ) => string;
 }
 
+interface CustomDocumentConfig {
+  parseDocuments: () => string[];
+}
+
+function isCustomDocumentsSource(
+  documentsConfig: unknown,
+): documentsConfig is CustomDocumentConfig {
+  return (
+    typeof documentsConfig === "object" &&
+    documentsConfig !== null &&
+    Object.prototype.hasOwnProperty.call(
+      documentsConfig,
+      CUSTOM_DOCUMENTS_SYMBOL,
+    ) === true
+  );
+}
+
+const CUSTOM_DOCUMENTS_SYMBOL = Symbol.for(
+  "apollo.generate-persisted-query-manifest.documents",
+);
+
+export function fromGraphQLCodegenPersistedDocuments() {
+  return {
+    [CUSTOM_DOCUMENTS_SYMBOL]: true,
+  };
+}
+
 export interface PersistedQueryManifestOperation {
   id: string;
   name: string;
