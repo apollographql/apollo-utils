@@ -1361,14 +1361,8 @@ async function setup() {
     return utils.writeFile(path, contents.trim());
   };
 
-  const installDependencies = async (
-    dependencies: Record<string, string>,
-    packageJson?: Record<string, unknown>,
-  ) => {
-    await writeFile(
-      "./package.json",
-      JSON.stringify({ ...packageJson, dependencies }),
-    );
+  const installDependencies = async (dependencies: Record<string, string>) => {
+    await writeFile("./package.json", JSON.stringify({ dependencies }));
 
     return utils.execute("npm", "install");
   };
