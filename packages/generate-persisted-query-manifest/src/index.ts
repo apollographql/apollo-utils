@@ -136,7 +136,7 @@ export function fromGraphQLCodegenPersistedDocuments(
         );
       }
 
-      const manifest = JSON.parse(file.toString());
+      const manifest = JSON.parse(readFileSync(filepath, "utf-8"));
 
       if (!isParseableGraphQLCodegenManifest(manifest)) {
         return getSourceWithError(
