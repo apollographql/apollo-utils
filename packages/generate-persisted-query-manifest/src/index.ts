@@ -165,6 +165,9 @@ export function fromGraphQLCodegenPersistedDocuments(
           );
         }
 
+        // We don't run any validation on unique entries because we assume
+        // GraphQL Codegen has already handled this in the persisted documents
+        // generation.
         return Object.values(manifest).map((query) => ({
           file,
           node: parse(query),
