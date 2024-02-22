@@ -97,31 +97,12 @@ export interface PersistedQueryManifestConfig {
 }
 
 interface CustomDocumentConfig {
-  parseDocuments: () => string[];
-}
-
-function isCustomDocumentsSource(
-  documentsConfig: unknown,
-): documentsConfig is CustomDocumentConfig {
-  return (
-    typeof documentsConfig === "object" &&
-    documentsConfig !== null &&
-    Object.prototype.hasOwnProperty.call(
-      documentsConfig,
-      CUSTOM_DOCUMENTS_SYMBOL,
-    ) === true
-  );
+  [CUSTOM_DOCUMENTS_SYMBOL]: () => DocumentSource[];
 }
 
 const CUSTOM_DOCUMENTS_SYMBOL = Symbol.for(
   "apollo.generate-persisted-query-manifest.documents",
 );
-
-export function fromGraphQLCodegenPersistedDocuments() {
-  return {
-    [CUSTOM_DOCUMENTS_SYMBOL]: true,
-  };
-}
 
 export interface PersistedQueryManifestOperation {
   id: string;
@@ -134,6 +115,36 @@ export interface PersistedQueryManifest {
   format: "apollo-persisted-query-manifest";
   version: 1;
   operations: PersistedQueryManifestOperation[];
+}
+
+export function fromGraphQLCodegenPersistedDocuments(
+  filepath: string,
+): CustomDocumentConfig {
+  return {
+    [CUSTOM_DOCUMENTS_SYMBOL]: () => {
+      const file = vfile({
+        filepath,
+        contents: readFileSync(filepath, "utf-8"),
+      });
+
+      const manifest = JSON.parse(file.toString());
+
+      if (!isParseableGraphQLCodegenManifest(manifest)) {
+        addError(
+          { file },
+          "GraphQL Codegen manifest is malformed or the format is not understood by this plugin.",
+        );
+
+        return [{ file, node: null, location: undefined }];
+      }
+
+      return Object.values(manifest).map((query) => ({
+        file,
+        node: parse(query),
+        location: undefined,
+      }));
+    },
+  };
 }
 
 export const defaults = {
@@ -205,6 +216,31 @@ function addError(
 ) {
   const vfileMessage = source.file.message(message, source.location);
   vfileMessage.fatal = true;
+}
+
+function isCustomDocumentsSource(
+  documentsConfig: unknown,
+): documentsConfig is CustomDocumentConfig {
+  return (
+    typeof documentsConfig === "object" &&
+    documentsConfig !== null &&
+    Object.prototype.hasOwnProperty.call(
+      documentsConfig,
+      CUSTOM_DOCUMENTS_SYMBOL,
+    )
+  );
+}
+
+function isParseableGraphQLCodegenManifest(
+  manifest: unknown,
+): manifest is Record<string, string> {
+  return (
+    typeof manifest === "object" &&
+    manifest !== null &&
+    Object.entries(manifest).every(
+      ([key, value]) => typeof key === "string" && typeof value === "string",
+    )
+  );
 }
 
 function parseLocationFromError(error: Error) {
