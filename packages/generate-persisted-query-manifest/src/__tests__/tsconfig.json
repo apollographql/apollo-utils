@@ -1,8 +1,5 @@
 {
   "extends": "../../../../tsconfig.test.base",
-  "compilerOptions": {
-    "resolveJsonModule": true
-  },
-  "include": ["**/*", "../../package.json"],
+  "include": ["**/*"],
   "references": [{ "path": "../../" }]
 }
