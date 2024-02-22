@@ -926,7 +926,8 @@ export default config;
 });
 
 test("can specify custom document transform in config using Apollo Client > 3.8", async () => {
-  const { cleanup, runCommand, writeFile, readFile, execute } = await setup();
+  const { cleanup, runCommand, writeFile, readFile, installDependencies } =
+    await setup();
   const query = gql`
     query GreetingQuery {
       user {
@@ -945,15 +946,9 @@ test("can specify custom document transform in config using Apollo Client > 3.8"
     }
   `;
 
-  await writeFile(
-    "./package.json",
-    JSON.stringify({
-      dependencies: {
-        "@apollo/client": "^3.8.0",
-      },
-    }),
-  );
-  await execute("npm", "install");
+  await installDependencies({
+    "@apollo/client": "^3.8.0",
+  });
   await writeFile("./src/greeting-query.graphql", print(query));
   await writeFile(
     "./persisted-query-manifest.config.ts",
@@ -1235,13 +1230,19 @@ async function setup() {
     return utils.writeFile(path, contents.trim());
   };
 
+  const installDependencies = async (dependencies: Record<string, string>) => {
+    await writeFile("./package.json", JSON.stringify({ dependencies }));
+
+    return utils.execute("npm", "install");
+  };
+
   const runCommand = (...args: string[]) => {
     const cli = path.resolve(__dirname, "../../cli.js");
 
     return utils.execute("node", [cli, ...args].join(" "));
   };
 
-  return { ...utils, writeFile, runCommand };
+  return { ...utils, writeFile, runCommand, installDependencies };
 }
 
 function sha256(query: DocumentNode) {
