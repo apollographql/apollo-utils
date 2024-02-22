@@ -1114,7 +1114,7 @@ export default config;
   ]);
 
   await cleanup();
-}, 60_000);
+});
 
 test("errors on anonymous operations", async () => {
   const { cleanup, runCommand, writeFile } = await setup();
