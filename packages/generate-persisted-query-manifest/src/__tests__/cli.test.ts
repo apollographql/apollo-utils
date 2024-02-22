@@ -1116,6 +1116,46 @@ export default config;
   await cleanup();
 });
 
+test("errors when graphql codegen manifest doesn't exist", async () => {
+  const { cleanup, runCommand, writeFile, installDependencies } = await setup();
+
+  await installDependencies({
+    "@apollo/generate-persisted-query-manifest": `file:${path.resolve(
+      __dirname,
+      "../index.ts",
+    )}`,
+  });
+
+  await writeFile(
+    "./persisted-query-manifest.config.ts",
+    `
+import {
+  PersistedQueryManifestConfig,
+  fromGraphQLCodegenPersistedDocuments
+} from '@apollo/generate-persisted-query-manifest';
+
+const config: PersistedQueryManifestConfig = {
+  documents: fromGraphQLCodegenPersistedDocuments('./src/gql/persisted-documents.json'),
+};
+
+export default config;
+`,
+  );
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "./src/gql/persisted-documents.json",
+      "1:1  error  ENOENT: GraphQL Codegen persisted documents file not found: './src/gql/persisted-documents.json'",
+      "✖ 1 error",
+    ]
+  `);
+
+  await cleanup();
+});
+
 test("errors on anonymous operations", async () => {
   const { cleanup, runCommand, writeFile } = await setup();
   const query = gql`

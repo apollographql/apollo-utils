@@ -23,7 +23,7 @@ import {
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { relative } from "node:path";
 import vfile from "vfile";
 import type { VFile } from "vfile";
@@ -122,20 +122,26 @@ export function fromGraphQLCodegenPersistedDocuments(
 ): CustomDocumentSourceConfig {
   return {
     [CUSTOM_DOCUMENTS_SOURCE]: () => {
-      const file = vfile({
-        filepath,
-        contents: readFileSync(filepath, "utf-8"),
-      });
+      const file = vfile({ path: filepath });
+
+      function getSourceWithError(message: string): DocumentSource[] {
+        addError({ file }, message);
+
+        return [{ file, node: null, location: undefined }];
+      }
+
+      if (!existsSync(file.path!)) {
+        return getSourceWithError(
+          `ENOENT: GraphQL Codegen persisted documents file not found: '${filepath}'`,
+        );
+      }
 
       const manifest = JSON.parse(file.toString());
 
       if (!isParseableGraphQLCodegenManifest(manifest)) {
-        addError(
-          { file },
+        return getSourceWithError(
           "GraphQL Codegen manifest is malformed or the format is not understood by this plugin.",
         );
-
-        return [{ file, node: null, location: undefined }];
       }
 
       return Object.values(manifest).map((query) => ({
