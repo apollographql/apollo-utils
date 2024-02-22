@@ -985,6 +985,147 @@ export default config;
   await cleanup();
 });
 
+test.only("integrates with GraphQL codegen persisted documents", async () => {
+  const {
+    cleanup,
+    runCommand,
+    writeFile,
+    readFile,
+    installDependencies,
+    execute,
+  } = await setup();
+
+  const greetingQuery = gql`
+    query GreetingQuery($id: ID!) {
+      user(id: $id) {
+        id
+        name
+      }
+    }
+  `;
+
+  const greetingExpectedQuery = gql`
+    query GreetingQuery($id: ID!) {
+      __typename
+      user(id: $id) {
+        __typename
+        id
+        name
+      }
+    }
+  `;
+
+  const currentUserQuery = gql`
+    query CurrentUserQuery {
+      currentUser {
+        id
+        username
+      }
+    }
+  `;
+
+  const currentUserExpectedQuery = gql`
+    query CurrentUserQuery {
+      __typename
+      currentUser {
+        id
+        username
+      }
+    }
+  `;
+
+  const schema = gql`
+    type Query {
+      currentUser: CurrentUser
+      user(id: ID!): User
+    }
+
+    type CurrentUser {
+      id: ID!
+      username: String!
+    }
+
+    type User {
+      id: ID!
+      name: String!
+    }
+  `;
+
+  await installDependencies(
+    {
+      "@graphql-codegen/cli": "^5.0.0",
+      "@graphql-codegen/client-preset": "^4.0.0",
+    },
+    {
+      scripts: {
+        codegen: "graphql-codegen",
+      },
+    },
+  );
+
+  await writeFile("./schema.graphql", print(schema));
+  await writeFile("./src/greeting-query.graphql", print(greetingQuery));
+  await writeFile("./src/current-user-query.graphql", print(currentUserQuery));
+  await writeFile(
+    "./codegen.ts",
+    `
+import type { CodegenConfig } from '@graphql-codegen/cli';
+import { addTypenameSelectionDocumentTransform } from '@graphql-codegen/client-preset';
+
+const config: CodegenConfig = {
+  generates: {
+    './src/gql/': {
+      schema: './schema.graphql',
+      documents: ['./src/**/*.graphql'],
+      preset: 'client',
+      presetConfig: {
+        persistedDocuments: true,
+      },
+      documentTransforms: [addTypenameSelectionDocumentTransform],
+    }
+  }
+}
+
+export default config;
+`,
+  );
+  await execute("./node_modules/.bin/graphql-codegen", "");
+
+  await writeFile(
+    "./persisted-query-manifest.config.ts",
+    `
+import { PersistedQueryManifestConfig, fromGraphQLCodegenPersistedDocuments } from '@apollo/generate-persisted-query-manifest';
+
+const config: PersistedQueryManifestConfig = {
+  documents: fromGraphQLCodegenPersistedDocuments('./src/gql/persisted-documents.json'),
+};
+
+export default config;
+`,
+  );
+
+  const { code } = await runCommand();
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      id: sha256(greetingExpectedQuery),
+      name: "GreetingQuery",
+      body: print(greetingExpectedQuery),
+      type: "query",
+    },
+    {
+      id: sha256(currentUserExpectedQuery),
+      name: "CurrentUserQuery",
+      body: print(currentUserExpectedQuery),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+}, 20_000);
+
 test("errors on anonymous operations", async () => {
   const { cleanup, runCommand, writeFile } = await setup();
   const query = gql`
@@ -1230,8 +1371,14 @@ async function setup() {
     return utils.writeFile(path, contents.trim());
   };
 
-  const installDependencies = async (dependencies: Record<string, string>) => {
-    await writeFile("./package.json", JSON.stringify({ dependencies }));
+  const installDependencies = async (
+    dependencies: Record<string, string>,
+    packageJson?: Record<string, unknown>,
+  ) => {
+    await writeFile(
+      "./package.json",
+      JSON.stringify({ ...packageJson, dependencies }),
+    );
 
     return utils.execute("npm", "install");
   };
