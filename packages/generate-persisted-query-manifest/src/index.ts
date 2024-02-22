@@ -360,36 +360,7 @@ function uniq<T>(arr: T[]) {
 
 async function fromFilepathList(documents: string | string[]) {
   const filepaths = await getFilepaths(documents);
-  return filepaths.flatMap(getDocumentSources);
-}
-
-// Unfortunately globby does not guarantee deterministic file sorting so we
-// apply some sorting on the files in this function.
-//
-// https://github.com/sindresorhus/globby/issues/131
-export async function getFilepaths(documents: string | string[]) {
-  return [...uniq(await globby(documents))].sort((a, b) => a.localeCompare(b));
-}
-
-export async function generatePersistedQueryManifest(
-  config: PersistedQueryManifestConfig = {},
-  configFilePath: string | undefined,
-): Promise<PersistedQueryManifest> {
-  const {
-    documents = defaults.documents,
-    createOperationId = defaults.createOperationId,
-  } = config;
-
-  const configFile = vfile({
-    path: configFilePath
-      ? relative(process.cwd(), configFilePath)
-      : "<virtual>",
-  });
-
-  const sources = isCustomDocumentsSource(documents)
-    ? documents[CUSTOM_DOCUMENTS_SOURCE]()
-    : await fromFilepathList(documents);
-
+  const sources = filepaths.flatMap(getDocumentSources);
   const fragmentsByName = new Map<string, DocumentSource[]>();
   const operationsByName = new Map<string, DocumentSource[]>();
 
@@ -431,6 +402,63 @@ export async function generatePersistedQueryManifest(
             addError(sibling, ERROR_MESSAGES.uniqueOperation(name, source));
           });
         }
+
+        operationsByName.set(name, [...sources, source]);
+
+        return false;
+      },
+    });
+  }
+
+  return sources;
+}
+
+// Unfortunately globby does not guarantee deterministic file sorting so we
+// apply some sorting on the files in this function.
+//
+// https://github.com/sindresorhus/globby/issues/131
+export async function getFilepaths(documents: string | string[]) {
+  return [...uniq(await globby(documents))].sort((a, b) => a.localeCompare(b));
+}
+
+export async function generatePersistedQueryManifest(
+  config: PersistedQueryManifestConfig = {},
+  configFilePath: string | undefined,
+): Promise<PersistedQueryManifest> {
+  const {
+    documents = defaults.documents,
+    createOperationId = defaults.createOperationId,
+  } = config;
+
+  const configFile = vfile({
+    path: configFilePath
+      ? relative(process.cwd(), configFilePath)
+      : "<virtual>",
+  });
+
+  const sources = isCustomDocumentsSource(documents)
+    ? documents[CUSTOM_DOCUMENTS_SOURCE]()
+    : await fromFilepathList(documents);
+
+  const operationsByName = new Map<string, DocumentSource[]>();
+
+  for (const source of sources) {
+    if (!source.node) {
+      continue;
+    }
+
+    // We delegate validation to the functions that return the document sources.
+    // We just need to record the operations here to sort them in the manifest
+    // output.
+    visit(source.node, {
+      OperationDefinition(node) {
+        const name = node.name?.value;
+
+        if (!name) {
+          return false;
+        }
+
+        const sources = operationsByName.get(name) ?? [];
 
         operationsByName.set(name, [...sources, source]);
 
