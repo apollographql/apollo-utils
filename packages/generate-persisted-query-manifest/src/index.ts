@@ -55,6 +55,19 @@ export interface PersistedQueryManifestConfig {
    * IMPORTANT: You must be running `@apollo/client` 3.8.0 or greater to use
    * this feature.
    *
+   * @example
+   * ```ts
+   * import { DocumentTransform } from "@apollo/client/core";
+   *
+   * const config = {
+   *   documentTransform: new DocumentTransform((document) => {
+   *     // ... transform the document
+   *
+   *     return transformedDocument;
+   *   })
+   * }
+   * ```
+   *
    * @since 1.2.0
    */
   documentTransform?: DocumentTransform;
