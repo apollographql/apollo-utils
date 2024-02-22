@@ -136,19 +136,23 @@ export function fromGraphQLCodegenPersistedDocuments(
         );
       }
 
-      const manifest = JSON.parse(readFileSync(filepath, "utf-8"));
+      try {
+        const manifest = JSON.parse(readFileSync(filepath, "utf-8"));
 
-      if (!isParseableGraphQLCodegenManifest(manifest)) {
-        return getSourceWithError(
-          ERROR_MESSAGES.malformedGraphQLCodegenManifest(),
-        );
+        if (!isParseableGraphQLCodegenManifest(manifest)) {
+          return getSourceWithError(
+            ERROR_MESSAGES.malformedGraphQLCodegenManifest(),
+          );
+        }
+
+        return Object.values(manifest).map((query) => ({
+          file,
+          node: parse(query),
+          location: undefined,
+        }));
+      } catch (e) {
+        return getSourceWithError(ERROR_MESSAGES.parseError(e as Error));
       }
-
-      return Object.values(manifest).map((query) => ({
-        file,
-        node: parse(query),
-        location: undefined,
-      }));
     },
   };
 }
