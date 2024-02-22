@@ -1240,13 +1240,14 @@ export default config;
   const { code, stderr } = await runCommand();
 
   expect(code).toBe(1);
-  expect(stderr).toMatchInlineSnapshot(`
-    [
-      "./src/gql/persisted-documents.json",
-      "1:1  error  SyntaxError: Unexpected token 'c', "completely"... is not valid JSON",
-      "✖ 1 error",
-    ]
-  `);
+  expect(stderr).toMatchObject([
+    "./src/gql/persisted-documents.json",
+    // Different versions of node output a slightly different error message, so
+    // we match on a common part of the error rather than using an inline
+    // snapshot.
+    expect.stringContaining("SyntaxError: Unexpected token"),
+    "✖ 1 error",
+  ]);
 
   await cleanup();
 });
