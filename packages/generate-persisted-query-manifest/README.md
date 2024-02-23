@@ -100,7 +100,7 @@ Default:
 
 [GraphQL Codegen](https://the-guild.dev/graphql/codegen) is a popular code
 generation utility used with GraphQL. You can use GraphQL Codegen's [persisted
-documents](https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#persisted-documents) feature with `generate-persisted-query-manifest` by providing the `documents` option with the `fromGraphQLCodegenPersistedDocuments` utility exported by this package. This is useful to prevent traversing the file system to parse GraphQL documents sinceGraphQL Codegen has already done the hard work for you.
+documents](https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#persisted-documents) feature with `generate-persisted-query-manifest` by providing the `documents` option with the `fromGraphQLCodegenPersistedDocuments` utility exported by this package. This is useful to prevent traversing the file system to parse GraphQL documents since GraphQL Codegen has already done the hard work for you.
 
 ```ts
 import type { PersistedQueryManifestConfig } from "@apollo/generate-persisted-query-manifest";
