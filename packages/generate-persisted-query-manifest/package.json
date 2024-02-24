@@ -42,7 +42,7 @@
   "devDependencies": {
     "@gmrchk/cli-testing-library": "0.1.2",
     "@graphql-codegen/cli": "5.0.2",
-    "@graphql-codegen/client-preset": "4.2.3",
+    "@graphql-codegen/client-preset": "4.2.4",
     "@wry/equality": "0.5.7"
   }
 }
