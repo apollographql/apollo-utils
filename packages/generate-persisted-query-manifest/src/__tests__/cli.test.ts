@@ -1423,7 +1423,7 @@ test("does not allow multiple operations in a single document", async () => {
   const { cleanup, runCommand, writeFile } = await setup();
 
   await writeFile(
-    "./src/query.graphql",
+    "./src/queries.graphql",
     `
 query GreetingQuery {
   greeting
@@ -1486,7 +1486,7 @@ subscription TestSubscription {
       "1:1  error  Cannot declare multiple operations in a single document.",
       "src/mutations.graphql",
       "1:1  error  Cannot declare multiple operations in a single document.",
-      "src/query.graphql",
+      "src/queries.graphql",
       "1:1  error  Cannot declare multiple operations in a single document.",
       "src/subscriptions.graphql",
       "1:1  error  Cannot declare multiple operations in a single document.",
