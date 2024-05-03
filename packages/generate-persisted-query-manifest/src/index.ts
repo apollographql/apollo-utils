@@ -260,7 +260,7 @@ const ERROR_MESSAGES = {
     )}".`;
   },
   parseError(error: Error) {
-    return `${error.name}: ${error.message}`;
+    return formatErrorMessage(error);
   },
 };
 
