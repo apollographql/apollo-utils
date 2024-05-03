@@ -382,6 +382,10 @@ function uniq<T>(arr: T[]) {
   return [...new Set(arr)];
 }
 
+function formatErrorMessage(error: Error) {
+  return `${error.name}: ${error.message}`;
+}
+
 async function fromFilepathList(
   documents: string | string[],
 ): Promise<DocumentSourceConfig> {
@@ -577,12 +581,22 @@ export async function generatePersistedQueryManifest(
   for (const [_, sources] of sortBy([...operationsByName.entries()], first)) {
     for (const source of sources) {
       if (source.node) {
-        await client.query({ query: source.node, fetchPolicy: "no-cache" });
+        try {
+          await client.query({ query: source.node, fetchPolicy: "no-cache" });
+        } catch (error) {
+          if (error instanceof Error) {
+            addError(source, formatErrorMessage(error));
+          } else {
+            addError(source, "Unknown error occured. Please file a bug.");
+          }
+        }
       }
     }
   }
 
-  maybeReportErrorsAndExit(configFile);
+  maybeReportErrorsAndExit(
+    uniq(sources.map((source) => source.file).concat(configFile)),
+  );
 
   return {
     format: "apollo-persisted-query-manifest",
