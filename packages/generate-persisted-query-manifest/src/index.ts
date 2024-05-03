@@ -1,5 +1,6 @@
 import { createFragmentRegistry } from "@apollo/client/cache";
 import type { FragmentRegistryAPI } from "@apollo/client/cache";
+import semver from "semver";
 import {
   ApolloClient,
   ApolloLink,
@@ -262,6 +263,15 @@ const ERROR_MESSAGES = {
     return `${error.name}: ${error.message}`;
   },
 };
+
+async function enableDevMessages() {
+  const { loadDevMessages, loadErrorMessages } = await import(
+    "@apollo/client/dev"
+  );
+
+  loadDevMessages();
+  loadErrorMessages();
+}
 
 function addError(
   source: Pick<DocumentSource, "file"> & Partial<DocumentSource>,
@@ -559,6 +569,10 @@ export async function generatePersistedQueryManifest(
       return Observable.of({ data: null });
     }),
   });
+
+  if (semver.gte(client.version, "3.8.0")) {
+    await enableDevMessages();
+  }
 
   for (const [_, sources] of sortBy([...operationsByName.entries()], first)) {
     for (const source of sources) {
