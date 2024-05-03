@@ -22,6 +22,7 @@ import {
   type DocumentNode,
   visit,
   GraphQLError,
+  BREAK,
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
@@ -262,6 +263,9 @@ const ERROR_MESSAGES = {
   parseError(error: Error) {
     return formatErrorMessage(error);
   },
+  multipleOperations() {
+    return "Cannot declare multiple operations in a single document.";
+  },
 };
 
 async function enableDevMessages() {
@@ -496,12 +500,19 @@ export async function generatePersistedQueryManifest(
       continue;
     }
 
+    let documentCount = 0;
+
     // We delegate validation to the functions that return the document sources.
     // We just need to record the operations here to sort them in the manifest
     // output.
     visit(source.node, {
       OperationDefinition(node) {
         const name = node.name?.value;
+
+        if (++documentCount > 1) {
+          addError(source, ERROR_MESSAGES.multipleOperations());
+          return BREAK;
+        }
 
         if (!name) {
           return false;
