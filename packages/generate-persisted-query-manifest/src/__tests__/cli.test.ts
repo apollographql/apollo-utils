@@ -1419,6 +1419,84 @@ const query;
   await cleanup();
 });
 
+test("does not allow multiple operations in a single document", async () => {
+  const { cleanup, runCommand, writeFile } = await setup();
+
+  await writeFile(
+    "./src/query.graphql",
+    `
+query GreetingQuery {
+  greeting
+}
+
+query GoodbyeQuery {
+  goodbye
+}
+`,
+  );
+
+  await writeFile(
+    "./src/mutations.graphql",
+    `
+mutation SayHello {
+  sayHello
+}
+
+mutation SayGoodbye {
+  goodbye
+}
+`,
+  );
+
+  await writeFile(
+    "./src/subscriptions.graphql",
+    `
+subscription HelloSubscription {
+  hello
+}
+
+subscription GoodbyeSubscription {
+  goodbye
+}
+`,
+  );
+  await writeFile(
+    "./src/mixed.graphql",
+    `
+mutation TestMutation {
+  test
+}
+
+query TestQuery {
+  test
+}
+
+subscription TestSubscription {
+  test
+}
+`,
+  );
+
+  const { code, stderr } = await runCommand();
+
+  expect(code).toBe(1);
+  expect(stderr).toMatchInlineSnapshot(`
+    [
+      "src/mixed.graphql",
+      "1:1  error  Cannot declare multiple operations in a single document.",
+      "src/mutations.graphql",
+      "1:1  error  Cannot declare multiple operations in a single document.",
+      "src/query.graphql",
+      "1:1  error  Cannot declare multiple operations in a single document.",
+      "src/subscriptions.graphql",
+      "1:1  error  Cannot declare multiple operations in a single document.",
+      "✖ 4 errors",
+    ]
+  `);
+
+  await cleanup();
+});
+
 test("gathers and reports all errors together", async () => {
   const { cleanup, runCommand, writeFile } = await setup();
   const anonymousQuery = gql`
