@@ -403,6 +403,8 @@ async function fromFilepathList(
       continue;
     }
 
+    let documentCount = 0;
+
     visit(source.node, {
       FragmentDefinition(node) {
         const name = node.name.value;
@@ -421,6 +423,11 @@ async function fromFilepathList(
       },
       OperationDefinition(node) {
         const name = node.name?.value;
+
+        if (++documentCount > 1) {
+          addError(source, ERROR_MESSAGES.multipleOperations());
+          return BREAK;
+        }
 
         if (!name) {
           addError(source, ERROR_MESSAGES.anonymousOperation(node));
@@ -500,19 +507,12 @@ export async function generatePersistedQueryManifest(
       continue;
     }
 
-    let documentCount = 0;
-
     // We delegate validation to the functions that return the document sources.
     // We just need to record the operations here to sort them in the manifest
     // output.
     visit(source.node, {
       OperationDefinition(node) {
         const name = node.name?.value;
-
-        if (++documentCount > 1) {
-          addError(source, ERROR_MESSAGES.multipleOperations());
-          return BREAK;
-        }
 
         if (!name) {
           return false;
