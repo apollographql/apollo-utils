@@ -1,5 +1,6 @@
 import { createFragmentRegistry } from "@apollo/client/cache";
 import type { FragmentRegistryAPI } from "@apollo/client/cache";
+import semver from "semver";
 import {
   ApolloClient,
   ApolloLink,
@@ -21,6 +22,7 @@ import {
   type DocumentNode,
   visit,
   GraphQLError,
+  BREAK,
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
@@ -259,9 +261,21 @@ const ERROR_MESSAGES = {
     )}".`;
   },
   parseError(error: Error) {
-    return `${error.name}: ${error.message}`;
+    return formatErrorMessage(error);
+  },
+  multipleOperations() {
+    return "Cannot declare multiple operations in a single document.";
   },
 };
+
+async function enableDevMessages() {
+  const { loadDevMessages, loadErrorMessages } = await import(
+    "@apollo/client/dev"
+  );
+
+  loadDevMessages();
+  loadErrorMessages();
+}
 
 function addError(
   source: Pick<DocumentSource, "file"> & Partial<DocumentSource>,
@@ -372,6 +386,10 @@ function uniq<T>(arr: T[]) {
   return [...new Set(arr)];
 }
 
+function formatErrorMessage(error: Error) {
+  return `${error.name}: ${error.message}`;
+}
+
 async function fromFilepathList(
   documents: string | string[],
 ): Promise<DocumentSourceConfig> {
@@ -384,6 +402,8 @@ async function fromFilepathList(
     if (!source.node) {
       continue;
     }
+
+    let documentCount = 0;
 
     visit(source.node, {
       FragmentDefinition(node) {
@@ -403,6 +423,11 @@ async function fromFilepathList(
       },
       OperationDefinition(node) {
         const name = node.name?.value;
+
+        if (++documentCount > 1) {
+          addError(source, ERROR_MESSAGES.multipleOperations());
+          return BREAK;
+        }
 
         if (!name) {
           addError(source, ERROR_MESSAGES.anonymousOperation(node));
@@ -560,15 +585,29 @@ export async function generatePersistedQueryManifest(
     }),
   });
 
+  if (semver.gte(client.version, "3.8.0")) {
+    await enableDevMessages();
+  }
+
   for (const [_, sources] of sortBy([...operationsByName.entries()], first)) {
     for (const source of sources) {
       if (source.node) {
-        await client.query({ query: source.node, fetchPolicy: "no-cache" });
+        try {
+          await client.query({ query: source.node, fetchPolicy: "no-cache" });
+        } catch (error) {
+          if (error instanceof Error) {
+            addError(source, formatErrorMessage(error));
+          } else {
+            addError(source, "Unknown error occured. Please file a bug.");
+          }
+        }
       }
     }
   }
 
-  maybeReportErrorsAndExit(configFile);
+  maybeReportErrorsAndExit(
+    uniq(sources.map((source) => source.file).concat(configFile)),
+  );
 
   return {
     format: "apollo-persisted-query-manifest",
