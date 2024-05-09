@@ -1,5 +1,13 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.2.1
+
+### Patch Changes
+
+- [#435](https://github.com/apollographql/apollo-utils/pull/435) [`9c3d761`](https://github.com/apollographql/apollo-utils/commit/9c3d761e93fff6c2c588ba41ab158152bf920935) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Better report errors that originate from Apollo Client during manifest generation.
+
+- [#435](https://github.com/apollographql/apollo-utils/pull/435) [`9c3d761`](https://github.com/apollographql/apollo-utils/commit/9c3d761e93fff6c2c588ba41ab158152bf920935) Thanks [@jerelmiller](https://github.com/jerelmiller)! - Detect multiple operations during manifest generation and report them as errors.
+
 ## 1.2.0
 
 ### Minor Changes
