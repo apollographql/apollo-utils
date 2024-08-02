@@ -1,5 +1,9 @@
 # `@apollo/generate-persisted-query-manifest`
 
+`generate-persisted-query-manifest` is a tool for generating [persisted query manifests](https://www.apollographql.com/docs/graphos/operations/persisted-queries) from the source code of Apollo Client Web projects. It scans a source code directory looking for GraphQL operations, applies the same transformations to them as Apollo Client Web would do at runtime, and compiles them into a persisted query manifest JSON file.
+
+(It is not a general-purpose tool for creating PQM JSON files from arbitrary GraphQL operations: it is specifically tailored to the way Apollo Client Web transforms operations before sending them to servers.)
+
 ## Setup
 
 First, install the `@apollo/generate-persisted-query-manifest` package as a dev dependency:
