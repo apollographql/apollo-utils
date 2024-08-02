@@ -1,5 +1,11 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.2.2
+
+### Patch Changes
+
+- [#454](https://github.com/apollographql/apollo-utils/pull/454) [`f23b327`](https://github.com/apollographql/apollo-utils/commit/f23b3278453b758f158c5bfb887855a91ce798ea) Thanks [@glasser](https://github.com/glasser)! - README-only change (in [#453](https://github.com/apollographql/apollo-utils/pull/453)).
+
 ## 1.2.1
 
 ### Patch Changes
