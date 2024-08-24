@@ -23,6 +23,6 @@
   "dependencies": {
     "@apollo/utils.keyvaluecache": "^3.1.0",
     "dataloader": "^2.1.0",
-    "keyv": "^4.4.0"
+    "keyv": "^5.0.0"
   }
 }
