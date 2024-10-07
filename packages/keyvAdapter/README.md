@@ -18,9 +18,10 @@ In Apollo Server v3:
 import { ApolloServer } from "apollo-server";
 import { KeyvAdapter } from "@apollo/utils.keyvadapter";
 import Keyv from "keyv";
+import KeyvRedis from "@keyv/redis";
 
 new ApolloServer({
-  cache: new KeyvAdapter(new Keyv("redis://...")),
+  cache: new KeyvAdapter(new Keyv({ store: new KeyvRedis("redis://...") })),
 });
 ```
 
@@ -30,9 +31,10 @@ In Apollo Server v4:
 import { ApolloServer } from "@apollo/server";
 import { KeyvAdapter } from "@apollo/utils.keyvadapter";
 import Keyv from "keyv";
+import KeyvRedis from "@keyv/redis";
 
 new ApolloServer({
-  cache: new KeyvAdapter(new Keyv("redis://...")),
+  cache: new KeyvAdapter(new Keyv({ store: new KeyvRedis("redis://...") })),
 });
 ```
 
@@ -49,6 +51,8 @@ By default, `KeyvAdapter` will use [`DataLoader`'s batching functionality](https
 
 ```ts
 new ApolloServer({
-  cache: new KeyvAdapter(new Keyv("redis://..."), { disableBatchReads: true }),
+  cache: new KeyvAdapter(new Keyv({ store: new KeyvRedis("redis://...") }), {
+    disableBatchReads: true,
+  }),
 });
 ```
