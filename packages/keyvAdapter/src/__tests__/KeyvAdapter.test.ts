@@ -1,5 +1,5 @@
 import type { KeyValueCache } from "@apollo/utils.keyvaluecache";
-import Keyv, { type Store } from "keyv";
+import Keyv, { type KeyvStoreAdapter } from "keyv";
 import { expectType } from "ts-expect";
 import { KeyvAdapter } from "..";
 
@@ -24,44 +24,6 @@ describe("KeyvAdapter", () => {
   it("infers type from keyv argument", () => {
     const numberKeyv = new Keyv<number>();
     expectType<KeyValueCache<number>>(new KeyvAdapter(numberKeyv));
-  });
-
-  it("Keyv class generics `Option`", () => {
-    interface RedisOption {
-      sentinels: {
-        port?: number;
-        host?: string;
-        family?: number;
-      }[];
-    }
-    const keyv = new Keyv<string, RedisOption>({
-      sentinels: [],
-    });
-    const keyvAdapter = new KeyvAdapter<string, RedisOption>(keyv);
-    expectType<KeyvAdapter<string, RedisOption>>(keyvAdapter);
-  });
-
-  it("Keyv class generics `Option` default", () => {
-    const keyv = new Keyv<string>({
-      sentinels: [],
-    });
-    const keyvAdapter = new KeyvAdapter<string>(keyv);
-    expectType<KeyvAdapter<string, Record<string, unknown>>>(keyvAdapter);
-  });
-
-  it("Keyv class generics with incompatible `Option`", () => {
-    interface Option {
-      sentinels: {
-        port?: number;
-        host?: string;
-        family?: number;
-      }[];
-    }
-    const keyv = new Keyv<string, Option>({
-      sentinels: [],
-    });
-    // @ts-expect-error
-    new KeyvAdapter<string>(keyv);
   });
 
   describe("Keyv methods", () => {
@@ -124,12 +86,32 @@ describe("KeyvAdapter", () => {
     });
 
     it("multiple `get`s are batched", async () => {
-      const storeWithGetMany: Store<string> = new (class extends Map<
-        string,
-        string
-      > {
-        getMany = jest.fn((keys: string[]) => keys.map((key) => this.get(key)));
-      })();
+      class MapStore implements KeyvStoreAdapter {
+        private map = new Map<string, any>();
+        opts: any = {};
+        namespace?: string;
+        getMany = jest.fn((keys: string[]) =>
+          Promise.resolve(keys.map((key) => this.map.get(key))),
+        );
+        get<Value>(key: string) {
+          return Promise.resolve(this.map.get(key) as Value);
+        }
+        set(key: string, value: any) {
+          this.map.set(key, value);
+        }
+        delete(key: string) {
+          return Promise.resolve(this.map.delete(key));
+        }
+        clear() {
+          this.map.clear();
+          return Promise.resolve();
+        }
+        on(): this {
+          return this;
+        }
+      }
+
+      const storeWithGetMany = new MapStore();
       const keyv = new Keyv({ store: storeWithGetMany });
       const keyvAdapter = new KeyvAdapter(keyv);
 
@@ -160,23 +142,26 @@ describe("KeyvAdapter", () => {
 
   describe("Dataloader implementation details", () => {
     it("enforces the Dataloader contract (1:1 key to value)", async () => {
-      class GetManyReturnsSingularUndefinedStore implements Store<string> {
-        getMany(_keys: string[]) {
-          // really we would prefer an array of undefined of the length of
-          // _keys, but that isn't a contract that `Keyv` enforces
-          return undefined;
+      class GetManyReturnsSingularUndefinedStore implements KeyvStoreAdapter {
+        opts: any = {};
+        namespace?: string;
+        getMany(keys: string[]) {
+          return Promise.resolve(Array(keys.length).fill(undefined));
         }
         get() {
-          return "hello";
+          return Promise.resolve(undefined);
         }
         set() {
           return;
         }
         delete() {
-          return true;
+          return Promise.resolve(true);
         }
         clear() {
-          return;
+          return Promise.resolve();
+        }
+        on(): this {
+          return this;
         }
       }
 
