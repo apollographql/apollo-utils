@@ -1,5 +1,11 @@
 # @apollo/utils.keyvadapter
 
+## 4.0.0
+
+### Major Changes
+
+- [#461](https://github.com/apollographql/apollo-utils/pull/461) [`70f3c73`](https://github.com/apollographql/apollo-utils/commit/70f3c7313203bac685695b12c375a3570b1cab62) Thanks [@sroebert](https://github.com/sroebert)! - Added keyv 5 support
+
 ## 3.1.0
 
 ### Minor Changes
