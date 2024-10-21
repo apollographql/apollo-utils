@@ -12,6 +12,8 @@ Install the necessary packages:
 npm install @apollo/utils.keyvadapter keyv @keyv/redis
 ```
 
+> **Note:** The latest version of this library (v4 and up) only works with Keyv version 5. In order to work with the older version 4 of Keyv, version 3 of this library can be used instead.
+
 In Apollo Server v3:
 
 ```ts
