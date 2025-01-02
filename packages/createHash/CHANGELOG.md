@@ -1,5 +1,11 @@
 # @apollo/utils.createhash
 
+## 2.0.2
+
+### Patch Changes
+
+- [#468](https://github.com/apollographql/apollo-utils/pull/468) [`70a2a65`](https://github.com/apollographql/apollo-utils/commit/70a2a65b8fe4ab185c59f93798189ab0835e743a) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Compatibility with Next.js Turbopack
+
 ## 2.0.1
 
 ### Patch Changes
