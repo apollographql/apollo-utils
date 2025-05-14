@@ -58,9 +58,11 @@
       "matchPackageNames": ["graphql"],
       "automerge": false,
     },
-    // Only needed until Jest supports prettier@3 for snapshots
+    // Only needed until Jest supports prettier@3 for snapshots. Note that we
+    // need to match the "dep" name, not the "package" name, because the package
+    // name is still "prettier".
     {
-      "matchPackageNames": ["prettier-2"],
+      "matchDepNames": ["prettier-2"],
       "allowedVersions": "2.x"
     },
   ],
