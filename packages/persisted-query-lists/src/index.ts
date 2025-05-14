@@ -45,11 +45,11 @@ export function sortTopLevelDefinitions(query: DocumentNode): DocumentNode {
     // definitions).
     const aName =
       a.kind === "OperationDefinition" || a.kind === "FragmentDefinition"
-        ? a.name?.value ?? ""
+        ? (a.name?.value ?? "")
         : "";
     const bName =
       b.kind === "OperationDefinition" || b.kind === "FragmentDefinition"
-        ? b.name?.value ?? ""
+        ? (b.name?.value ?? "")
         : "";
 
     // Sort by name ascending.
