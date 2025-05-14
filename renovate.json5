@@ -6,7 +6,7 @@
   // circle is intentionally disabled because we want to use various cimg/node versions.
   // For more details see:
   // https://github.com/apollographql/federation/blob/fcd4f28ad719ee7f210f9c7a1daa8d152f28d5c2/renovate.json5#L21-L34
-  "enabledManagers": ["npm"],
+  "enabledManagers": ["npm", "mise"],
   "postUpdateOptions": ["npmDedupe"],
   "packageRules": [
     // Bunch up all non-major dependencies into a single PR.  In the common case
@@ -18,11 +18,11 @@
       "matchUpdateTypes": ["patch", "minor"],
       "groupSlug": "all-minor-patch",
     },
-    // We need to support Node v16, so we don't allow ourselves to use type definitions
-    // that would let us write >v16-specific code.
+    // We need to support Node v20, so we don't allow ourselves to use type definitions
+    // that would let us write >v20-specific code.
     {
       "matchPackageNames": ["@types/node"],
-      "allowedVersions": "16.x"
+      "allowedVersions": "20.x"
     },
     // node-fetch v3 only ships as ESM. So let's stay on v2.
     {
