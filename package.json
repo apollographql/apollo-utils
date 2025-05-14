@@ -24,7 +24,6 @@
     "test:ci": "npm test -- --coverage --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
     "watch": "npm run build -- --watch",
     "changeset-publish": "changeset publish",
-    "install-with-npm-8.5": "npm i -g npm@^8.5.0 && npm i",
     "lint": "eslint packages/*/src/**/*.ts"
   },
   "workspaces": [
@@ -40,7 +39,7 @@
     "@types/jest": "29.5.12",
     "@types/lodash.sortby": "4.7.9",
     "@types/make-fetch-happen": "10.0.4",
-    "@types/node": "16.18.98",
+    "@types/node": "20.17.47",
     "@types/node-fetch": "2.6.11",
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
@@ -64,9 +63,5 @@
     "undici": "5.28.5",
     "winston": "3.13.0",
     "winston-transport": "4.7.0"
-  },
-  "volta": {
-    "node": "20.14.0",
-    "npm": "10.8.1"
   }
 }
