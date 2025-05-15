@@ -52,7 +52,7 @@
     "jest-junit": "16.0.0",
     "log4js": "6.9.1",
     "loglevel": "1.9.2",
-    "make-fetch-happen": "13.0.1",
+    "make-fetch-happen": "14.0.3",
     "node-fetch": "2.7.0",
     "prettier": "3.5.3",
     "prettier-2": "npm:prettier@2.8.8",
