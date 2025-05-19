@@ -1,5 +1,12 @@
 # @apollo/utils.keyvadapter
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`8cfba84`](https://github.com/apollographql/apollo-utils/commit/8cfba8403011ff2a4161cfe48cbec8aa0bc0eeb7)]:
+  - @apollo/utils.keyvaluecache@4.0.0
+
 ## 4.0.0
 
 ### Major Changes
