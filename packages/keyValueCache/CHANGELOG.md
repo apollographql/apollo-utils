@@ -1,5 +1,11 @@
 # @apollo/utils.keyvaluecache
 
+## 4.0.0
+
+### Major Changes
+
+- [#452](https://github.com/apollographql/apollo-utils/pull/452) [`8cfba84`](https://github.com/apollographql/apollo-utils/commit/8cfba8403011ff2a4161cfe48cbec8aa0bc0eeb7) Thanks [@renovate](https://github.com/apps/renovate)! - Require Node v20; upgrade lru-cache to v11.
+
 ## 3.1.0
 
 ### Minor Changes
