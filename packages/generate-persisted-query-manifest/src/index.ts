@@ -94,7 +94,7 @@ export interface PersistedQueryManifestConfig {
    * Defaults to true; set to false if you also pass `addTypename: false` to
    * your `InMemoryCache` constructor in your app.
    *
-   * Note that the ability to pass `addTypename: false` will be removed in
+   * Note that the ability to pass `addTypename: false` will not be supported in
    * Apollo Client v4.
    */
   addTypename?: boolean;
