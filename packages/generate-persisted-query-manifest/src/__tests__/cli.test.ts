@@ -334,6 +334,42 @@ test("ensures manifest bodies and id hash applies document transforms", async ()
   await cleanup();
 });
 
+test("can disable adding __typename", async () => {
+  const { cleanup, writeFile, readFile, runCommand } = await setup();
+  const query = gql`
+    query CurrentUserQuery {
+      currentUser {
+        id
+      }
+    }
+  `;
+
+  await writeFile("./src/current-user-query.graphql", print(query));
+
+  await writeFile(
+    "./persisted-query-manifest.config.json",
+    JSON.stringify({ addTypename: false }),
+  );
+
+  const { code } = await runCommand();
+
+  const manifest = await readFile("./persisted-query-manifest.json");
+
+  expect(code).toBe(0);
+  expect(manifest).toBeManifestWithOperations([
+    {
+      // Explicitly do not call addTypenameToDocument here.
+      id: sha256(query),
+      name: "CurrentUserQuery",
+      // Explicitly do not call addTypenameToDocument here.
+      body: print(query),
+      type: "query",
+    },
+  ]);
+
+  await cleanup();
+});
+
 test("can extract multiple operations", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const query = gql`

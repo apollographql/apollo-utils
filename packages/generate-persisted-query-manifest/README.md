@@ -190,3 +190,7 @@ const config = {
   }),
 };
 ```
+
+- `addTypename`: `boolean`
+
+Whether to add `__typename` fields to selection sets in operations. Defaults to true; you should set this to false if you also pass `addTypename: false` to your `InMemoryCache` constructor in your app. (This can also be helpful if you are using this tool on a codebase that does not actually use Apollo Client Web, though it is not designed for that purpose.)
