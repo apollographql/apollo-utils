@@ -9,6 +9,7 @@ import {
 } from "@apollo/client/core";
 import type {
   ApolloClientOptions,
+  InMemoryCacheConfig,
   // @ts-ignore
   DocumentTransform as RealDocumentTransform,
 } from "@apollo/client/core";
@@ -87,6 +88,16 @@ export interface PersistedQueryManifestConfig {
    * Path where the manifest file will be written.
    */
   output?: string;
+
+  /**
+   * Whether to add `__typename` fields to selection sets in operations.
+   * Defaults to true; set to false if you also pass `addTypename: false` to
+   * your `InMemoryCache` constructor in your app.
+   *
+   * Note that the ability to pass `addTypename: false` will not be supported in
+   * Apollo Client v4.
+   */
+  addTypename?: boolean;
 
   /**
    * Function that generates a manifest operation ID for a given query.
@@ -529,12 +540,21 @@ export async function generatePersistedQueryManifest(
 
   maybeReportErrorsAndExit(uniq(sources.map((source) => source.file)));
 
+  const inMemoryCacheConfig: InMemoryCacheConfig = {};
+  // Note that the ability to pass `addTypename: false` will be removed in
+  // Apollo Client v4. When we upgrade this package to work with AC4 as well,
+  // we'll want to do a version check and throw an error if the version is at
+  // least 4.0.0.
+  if ("addTypename" in config) {
+    inMemoryCacheConfig.addTypename = config.addTypename;
+  }
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
-  const cache = fragmentRegistry
-    ? new InMemoryCache({ fragments: fragmentRegistry })
-    : new InMemoryCache();
+  if (fragmentRegistry) {
+    inMemoryCacheConfig.fragments = fragmentRegistry;
+  }
+  const cache = new InMemoryCache(inMemoryCacheConfig);
   const manifestOperationIds = new Map<string, string>();
   const manifestOperations: PersistedQueryManifestOperation[] = [];
   const clientConfig: Partial<ApolloClientOptions<any>> = {};
