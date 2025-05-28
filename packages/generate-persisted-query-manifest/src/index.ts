@@ -93,6 +93,9 @@ export interface PersistedQueryManifestConfig {
    * Whether to add `__typename` fields to selection sets in operations.
    * Defaults to true; set to false if you also pass `addTypename: false` to
    * your `InMemoryCache` constructor in your app.
+   *
+   * Note that the ability to pass `addTypename: false` will be removed in
+   * Apollo Client v4.
    */
   addTypename?: boolean;
 
@@ -537,13 +540,17 @@ export async function generatePersistedQueryManifest(
 
   maybeReportErrorsAndExit(uniq(sources.map((source) => source.file)));
 
-  // Using createFragmentRegistry means our minimum AC version is 3.7. We can
-  // probably go back to 3.2 (original createPersistedQueryLink) if we just
-  // reimplement/copy the fragment registry code here.
   const inMemoryCacheConfig: InMemoryCacheConfig = {};
+  // Note that the ability to pass `addTypename: false` will be removed in
+  // Apollo Client v4. When we upgrade this package to work with AC4 as well,
+  // we'll want to do a version check and throw an error if the version is at
+  // least 4.0.0.
   if ("addTypename" in config) {
     inMemoryCacheConfig.addTypename = config.addTypename;
   }
+  // Using createFragmentRegistry means our minimum AC version is 3.7. We can
+  // probably go back to 3.2 (original createPersistedQueryLink) if we just
+  // reimplement/copy the fragment registry code here.
   if (fragmentRegistry) {
     inMemoryCacheConfig.fragments = fragmentRegistry;
   }
