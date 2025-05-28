@@ -1,5 +1,11 @@
 # @apollo/generate-persisted-query-manifest
 
+## 1.3.0
+
+### Minor Changes
+
+- [#483](https://github.com/apollographql/apollo-utils/pull/483) [`ee255eb`](https://github.com/apollographql/apollo-utils/commit/ee255eb97db3bf208bdd983e8099c50039a8885e) Thanks [@glasser](https://github.com/glasser)! - New configuration option: `addTypename: false`
+
 ## 1.2.2
 
 ### Patch Changes
