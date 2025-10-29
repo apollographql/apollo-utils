@@ -6,30 +6,22 @@ import {
   type CreatePersistedQueryManifestVerificationLinkOptions,
 } from "..";
 
-import {
-  execute,
-  toPromise,
-  ApolloLink,
-  Observable,
-  type GraphQLRequest,
-} from "@apollo/client/core";
-import { createPersistedQueryLink } from "@apollo/client/link/persisted-queries";
-import {
-  createOperation as createLinkOperation,
-  transformOperation,
-} from "@apollo/client/link/utils";
+import { execute, ApolloLink } from "@apollo/client";
+import { PersistedQueryLink } from "@apollo/client/link/persisted-queries";
+import { createOperation as createLinkOperation } from "@apollo/client/link/utils";
 import { sha256 } from "crypto-hash";
 import { parse, print } from "graphql";
+import { lastValueFrom, of } from "rxjs";
 
 function createOperation({
   query,
-}: Omit<GraphQLRequest, "query"> & { query: string }) {
-  return createLinkOperation({}, transformOperation({ query: parse(query) }));
+}: Omit<ApolloLink.Request, "query"> & { query: string }) {
+  return createLinkOperation({ query: parse(query) }, { client: {} as any });
 }
 
 // A link that shows what extensions and context would have been sent.
 const returnExtensionsAndContextLink = new ApolloLink((operation) => {
-  return Observable.of({
+  return of({
     data: {
       extensions: operation.extensions,
       context: operation.getContext(),
@@ -40,13 +32,15 @@ const returnExtensionsAndContextLink = new ApolloLink((operation) => {
 describe("persisted-query-lists", () => {
   describe("generatePersistedQueryIdsAtRuntime", () => {
     it("basic test", async () => {
-      const link = createPersistedQueryLink(
-        generatePersistedQueryIdsAtRuntime({ sha256 }),
-      ).concat(returnExtensionsAndContextLink);
-      const result = await toPromise(
-        execute(link, {
-          query: parse("fragment F on Query { f } query Q { ...F }"),
-        }),
+      const link = new PersistedQueryLink(generatePersistedQueryIdsAtRuntime({ sha256 })).concat(returnExtensionsAndContextLink);
+      const result = await lastValueFrom(
+        execute(
+          link,
+          {
+            query: parse("fragment F on Query { f } query Q { ...F }"),
+          },
+          { client: {} as any },
+        ),
       );
       const expectedSha256 = await sha256(
         "query Q {\n  ...F\n}\n\nfragment F on Query {\n  f\n}",
@@ -96,14 +90,14 @@ describe("persisted-query-lists", () => {
         ],
       };
 
-      const link = createPersistedQueryLink(
-        generatePersistedQueryIdsFromManifest({
-          loadManifest: () => Promise.resolve(manifest),
-        }),
-      ).concat(returnExtensionsAndContextLink);
+      const link = new PersistedQueryLink(generatePersistedQueryIdsFromManifest({
+        loadManifest: () => Promise.resolve(manifest),
+      })).concat(returnExtensionsAndContextLink);
 
       async function run(document: string) {
-        return await toPromise(execute(link, { query: parse(document) }));
+        return await lastValueFrom(
+          execute(link, { query: parse(document) }, { client: {} as any }),
+        );
       }
       // Normal case: you're using the right operation from the list.
       expect(await run("query Foobar { f }")).toMatchInlineSnapshot(`
@@ -148,14 +142,14 @@ describe("persisted-query-lists", () => {
     });
 
     it("error loading manifest", async () => {
-      const link = createPersistedQueryLink(
-        generatePersistedQueryIdsFromManifest({
-          loadManifest: () => Promise.reject(new Error("nope")),
-        }),
-      ).concat(returnExtensionsAndContextLink);
+      const link = new PersistedQueryLink(generatePersistedQueryIdsFromManifest({
+        loadManifest: () => Promise.reject(new Error("nope")),
+      })).concat(returnExtensionsAndContextLink);
 
       await expect(
-        toPromise(execute(link, { query: parse("{__typename}") })),
+        lastValueFrom(
+          execute(link, { query: parse("{__typename}") }, { client: {} as any }),
+        ),
       ).rejects.toThrow("nope");
     });
 
@@ -173,14 +167,14 @@ describe("persisted-query-lists", () => {
         ],
       };
 
-      const link = createPersistedQueryLink(
-        generatePersistedQueryIdsFromManifest({
-          loadManifest: () => manifest,
-        }),
-      ).concat(returnExtensionsAndContextLink);
+      const link = new PersistedQueryLink(generatePersistedQueryIdsFromManifest({
+        loadManifest: () => manifest,
+      })).concat(returnExtensionsAndContextLink);
 
       expect(
-        await toPromise(execute(link, { query: parse("query Foobar { f }") })),
+        await lastValueFrom(
+          execute(link, { query: parse("query Foobar { f }") }, { client: {} as any }),
+        ),
       ).toMatchInlineSnapshot(`
         {
           "data": {
@@ -267,7 +261,9 @@ describe("persisted-query-lists", () => {
           ...options,
         }).concat(returnExtensionsAndContextLink);
 
-        return await toPromise(execute(link, { query: parse(document) }));
+        return await lastValueFrom(
+          execute(link, { query: parse(document) }, { client: {} as any }),
+        );
       }
 
       it("anonymous operation", async () => {
@@ -299,13 +295,50 @@ describe("persisted-query-lists", () => {
 
       it("no-operations document", async () => {
         const onVerificationFailed = jest.fn();
+        // Apollo Client v4 no longer allows executing a document with only
+        // fragments via the public execute() helper (it throws earlier when
+        // constructing the operation). To continue testing our verification
+        // logic for fragment-only documents, we manually construct an
+        // ApolloLink.Operation and call link.request directly.
+        const manifest = {
+          format: "apollo-persisted-query-manifest",
+          version: 1,
+          operations: [
+            {
+              id: "foobar-id",
+              name: "Foobar",
+              type: "query" as const,
+              body: "query Foobar {\n  f\n}",
+            },
+          ],
+        };
 
-        await runAgainstLink({ onVerificationFailed }, "fragment F on T { f }");
+        const link = createPersistedQueryManifestVerificationLink({
+          loadManifest: () => Promise.resolve(manifest),
+          onVerificationFailed,
+        }).concat(returnExtensionsAndContextLink);
+
+        // Minimal handcrafted operation object (bypasses createOperation)
+        const context: any = {};
+        const operation: ApolloLink.Operation = {
+          query: parse("fragment F on T { f }"),
+          variables: {},
+          operationName: "",
+          extensions: {},
+          getContext: () => context,
+          setContext: (next: any) => Object.assign(context, next),
+        } as any;
+
+        // Directly invoke the request method so we can pass a fragment-only
+        // document; provide a dummy forward observable.
+        await lastValueFrom(
+          (link.request as any)(operation, () => of({ data: {} })),
+        );
 
         expect(onVerificationFailed).toHaveBeenCalledTimes(1);
         expect(onVerificationFailed).toHaveBeenCalledWith({
           reason: "NoOperations",
-          operation: createOperation({ query: "fragment F on T { f }" }),
+          operation: expect.objectContaining({ query: parse("fragment F on T { f }") }),
         });
       });
 
@@ -374,8 +407,8 @@ describe("persisted-query-lists", () => {
           onVerificationFailed,
         }).concat(returnExtensionsAndContextLink);
 
-        await toPromise(
-          execute(link, { query: parse("query Foobar {\n  f\n}") }),
+        await lastValueFrom(
+          execute(link, { query: parse("query Foobar {\n  f\n}") }, { client: {} as any }),
         );
 
         expect(onVerificationFailed).not.toHaveBeenCalled();
@@ -389,7 +422,9 @@ describe("persisted-query-lists", () => {
       }).concat(returnExtensionsAndContextLink);
 
       await expect(
-        toPromise(execute(link, { query: parse("{__typename}") })),
+        lastValueFrom(
+          execute(link, { query: parse("{__typename}") }, { client: {} as any }),
+        ),
       ).rejects.toThrow("nope");
     });
   });

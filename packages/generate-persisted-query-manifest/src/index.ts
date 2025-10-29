@@ -1,18 +1,11 @@
 import { createFragmentRegistry } from "@apollo/client/cache";
 import type { FragmentRegistryAPI } from "@apollo/client/cache";
 import semver from "semver";
-import {
-  ApolloClient,
-  ApolloLink,
-  InMemoryCache,
-  Observable,
-} from "@apollo/client/core";
+import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
 import type {
-  ApolloClientOptions,
   InMemoryCacheConfig,
-  // @ts-ignore
-  DocumentTransform as RealDocumentTransform,
-} from "@apollo/client/core";
+  DocumentTransform as RealDocumentTransform
+} from "@apollo/client";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
 import globby from "globby";
@@ -33,6 +26,8 @@ import vfile from "vfile";
 import type { VFile } from "vfile";
 import reporter from "vfile-reporter";
 import chalk from "chalk";
+import { of } from "rxjs";
+import { LocalState } from "@apollo/client/local-state";
 
 type OperationType = "query" | "mutation" | "subscription";
 
@@ -388,7 +383,7 @@ function maybeReportErrorsAndExit(files: VFile | VFile[]) {
   }
 
   if (files.some((file) => file.messages.length > 0)) {
-    console.error(reporter(files, { quiet: true }));
+    console.error(reporter(files, { quiet: false }));
     process.exit(1);
   }
 }
@@ -545,8 +540,8 @@ export async function generatePersistedQueryManifest(
   // Apollo Client v4. When we upgrade this package to work with AC4 as well,
   // we'll want to do a version check and throw an error if the version is at
   // least 4.0.0.
-  if ("addTypename" in config) {
-    inMemoryCacheConfig.addTypename = config.addTypename;
+  if ("addTypename" in config && (config as any).addTypename === false) {
+    // @TODO: throw error?
   }
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
@@ -557,7 +552,7 @@ export async function generatePersistedQueryManifest(
   const cache = new InMemoryCache(inMemoryCacheConfig);
   const manifestOperationIds = new Map<string, string>();
   const manifestOperations: PersistedQueryManifestOperation[] = [];
-  const clientConfig: Partial<ApolloClientOptions<any>> = {};
+  const clientConfig: Partial<ApolloClient.Options> = {};
 
   if (config.documentTransform) {
     clientConfig.documentTransform = config.documentTransform;
@@ -566,6 +561,7 @@ export async function generatePersistedQueryManifest(
   const client = new ApolloClient({
     ...clientConfig,
     cache,
+    localState: new LocalState(),
     link: new ApolloLink((operation) => {
       const body = print(sortTopLevelDefinitions(operation.query));
       const name = operation.operationName;
@@ -576,7 +572,7 @@ export async function generatePersistedQueryManifest(
       ).operation;
 
       const id = createOperationId(body, {
-        operationName: name,
+        operationName: name as string,
         type,
         createDefaultId() {
           return defaults.createOperationId(body);
@@ -591,17 +587,17 @@ export async function generatePersistedQueryManifest(
           { file: configFile },
           ERROR_MESSAGES.uniqueOperationId(
             id,
-            name,
+            name as string,
             manifestOperationIds.get(id)!,
           ),
         );
       } else {
-        manifestOperationIds.set(id, name);
+        manifestOperationIds.set(id, name as string);
       }
 
-      manifestOperations.push({ id, name, type, body });
+      manifestOperations.push({ id, name: name as string, type, body });
 
-      return Observable.of({ data: null });
+      return of({ data: null });
     }),
   });
 
@@ -612,8 +608,45 @@ export async function generatePersistedQueryManifest(
   for (const [_, sources] of sortBy([...operationsByName.entries()], first)) {
     for (const source of sources) {
       if (source.node) {
+        const opDef = source.node.definitions.find(
+          (d): d is OperationDefinitionNode => d.kind === "OperationDefinition",
+        );
+        if (!opDef) continue;
+
+        const opType = opDef.operation as OperationType;
+
         try {
-          await client.query({ query: source.node, fetchPolicy: "no-cache" });
+          switch (opType) {
+            case "query":
+              await client.query({ query: source.node, fetchPolicy: "no-cache" });
+              break;
+            case "mutation":
+              await client.mutate({ mutation: source.node });
+              break;
+            case "subscription":
+              await new Promise<void>((resolve, reject) => {
+                if (!source.node) {
+                  resolve();
+                  return;
+                }
+
+                const sub = client
+                  .subscribe({ query: source.node })
+                  .subscribe({
+                    next() {
+                      sub.unsubscribe();
+                      resolve();
+                    },
+                    error(err) {
+                      reject(err);
+                    },
+                    complete() {
+                      resolve();
+                    },
+                  });
+              });
+              break;
+          }
         } catch (error) {
           if (error instanceof Error) {
             addError(source, formatErrorMessage(error));
