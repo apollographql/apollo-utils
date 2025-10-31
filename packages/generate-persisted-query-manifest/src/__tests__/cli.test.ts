@@ -298,7 +298,7 @@ query   GreetingQuery
   await cleanup();
 });
 
-test.only("ensures manifest bodies and id hash applies document transforms", async () => {
+test("ensures manifest bodies and id hash applies document transforms", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const query = gql`
     query CurrentUserQuery {
@@ -403,7 +403,7 @@ test("can extract multiple operations", async () => {
   await cleanup();
 });
 
-test.only("can extract mutations", async () => {
+test("can extract mutations", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const mutation = gql`
     mutation CreateUserMutation($user: UserInput!) {
@@ -430,7 +430,7 @@ test.only("can extract mutations", async () => {
   await cleanup();
 });
 
-test.only("can extract subscriptions", async () => {
+test("can extract subscriptions", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const subscription = gql`
     subscription UserCreatedSubscription($id: ID!) {
@@ -894,7 +894,7 @@ test("can specify manifest output location using config file", async () => {
   await cleanup();
 });
 
-test.only("can specify custom query ID using createOperationId function", async () => {
+test("can specify custom query ID using createOperationId function", async () => {
   const { cleanup, runCommand, writeFile, readFile } = await setup();
   const query = gql`
     query GreetingQuery {

@@ -383,7 +383,7 @@ function maybeReportErrorsAndExit(files: VFile | VFile[]) {
   }
 
   if (files.some((file) => file.messages.length > 0)) {
-    console.error(reporter(files, { quiet: false }));
+    console.error(reporter(files, { quiet: true }));
     process.exit(1);
   }
 }
