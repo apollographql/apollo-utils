@@ -653,7 +653,10 @@ export async function generatePersistedQueryManifest(
               });
               break;
             case OperationTypeNode.MUTATION:
-              await client.mutate({ mutation: source.node });
+              await client.mutate({
+                mutation: source.node,
+                fetchPolicy: "no-cache",
+              });
               break;
             case OperationTypeNode.SUBSCRIPTION:
               await new Promise<void>((resolve, reject) => {
@@ -661,14 +664,16 @@ export async function generatePersistedQueryManifest(
                   return resolve();
                 }
 
-                const sub = client.subscribe({ query: source.node }).subscribe({
-                  next() {
-                    sub.unsubscribe();
-                    resolve();
-                  },
-                  error: reject,
-                  complete: resolve,
-                });
+                const sub = client
+                  .subscribe({ query: source.node, fetchPolicy: "no-cache" })
+                  .subscribe({
+                    next() {
+                      sub.unsubscribe();
+                      resolve();
+                    },
+                    error: reject,
+                    complete: resolve,
+                  });
               });
               break;
           }
