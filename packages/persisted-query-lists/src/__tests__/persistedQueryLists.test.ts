@@ -11,7 +11,6 @@ import {
   ApolloLink,
   type GraphQLRequest,
   Observable,
-  type Operation,
   ApolloClient,
   InMemoryCache,
 } from "@apollo/client/core";
@@ -19,7 +18,6 @@ import { createPersistedQueryLink } from "@apollo/client/link/persisted-queries"
 import { createOperation as createLinkOperation } from "@apollo/client/link/utils";
 import { sha256 } from "crypto-hash";
 import { parse, print } from "graphql";
-import { of } from "rxjs";
 
 function createOperation({
   query,
@@ -341,56 +339,30 @@ describe("persisted-query-lists", () => {
         });
       });
 
-      it("no-operations document", async () => {
-        const onVerificationFailed = jest.fn();
-        // Apollo Client v4 no longer allows executing a document with only
-        // fragments via the public execute() helper (it throws earlier when
-        // constructing the operation). To continue testing our verification
-        // logic for fragment-only documents, we manually construct an
-        // ApolloLink.Operation and call link.request directly.
-        const manifest = {
-          format: "apollo-persisted-query-manifest",
-          version: 1,
-          operations: [
-            {
-              id: "foobar-id",
-              name: "Foobar",
-              type: "query" as const,
-              body: "query Foobar {\n  f\n}",
-            },
-          ],
-        };
+      // This situation should be impossible since bare fragments are never sent
+      // through the link chain. The `createOperation` function in v4 actually
+      // fails to construct the operation since it expects an operation
+      // definition node so we document it as failing for that version. We don't
+      // plan to address this when using v4 since this should never happen.
+      (getClientVersion().startsWith("3") ? it : it.failing)(
+        "no-operations document",
+        async () => {
+          const onVerificationFailed = jest.fn();
 
-        const link = createPersistedQueryManifestVerificationLink({
-          loadManifest: () => Promise.resolve(manifest),
-          onVerificationFailed,
-        }).concat(returnExtensionsAndContextLink);
+          await runAgainstLink(
+            { onVerificationFailed },
+            "fragment F on T { f }",
+          );
 
-        // Minimal handcrafted operation object (bypasses createOperation)
-        const context: any = {};
-        const operation: Operation = {
-          query: parse("fragment F on T { f }"),
-          variables: {},
-          operationName: "",
-          extensions: {},
-          getContext: () => context,
-          setContext: (next: any) => Object.assign(context, next),
-        } as any;
-
-        // Directly invoke the request method so we can pass a fragment-only
-        // document; provide a dummy forward observable.
-        await lastValueFrom(
-          (link.request as any)(operation, () => of({ data: {} })),
-        );
-
-        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
-        expect(onVerificationFailed).toHaveBeenCalledWith({
-          reason: "NoOperations",
-          operation: expect.objectContaining({
-            query: parse("fragment F on T { f }"),
-          }),
-        });
-      });
+          expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+          expect(onVerificationFailed).toHaveBeenCalledWith({
+            reason: "NoOperations",
+            operation: expect.objectContaining({
+              query: parse("fragment F on T { f }"),
+            }),
+          });
+        },
+      );
 
       it("unknown operation name", async () => {
         const onVerificationFailed = jest.fn();
