@@ -65,6 +65,14 @@ jobs:
       - run:
           command: npm i -D graphql@15
 
+  Apollo Client 3 - backcompat:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - setup-node
+      - run:
+          command: cd packages/generate-persisted-query-manifest && npm i -D @apollo/client@3
+
   Prettier:
     docker:
       - image: cimg/base:stable
