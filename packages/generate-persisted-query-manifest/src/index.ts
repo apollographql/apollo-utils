@@ -9,7 +9,7 @@ import {
 } from "@apollo/client/core";
 import type {
   InMemoryCacheConfig,
-  DocumentTransform as RealDocumentTransform
+  DocumentTransform as RealDocumentTransform,
 } from "@apollo/client";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
@@ -31,8 +31,6 @@ import vfile from "vfile";
 import type { VFile } from "vfile";
 import reporter from "vfile-reporter";
 import chalk from "chalk";
-import { of } from "rxjs";
-import { LocalState } from "@apollo/client/local-state";
 
 type OperationType = "query" | "mutation" | "subscription";
 
@@ -540,74 +538,86 @@ export async function generatePersistedQueryManifest(
 
   maybeReportErrorsAndExit(uniq(sources.map((source) => source.file)));
 
-  const inMemoryCacheConfig: InMemoryCacheConfig = {};
+  const cacheConfig: InMemoryCacheConfig = {};
   // Note that the ability to pass `addTypename: false` will be removed in
   // Apollo Client v4. When we upgrade this package to work with AC4 as well,
   // we'll want to do a version check and throw an error if the version is at
   // least 4.0.0.
   if ("addTypename" in config && (config as any).addTypename === false) {
-    // @TODO: throw error?
+    // @ts-ignore
+    cacheConfig.addTypename = config.addTypename;
   }
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
   if (fragmentRegistry) {
-    inMemoryCacheConfig.fragments = fragmentRegistry;
+    cacheConfig.fragments = fragmentRegistry;
   }
-  const cache = new InMemoryCache(inMemoryCacheConfig);
   const manifestOperationIds = new Map<string, string>();
   const manifestOperations: PersistedQueryManifestOperation[] = [];
+  // @ts-ignore
   const clientConfig: Partial<ApolloClient.Options> = {};
 
   if (config.documentTransform) {
     clientConfig.documentTransform = config.documentTransform;
   }
 
-  const client = new ApolloClient({
-    ...clientConfig,
-    cache,
-    localState: new LocalState(),
-    link: new ApolloLink((operation) => {
-      const body = print(sortTopLevelDefinitions(operation.query));
-      const name = operation.operationName;
-      const type = (
-        operation.query.definitions.find(
-          (d) => d.kind === "OperationDefinition",
-        ) as OperationDefinitionNode
-      ).operation;
+  async function createClient() {
+    try {
+      // @ts-ignore
+      const { LocalState } = await import("@apollo/client/local-state");
+      clientConfig.localState = new LocalState();
+    } catch (e) {
+      // this is a v3 client
+    }
 
-      const id = createOperationId(body, {
-        operationName: name as string,
-        type,
-        createDefaultId() {
-          return defaults.createOperationId(body);
-        },
-      });
+    return new ApolloClient({
+      ...clientConfig,
+      cache: new InMemoryCache(cacheConfig),
+      link: new ApolloLink((operation) => {
+        const body = print(sortTopLevelDefinitions(operation.query));
+        const name = operation.operationName;
+        const type = (
+          operation.query.definitions.find(
+            (d) => d.kind === "OperationDefinition",
+          ) as OperationDefinitionNode
+        ).operation;
 
-      // We only need to validate the `id` when using a config file. Without
-      // a config file, our default id function will be used which is
-      // guaranteed to create unique IDs.
-      if (manifestOperationIds.has(id)) {
-        addError(
-          { file: configFile },
-          ERROR_MESSAGES.uniqueOperationId(
-            id,
-            name as string,
-            manifestOperationIds.get(id)!,
-          ),
-        );
-      } else {
-        manifestOperationIds.set(id, name as string);
-      }
+        const id = createOperationId(body, {
+          operationName: name as string,
+          type,
+          createDefaultId() {
+            return defaults.createOperationId(body);
+          },
+        });
 
-      manifestOperations.push({ id, name: name as string, type, body });
+        // We only need to validate the `id` when using a config file. Without
+        // a config file, our default id function will be used which is
+        // guaranteed to create unique IDs.
+        if (manifestOperationIds.has(id)) {
+          addError(
+            { file: configFile },
+            ERROR_MESSAGES.uniqueOperationId(
+              id,
+              name as string,
+              manifestOperationIds.get(id)!,
+            ),
+          );
+        } else {
+          manifestOperationIds.set(id, name as string);
+        }
 
-      return new Observable((observer) => {
-        observer.next({ data: null });
-        observer.complete();
-      });
-    }),
-  });
+        manifestOperations.push({ id, name: name as string, type, body });
+
+        return new Observable((observer) => {
+          observer.next({ data: null });
+          observer.complete();
+        });
+      }),
+    });
+  }
+
+  const client = await createClient();
 
   if (semver.gte(client.version, "3.8.0")) {
     await enableDevMessages();
@@ -626,7 +636,10 @@ export async function generatePersistedQueryManifest(
         try {
           switch (opType) {
             case "query":
-              await client.query({ query: source.node, fetchPolicy: "no-cache" });
+              await client.query({
+                query: source.node,
+                fetchPolicy: "no-cache",
+              });
               break;
             case "mutation":
               await client.mutate({ mutation: source.node });
@@ -638,25 +651,24 @@ export async function generatePersistedQueryManifest(
                   return;
                 }
 
-                const sub = client
-                  .subscribe({ query: source.node })
-                  .subscribe({
-                    next() {
-                      sub.unsubscribe();
-                      resolve();
-                    },
-                    error(err) {
-                      reject(err);
-                    },
-                    complete() {
-                      resolve();
-                    },
-                  });
+                const sub = client.subscribe({ query: source.node }).subscribe({
+                  next() {
+                    sub.unsubscribe();
+                    resolve();
+                  },
+                  error(err) {
+                    reject(err);
+                  },
+                  complete() {
+                    resolve();
+                  },
+                });
               });
               break;
           }
         } catch (error) {
           if (error instanceof Error) {
+            console.error(error);
             addError(source, formatErrorMessage(error));
           } else {
             addError(source, "Unknown error occured. Please file a bug.");
@@ -676,3 +688,4 @@ export async function generatePersistedQueryManifest(
     operations: manifestOperations,
   };
 }
+
