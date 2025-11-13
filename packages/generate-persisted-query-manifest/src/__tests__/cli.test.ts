@@ -306,30 +306,19 @@ query   GreetingQuery
 });
 
 test("ensures manifest bodies and id hash applies document transforms", async () => {
+  const v4Entrypoint = "@apollo/client/utilities/internal";
+  const v3Entrypoint = "@apollo/client/utilities";
   async function removeClientDirective(
     query: DocumentNode,
   ): Promise<DocumentNode> {
-    try {
-      // v4
-      // @ts-ignore
-      // prettier-ignore
-      const { removeDirectivesFromDocument } = await import("@apollo/client/utilities/internal");
+    const { removeDirectivesFromDocument } = await import(v4Entrypoint).catch(
+      () => import(v3Entrypoint),
+    );
 
-      return removeDirectivesFromDocument(
-        [{ name: "client", remove: true }],
-        query,
-      )!;
-    } catch (e) {
-      // v3
-      // @ts-ignore
-      // prettier-ignore
-      const { removeDirectivesFromDocument } = await import("@apollo/client/utilities");
-
-      return removeDirectivesFromDocument(
-        [{ name: "client", remove: true }],
-        query,
-      )!;
-    }
+    return removeDirectivesFromDocument(
+      [{ name: "client", remove: true }],
+      query,
+    )!;
   }
 
   const { cleanup, writeFile, readFile, runCommand } = await setup();
