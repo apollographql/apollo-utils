@@ -656,8 +656,7 @@ export async function generatePersistedQueryManifest(
             case "subscription":
               await new Promise<void>((resolve, reject) => {
                 if (!source.node) {
-                  resolve();
-                  return;
+                  return resolve();
                 }
 
                 const sub = client.subscribe({ query: source.node }).subscribe({
@@ -665,12 +664,8 @@ export async function generatePersistedQueryManifest(
                     sub.unsubscribe();
                     resolve();
                   },
-                  error(err) {
-                    reject(err);
-                  },
-                  complete() {
-                    resolve();
-                  },
+                  error: reject,
+                  complete: resolve,
                 });
               });
               break;
