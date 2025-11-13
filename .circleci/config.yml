@@ -72,6 +72,9 @@ jobs:
       - setup-node
       - run:
           command: npm i -D @apollo/client@3
+      - run: npm run test:ci
+      - store_test_results:
+          path: junit.xml
 
   Prettier:
     docker:
