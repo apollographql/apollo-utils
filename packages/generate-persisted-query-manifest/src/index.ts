@@ -576,7 +576,9 @@ export async function generatePersistedQueryManifest(
       cache: new InMemoryCache(cacheConfig),
       link: new ApolloLink((operation) => {
         const body = print(sortTopLevelDefinitions(operation.query));
-        const name = operation.operationName;
+        // We can assume the operation name is present since we check for
+        // anonymous operations before this is executed
+        const name = operation.operationName!;
         const type = (
           operation.query.definitions.find(
             (d) => d.kind === "OperationDefinition",
@@ -584,7 +586,7 @@ export async function generatePersistedQueryManifest(
         ).operation;
 
         const id = createOperationId(body, {
-          operationName: name as string,
+          operationName: name,
           type,
           createDefaultId() {
             return defaults.createOperationId(body);
@@ -599,15 +601,15 @@ export async function generatePersistedQueryManifest(
             { file: configFile },
             ERROR_MESSAGES.uniqueOperationId(
               id,
-              name as string,
+              name,
               manifestOperationIds.get(id)!,
             ),
           );
         } else {
-          manifestOperationIds.set(id, name as string);
+          manifestOperationIds.set(id, name);
         }
 
-        manifestOperations.push({ id, name: name as string, type, body });
+        manifestOperations.push({ id, name, type, body });
 
         return new Observable((observer) => {
           observer.next({ data: null });
