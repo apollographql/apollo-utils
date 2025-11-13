@@ -1633,7 +1633,7 @@ interface ApolloCustomMatchers<R = void> {
 
 declare global {
   namespace jest {
-    interface Matchers<R = void> extends ApolloCustomMatchers<R> { }
+    interface Matchers<R = void> extends ApolloCustomMatchers<R> {}
   }
 }
 
@@ -1658,8 +1658,9 @@ expect.extend({
           operations,
         });
 
-        return `Expected manifest ${this.isNot ? "not " : ""
-          }to match persisted query manifest with operations.\n\n${diff}`;
+        return `Expected manifest ${
+          this.isNot ? "not " : ""
+        }to match persisted query manifest with operations.\n\n${diff}`;
       },
     };
   },
