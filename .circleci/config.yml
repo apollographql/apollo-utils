@@ -71,7 +71,7 @@ jobs:
     steps:
       - setup-node
       - run:
-          command: cd packages/generate-persisted-query-manifest && npm i -D @apollo/client@3
+          command: npm i -D @apollo/client@3
 
   Prettier:
     docker:
