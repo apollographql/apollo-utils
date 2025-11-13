@@ -24,6 +24,8 @@ import {
   visit,
   GraphQLError,
   BREAK,
+  Kind,
+  OperationTypeNode,
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
@@ -638,24 +640,22 @@ export async function generatePersistedQueryManifest(
     for (const source of sources) {
       if (source.node) {
         const opDef = source.node.definitions.find(
-          (d): d is OperationDefinitionNode => d.kind === "OperationDefinition",
+          (d) => d.kind === Kind.OPERATION_DEFINITION,
         );
         if (!opDef) continue;
 
-        const opType = opDef.operation as OperationType;
-
         try {
-          switch (opType) {
-            case "query":
+          switch (opDef.operation) {
+            case OperationTypeNode.QUERY:
               await client.query({
                 query: source.node,
                 fetchPolicy: "no-cache",
               });
               break;
-            case "mutation":
+            case OperationTypeNode.MUTATION:
               await client.mutate({ mutation: source.node });
               break;
-            case "subscription":
+            case OperationTypeNode.SUBSCRIPTION:
               await new Promise<void>((resolve, reject) => {
                 if (!source.node) {
                   return resolve();
