@@ -100,6 +100,7 @@ workflows:
                 - "24"
       - GraphQL v14 - backcompat
       - GraphQL v15 - backcompat
+      - Apollo Client 3 - backcompat
       - Prettier
       - Lint
   security-scans:
