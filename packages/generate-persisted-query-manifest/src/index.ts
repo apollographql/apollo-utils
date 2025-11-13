@@ -570,6 +570,7 @@ export async function generatePersistedQueryManifest(
   }
   const manifestOperationIds = new Map<string, string>();
   const manifestOperations: PersistedQueryManifestOperation[] = [];
+  // @ts-ignore
   const clientConfig: Partial<ApolloClientOptions> = {};
 
   if (config.documentTransform) {
