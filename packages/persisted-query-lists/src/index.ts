@@ -1,10 +1,5 @@
 import { print, type DocumentNode } from "graphql";
-import { ApolloLink } from "@apollo/client/link/core";
-import {
-  Observable,
-  type Operation,
-  type ObservableSubscription,
-} from "@apollo/client/core";
+import { ApolloLink, Observable, type Operation } from "@apollo/client/core";
 
 // This type is copied from `@apollo/client/link/persisted-queries`; to avoid a
 // dependency on a particular version `@apollo/client` we copy it here.
@@ -259,7 +254,7 @@ export function createPersistedQueryManifestVerificationLink(
   return new ApolloLink((operation, forward) => {
     // Implementation borrowed from `@apollo/client/link/context`.
     return new Observable((observer) => {
-      let handle: ObservableSubscription;
+      let handle: any;
       let closed = false;
       operationsByNamePromise
         .then((operationsByName) => {

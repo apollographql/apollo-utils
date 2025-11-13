@@ -7,33 +7,73 @@ import {
 } from "..";
 
 import {
-  execute,
-  toPromise,
+  execute as executeLink,
   ApolloLink,
-  Observable,
   type GraphQLRequest,
+  Observable,
+  ApolloClient,
+  InMemoryCache,
 } from "@apollo/client/core";
 import { createPersistedQueryLink } from "@apollo/client/link/persisted-queries";
-import {
-  createOperation as createLinkOperation,
-  transformOperation,
-} from "@apollo/client/link/utils";
+import { createOperation as createLinkOperation } from "@apollo/client/link/utils";
 import { sha256 } from "crypto-hash";
 import { parse, print } from "graphql";
 
 function createOperation({
   query,
 }: Omit<GraphQLRequest, "query"> & { query: string }) {
-  return createLinkOperation({}, transformOperation({ query: parse(query) }));
+  if (getClientVersion().startsWith("3")) {
+    return createLinkOperation(
+      // @ts-ignore
+      {},
+      require("@apollo/client/link/utils").transformOperation({
+        query: parse(query),
+      }),
+    );
+  }
+
+  return createLinkOperation(
+    { query: parse(query) },
+    // @ts-ignore
+    { client: {} as any },
+  );
+}
+
+function execute(link: ApolloLink, request: GraphQLRequest) {
+  return executeLink(
+    link,
+    request,
+    // @ts-ignore
+    { client: {} as any },
+  );
+}
+
+async function lastValueFrom<T>(observable: Observable<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    let current: T;
+
+    observable.subscribe({
+      next: (value) => {
+        current = value;
+      },
+      complete: () => {
+        resolve(current);
+      },
+      error: reject,
+    });
+  });
 }
 
 // A link that shows what extensions and context would have been sent.
 const returnExtensionsAndContextLink = new ApolloLink((operation) => {
-  return Observable.of({
-    data: {
-      extensions: operation.extensions,
-      context: operation.getContext(),
-    },
+  return new Observable((observer) => {
+    observer.next({
+      data: {
+        extensions: operation.extensions,
+        context: operation.getContext(),
+      },
+    });
+    observer.complete();
   });
 });
 
@@ -43,7 +83,7 @@ describe("persisted-query-lists", () => {
       const link = createPersistedQueryLink(
         generatePersistedQueryIdsAtRuntime({ sha256 }),
       ).concat(returnExtensionsAndContextLink);
-      const result = await toPromise(
+      const result = await lastValueFrom(
         execute(link, {
           query: parse("fragment F on Query { f } query Q { ...F }"),
         }),
@@ -103,7 +143,7 @@ describe("persisted-query-lists", () => {
       ).concat(returnExtensionsAndContextLink);
 
       async function run(document: string) {
-        return await toPromise(execute(link, { query: parse(document) }));
+        return await lastValueFrom(execute(link, { query: parse(document) }));
       }
       // Normal case: you're using the right operation from the list.
       expect(await run("query Foobar { f }")).toMatchInlineSnapshot(`
@@ -155,7 +195,7 @@ describe("persisted-query-lists", () => {
       ).concat(returnExtensionsAndContextLink);
 
       await expect(
-        toPromise(execute(link, { query: parse("{__typename}") })),
+        lastValueFrom(execute(link, { query: parse("{__typename}") })),
       ).rejects.toThrow("nope");
     });
 
@@ -180,7 +220,9 @@ describe("persisted-query-lists", () => {
       ).concat(returnExtensionsAndContextLink);
 
       expect(
-        await toPromise(execute(link, { query: parse("query Foobar { f }") })),
+        await lastValueFrom(
+          execute(link, { query: parse("query Foobar { f }") }),
+        ),
       ).toMatchInlineSnapshot(`
         {
           "data": {
@@ -267,7 +309,7 @@ describe("persisted-query-lists", () => {
           ...options,
         }).concat(returnExtensionsAndContextLink);
 
-        return await toPromise(execute(link, { query: parse(document) }));
+        return await lastValueFrom(execute(link, { query: parse(document) }));
       }
 
       it("anonymous operation", async () => {
@@ -297,17 +339,30 @@ describe("persisted-query-lists", () => {
         });
       });
 
-      it("no-operations document", async () => {
-        const onVerificationFailed = jest.fn();
+      // This situation should be impossible since bare fragments are never sent
+      // through the link chain. The `createOperation` function in v4 actually
+      // fails to construct the operation since it expects an operation
+      // definition node so we document it as failing for that version. We don't
+      // plan to address this when using v4 since this should never happen.
+      (getClientVersion().startsWith("3") ? it : it.failing)(
+        "no-operations document",
+        async () => {
+          const onVerificationFailed = jest.fn();
 
-        await runAgainstLink({ onVerificationFailed }, "fragment F on T { f }");
+          await runAgainstLink(
+            { onVerificationFailed },
+            "fragment F on T { f }",
+          );
 
-        expect(onVerificationFailed).toHaveBeenCalledTimes(1);
-        expect(onVerificationFailed).toHaveBeenCalledWith({
-          reason: "NoOperations",
-          operation: createOperation({ query: "fragment F on T { f }" }),
-        });
-      });
+          expect(onVerificationFailed).toHaveBeenCalledTimes(1);
+          expect(onVerificationFailed).toHaveBeenCalledWith({
+            reason: "NoOperations",
+            operation: expect.objectContaining({
+              query: parse("fragment F on T { f }"),
+            }),
+          });
+        },
+      );
 
       it("unknown operation name", async () => {
         const onVerificationFailed = jest.fn();
@@ -374,7 +429,7 @@ describe("persisted-query-lists", () => {
           onVerificationFailed,
         }).concat(returnExtensionsAndContextLink);
 
-        await toPromise(
+        await lastValueFrom(
           execute(link, { query: parse("query Foobar {\n  f\n}") }),
         );
 
@@ -389,8 +444,15 @@ describe("persisted-query-lists", () => {
       }).concat(returnExtensionsAndContextLink);
 
       await expect(
-        toPromise(execute(link, { query: parse("{__typename}") })),
+        lastValueFrom(execute(link, { query: parse("{__typename}") })),
       ).rejects.toThrow("nope");
     });
   });
 });
+
+function getClientVersion() {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: ApolloLink.empty(),
+  }).version;
+}

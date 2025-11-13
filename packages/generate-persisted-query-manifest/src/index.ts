@@ -24,6 +24,8 @@ import {
   visit,
   GraphQLError,
   BREAK,
+  Kind,
+  OperationTypeNode,
 } from "graphql";
 import { first, sortBy } from "lodash";
 import { createHash } from "node:crypto";
@@ -401,6 +403,13 @@ function formatErrorMessage(error: Error) {
   return `${error.name}: ${error.message}`;
 }
 
+function getClientVersion() {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: ApolloLink.empty(),
+  }).version;
+}
+
 async function fromFilepathList(
   documents: string | string[],
 ): Promise<DocumentSourceConfig> {
@@ -496,6 +505,7 @@ export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
   configFilePath: string | undefined,
 ): Promise<PersistedQueryManifest> {
+  const clientVersion = getClientVersion();
   const {
     documents = defaults.documents,
     createOperationId = defaults.createOperationId,
@@ -540,35 +550,49 @@ export async function generatePersistedQueryManifest(
 
   maybeReportErrorsAndExit(uniq(sources.map((source) => source.file)));
 
-  const inMemoryCacheConfig: InMemoryCacheConfig = {};
-  // Note that the ability to pass `addTypename: false` will be removed in
-  // Apollo Client v4. When we upgrade this package to work with AC4 as well,
-  // we'll want to do a version check and throw an error if the version is at
-  // least 4.0.0.
+  const cacheConfig: InMemoryCacheConfig = {};
+
   if ("addTypename" in config) {
-    inMemoryCacheConfig.addTypename = config.addTypename;
+    if (clientVersion.startsWith("4")) {
+      console.warn(
+        "`addTypename` was removed in Apollo Client 4 and is ignored. Please remove this option from your config.",
+      );
+    } else {
+      // @ts-ignore
+      cacheConfig.addTypename = config.addTypename;
+    }
   }
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
   // reimplement/copy the fragment registry code here.
   if (fragmentRegistry) {
-    inMemoryCacheConfig.fragments = fragmentRegistry;
+    cacheConfig.fragments = fragmentRegistry;
   }
-  const cache = new InMemoryCache(inMemoryCacheConfig);
   const manifestOperationIds = new Map<string, string>();
   const manifestOperations: PersistedQueryManifestOperation[] = [];
-  const clientConfig: Partial<ApolloClientOptions<any>> = {};
+  // @ts-ignore
+  const clientConfig: Partial<ApolloClientOptions> = {};
 
   if (config.documentTransform) {
     clientConfig.documentTransform = config.documentTransform;
   }
 
+  try {
+    // @ts-ignore
+    const { LocalState } = await import("@apollo/client/local-state");
+    clientConfig.localState = new LocalState();
+  } catch (e) {
+    // this is a v3 client
+  }
+
   const client = new ApolloClient({
     ...clientConfig,
-    cache,
+    cache: new InMemoryCache(cacheConfig),
     link: new ApolloLink((operation) => {
       const body = print(sortTopLevelDefinitions(operation.query));
-      const name = operation.operationName;
+      // We can assume the operation name is present since we check for
+      // anonymous operations before this is executed
+      const name = operation.operationName!;
       const type = (
         operation.query.definitions.find(
           (d) => d.kind === "OperationDefinition",
@@ -601,19 +625,59 @@ export async function generatePersistedQueryManifest(
 
       manifestOperations.push({ id, name, type, body });
 
-      return Observable.of({ data: null });
+      // Use `new Observable` instead of an `of` helper so that we can target
+      // both v3 and v4 which use different observable implementations.
+      return new Observable((observer) => {
+        observer.next({ data: null });
+        observer.complete();
+      });
     }),
   });
-
-  if (semver.gte(client.version, "3.8.0")) {
+  if (semver.gte(clientVersion, "3.8.0")) {
     await enableDevMessages();
   }
 
   for (const [_, sources] of sortBy([...operationsByName.entries()], first)) {
     for (const source of sources) {
       if (source.node) {
+        const opDef = source.node.definitions.find(
+          (d) => d.kind === Kind.OPERATION_DEFINITION,
+        );
+        if (!opDef) continue;
+
         try {
-          await client.query({ query: source.node, fetchPolicy: "no-cache" });
+          switch (opDef.operation) {
+            case OperationTypeNode.QUERY:
+              await client.query({
+                query: source.node,
+                fetchPolicy: "no-cache",
+              });
+              break;
+            case OperationTypeNode.MUTATION:
+              await client.mutate({
+                mutation: source.node,
+                fetchPolicy: "no-cache",
+              });
+              break;
+            case OperationTypeNode.SUBSCRIPTION:
+              await new Promise<void>((resolve, reject) => {
+                if (!source.node) {
+                  return resolve();
+                }
+
+                const sub = client
+                  .subscribe({ query: source.node, fetchPolicy: "no-cache" })
+                  .subscribe({
+                    next() {
+                      sub.unsubscribe();
+                      resolve();
+                    },
+                    error: reject,
+                    complete: resolve,
+                  });
+              });
+              break;
+          }
         } catch (error) {
           if (error instanceof Error) {
             addError(source, formatErrorMessage(error));

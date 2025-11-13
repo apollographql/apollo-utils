@@ -7,7 +7,7 @@ orbs:
 parameters:
   mise_version:
     type: string
-    default: "v2025.5.4"
+    default: "v2025.11.4"
 
 commands:
   setup-node:
@@ -65,6 +65,17 @@ jobs:
       - run:
           command: npm i -D graphql@15
 
+  Apollo Client 3 - backcompat:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - setup-node
+      - run:
+          command: npm i -D @apollo/client@3
+      - run: npm run test:ci
+      - store_test_results:
+          path: junit.xml
+
   Prettier:
     docker:
       - image: cimg/base:stable
@@ -92,6 +103,7 @@ workflows:
                 - "24"
       - GraphQL v14 - backcompat
       - GraphQL v15 - backcompat
+      - Apollo Client 3 - backcompat
       - Prettier
       - Lint
   security-scans:
