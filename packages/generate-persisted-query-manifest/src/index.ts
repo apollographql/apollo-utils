@@ -576,65 +576,60 @@ export async function generatePersistedQueryManifest(
     clientConfig.documentTransform = config.documentTransform;
   }
 
-  async function createClient() {
-    try {
-      // @ts-ignore
-      const { LocalState } = await import("@apollo/client/local-state");
-      clientConfig.localState = new LocalState();
-    } catch (e) {
-      // this is a v3 client
-    }
-
-    return new ApolloClient({
-      ...clientConfig,
-      cache: new InMemoryCache(cacheConfig),
-      link: new ApolloLink((operation) => {
-        const body = print(sortTopLevelDefinitions(operation.query));
-        // We can assume the operation name is present since we check for
-        // anonymous operations before this is executed
-        const name = operation.operationName!;
-        const type = (
-          operation.query.definitions.find(
-            (d) => d.kind === "OperationDefinition",
-          ) as OperationDefinitionNode
-        ).operation;
-
-        const id = createOperationId(body, {
-          operationName: name,
-          type,
-          createDefaultId() {
-            return defaults.createOperationId(body);
-          },
-        });
-
-        // We only need to validate the `id` when using a config file. Without
-        // a config file, our default id function will be used which is
-        // guaranteed to create unique IDs.
-        if (manifestOperationIds.has(id)) {
-          addError(
-            { file: configFile },
-            ERROR_MESSAGES.uniqueOperationId(
-              id,
-              name,
-              manifestOperationIds.get(id)!,
-            ),
-          );
-        } else {
-          manifestOperationIds.set(id, name);
-        }
-
-        manifestOperations.push({ id, name, type, body });
-
-        return new Observable((observer) => {
-          observer.next({ data: null });
-          observer.complete();
-        });
-      }),
-    });
+  try {
+    // @ts-ignore
+    const { LocalState } = await import("@apollo/client/local-state");
+    clientConfig.localState = new LocalState();
+  } catch (e) {
+    // this is a v3 client
   }
 
-  const client = await createClient();
+  const client = new ApolloClient({
+    ...clientConfig,
+    cache: new InMemoryCache(cacheConfig),
+    link: new ApolloLink((operation) => {
+      const body = print(sortTopLevelDefinitions(operation.query));
+      // We can assume the operation name is present since we check for
+      // anonymous operations before this is executed
+      const name = operation.operationName!;
+      const type = (
+        operation.query.definitions.find(
+          (d) => d.kind === "OperationDefinition",
+        ) as OperationDefinitionNode
+      ).operation;
 
+      const id = createOperationId(body, {
+        operationName: name,
+        type,
+        createDefaultId() {
+          return defaults.createOperationId(body);
+        },
+      });
+
+      // We only need to validate the `id` when using a config file. Without
+      // a config file, our default id function will be used which is
+      // guaranteed to create unique IDs.
+      if (manifestOperationIds.has(id)) {
+        addError(
+          { file: configFile },
+          ERROR_MESSAGES.uniqueOperationId(
+            id,
+            name,
+            manifestOperationIds.get(id)!,
+          ),
+        );
+      } else {
+        manifestOperationIds.set(id, name);
+      }
+
+      manifestOperations.push({ id, name, type, body });
+
+      return new Observable((observer) => {
+        observer.next({ data: null });
+        observer.complete();
+      });
+    }),
+  });
   if (semver.gte(clientVersion, "3.8.0")) {
     await enableDevMessages();
   }
