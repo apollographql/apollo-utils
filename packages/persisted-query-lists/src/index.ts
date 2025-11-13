@@ -1,7 +1,5 @@
 import { print, type DocumentNode } from "graphql";
-import { ApolloLink } from "@apollo/client/link";
-import { Observable } from "@apollo/client";
-import type { Subscription } from "rxjs";
+import { ApolloLink, Observable, type Operation } from "@apollo/client/core";
 
 // This type is copied from `@apollo/client/link/persisted-queries`; to avoid a
 // dependency on a particular version `@apollo/client` we copy it here.
@@ -155,13 +153,13 @@ export interface PersistedQueryManifestForVerification {
 }
 
 type PersistedQueryManifestVerificationLinkErrorDetails =
-  | { reason: "AnonymousOperation"; operation: ApolloLink.Operation }
-  | { reason: "MultipleOperations"; operation: ApolloLink.Operation }
-  | { reason: "NoOperations"; operation: ApolloLink.Operation }
-  | { reason: "UnknownOperation"; operation: ApolloLink.Operation }
+  | { reason: "AnonymousOperation"; operation: Operation }
+  | { reason: "MultipleOperations"; operation: Operation }
+  | { reason: "NoOperations"; operation: Operation }
+  | { reason: "UnknownOperation"; operation: Operation }
   | {
       reason: "OperationMismatch";
-      operation: ApolloLink.Operation;
+      operation: Operation;
       manifestOperation: PersistedQueryManifestOperation;
     };
 
@@ -205,7 +203,7 @@ export function createPersistedQueryManifestVerificationLink(
   operationsByNamePromise.catch(() => {});
 
   function verifyOperation(
-    operation: ApolloLink.Operation,
+    operation: Operation,
     operationsByName: Map<string, PersistedQueryManifestOperation>,
   ) {
     const query = print(sortTopLevelDefinitions(operation.query));
@@ -256,7 +254,7 @@ export function createPersistedQueryManifestVerificationLink(
   return new ApolloLink((operation, forward) => {
     // Implementation borrowed from `@apollo/client/link/context`.
     return new Observable((observer) => {
-      let handle: Subscription;
+      let handle: any;
       let closed = false;
       operationsByNamePromise
         .then((operationsByName) => {
