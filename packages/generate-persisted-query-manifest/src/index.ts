@@ -9,6 +9,7 @@ import {
 } from "@apollo/client/core";
 import type {
   InMemoryCacheConfig,
+  // @ts-ignore
   DocumentTransform as RealDocumentTransform,
 } from "@apollo/client/core";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
