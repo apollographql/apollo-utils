@@ -622,6 +622,8 @@ export async function generatePersistedQueryManifest(
 
       manifestOperations.push({ id, name, type, body });
 
+      // Use `new Observable` instead of an `of` helper so that we can target
+      // both v3 and v4 which use different observable implementations.
       return new Observable((observer) => {
         observer.next({ data: null });
         observer.complete();
