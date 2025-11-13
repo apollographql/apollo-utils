@@ -547,10 +547,7 @@ export async function generatePersistedQueryManifest(
   maybeReportErrorsAndExit(uniq(sources.map((source) => source.file)));
 
   const cacheConfig: InMemoryCacheConfig = {};
-  // Note that the ability to pass `addTypename: false` will be removed in
-  // Apollo Client v4. When we upgrade this package to work with AC4 as well,
-  // we'll want to do a version check and throw an error if the version is at
-  // least 4.0.0.
+
   if ("addTypename" in config) {
     if (clientVersion.startsWith("4")) {
       console.warn(
