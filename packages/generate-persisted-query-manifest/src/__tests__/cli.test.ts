@@ -15,6 +15,8 @@ import { generate } from "@graphql-codegen/cli";
 import { addTypenameSelectionDocumentTransform } from "@graphql-codegen/client-preset";
 import type { PersistedQueryManifestOperation } from "../index";
 
+const IS_APOLLO_CLIENT_3 = getClientVersion().startsWith("3");
+
 test("prints help message with --help", async () => {
   const { cleanup, runCommand } = await setup();
 
@@ -359,7 +361,7 @@ test("ensures manifest bodies and id hash applies document transforms", async ()
   await cleanup();
 });
 
-if (getClientVersion().startsWith("3")) {
+if (IS_APOLLO_CLIENT_3) {
   test("v3: can disable adding __typename", async () => {
     const { cleanup, writeFile, readFile, runCommand } = await setup();
     const query = gql`
