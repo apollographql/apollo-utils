@@ -354,7 +354,7 @@ test("ensures manifest bodies and id hash applies document transforms", async ()
   await cleanup();
 });
 
-test.skip("can disable adding __typename", async () => {
+test("can disable adding __typename", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
   const query = gql`
     query CurrentUserQuery {
