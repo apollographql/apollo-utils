@@ -8,6 +8,7 @@ import {
   Observable,
 } from "@apollo/client/core";
 import type {
+  ApolloClientOptions,
   InMemoryCacheConfig,
   // @ts-ignore
   DocumentTransform as RealDocumentTransform,
@@ -567,8 +568,7 @@ export async function generatePersistedQueryManifest(
   }
   const manifestOperationIds = new Map<string, string>();
   const manifestOperations: PersistedQueryManifestOperation[] = [];
-  // @ts-ignore
-  const clientConfig: Partial<ApolloClient.Options> = {};
+  const clientConfig: Partial<ApolloClientOptions> = {};
 
   if (config.documentTransform) {
     clientConfig.documentTransform = config.documentTransform;
