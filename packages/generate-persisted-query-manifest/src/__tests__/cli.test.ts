@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 import { addTypenameToDocument } from "@apollo/client/utilities";
+import { removeDirectivesFromDocument } from "@apollo/client/utilities/internal";
 import { prepareEnvironment } from "@gmrchk/cli-testing-library";
 import { equal } from "@wry/equality";
 import { print, type DocumentNode } from "graphql";
@@ -313,13 +314,16 @@ test("ensures manifest bodies and id hash applies document transforms", async ()
 
   const { code } = await runCommand();
   const manifest = await readFile("./persisted-query-manifest.json");
+  const transformed = addTypenameToDocument(
+    removeDirectivesFromDocument([{ name: "client", remove: true }], query)!,
+  );
 
   expect(code).toBe(0);
   expect(manifest).toBeManifestWithOperations([
     {
-      id: sha256(query),
+      id: sha256(transformed),
       name: "CurrentUserQuery",
-      body: print(query),
+      body: print(transformed),
       type: "query",
     },
   ]);
