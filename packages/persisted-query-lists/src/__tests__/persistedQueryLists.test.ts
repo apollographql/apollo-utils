@@ -6,41 +6,89 @@ import {
   type CreatePersistedQueryManifestVerificationLinkOptions,
 } from "..";
 
-import { execute, ApolloLink } from "@apollo/client";
-import { PersistedQueryLink } from "@apollo/client/link/persisted-queries";
+import {
+  execute as executeLink,
+  ApolloLink,
+  type GraphQLRequest,
+  Observable,
+  type Operation,
+  ApolloClient,
+  InMemoryCache,
+} from "@apollo/client/core";
+import { createPersistedQueryLink } from "@apollo/client/link/persisted-queries";
 import { createOperation as createLinkOperation } from "@apollo/client/link/utils";
 import { sha256 } from "crypto-hash";
 import { parse, print } from "graphql";
-import { lastValueFrom, of } from "rxjs";
+import { of } from "rxjs";
 
 function createOperation({
   query,
-}: Omit<ApolloLink.Request, "query"> & { query: string }) {
-  return createLinkOperation({ query: parse(query) }, { client: {} as any });
+}: Omit<GraphQLRequest, "query"> & { query: string }) {
+  if (getClientVersion().startsWith("3")) {
+    return createLinkOperation(
+      // @ts-ignore
+      {},
+      require("@apollo/client/link/utils").transformOperation({
+        query: parse(query),
+      }),
+    );
+  }
+
+  return createLinkOperation(
+    { query: parse(query) },
+    // @ts-ignore
+    { client: {} as any },
+  );
+}
+
+function execute(link: ApolloLink, request: GraphQLRequest) {
+  return executeLink(
+    link,
+    request,
+    // @ts-ignore
+    { client: {} as any },
+  );
+}
+
+async function lastValueFrom<T>(observable: Observable<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    let current: T;
+
+    observable.subscribe({
+      next: (value) => {
+        current = value;
+      },
+      complete: () => {
+        resolve(current);
+      },
+      error: reject,
+    });
+  });
 }
 
 // A link that shows what extensions and context would have been sent.
 const returnExtensionsAndContextLink = new ApolloLink((operation) => {
-  return of({
-    data: {
-      extensions: operation.extensions,
-      context: operation.getContext(),
-    },
+  return new Observable((observer) => {
+    observer.next({
+      data: {
+        extensions: operation.extensions,
+        context: operation.getContext(),
+      },
+    });
+    observer.complete();
   });
 });
 
 describe("persisted-query-lists", () => {
   describe("generatePersistedQueryIdsAtRuntime", () => {
     it("basic test", async () => {
-      const link = new PersistedQueryLink(generatePersistedQueryIdsAtRuntime({ sha256 })).concat(returnExtensionsAndContextLink);
+      const link = createPersistedQueryLink(
+        generatePersistedQueryIdsAtRuntime({ sha256 }),
+      ).concat(returnExtensionsAndContextLink);
       const result = await lastValueFrom(
-        execute(
-          link,
-          {
-            query: parse("fragment F on Query { f } query Q { ...F }"),
-          },
-          { client: {} as any },
-        ),
+        execute(link, {
+          query: parse("fragment F on Query { f } query Q { ...F }"),
+        }),
       );
       const expectedSha256 = await sha256(
         "query Q {\n  ...F\n}\n\nfragment F on Query {\n  f\n}",
@@ -90,14 +138,14 @@ describe("persisted-query-lists", () => {
         ],
       };
 
-      const link = new PersistedQueryLink(generatePersistedQueryIdsFromManifest({
-        loadManifest: () => Promise.resolve(manifest),
-      })).concat(returnExtensionsAndContextLink);
+      const link = createPersistedQueryLink(
+        generatePersistedQueryIdsFromManifest({
+          loadManifest: () => Promise.resolve(manifest),
+        }),
+      ).concat(returnExtensionsAndContextLink);
 
       async function run(document: string) {
-        return await lastValueFrom(
-          execute(link, { query: parse(document) }, { client: {} as any }),
-        );
+        return await lastValueFrom(execute(link, { query: parse(document) }));
       }
       // Normal case: you're using the right operation from the list.
       expect(await run("query Foobar { f }")).toMatchInlineSnapshot(`
@@ -142,14 +190,14 @@ describe("persisted-query-lists", () => {
     });
 
     it("error loading manifest", async () => {
-      const link = new PersistedQueryLink(generatePersistedQueryIdsFromManifest({
-        loadManifest: () => Promise.reject(new Error("nope")),
-      })).concat(returnExtensionsAndContextLink);
+      const link = createPersistedQueryLink(
+        generatePersistedQueryIdsFromManifest({
+          loadManifest: () => Promise.reject(new Error("nope")),
+        }),
+      ).concat(returnExtensionsAndContextLink);
 
       await expect(
-        lastValueFrom(
-          execute(link, { query: parse("{__typename}") }, { client: {} as any }),
-        ),
+        lastValueFrom(execute(link, { query: parse("{__typename}") })),
       ).rejects.toThrow("nope");
     });
 
@@ -167,13 +215,15 @@ describe("persisted-query-lists", () => {
         ],
       };
 
-      const link = new PersistedQueryLink(generatePersistedQueryIdsFromManifest({
-        loadManifest: () => manifest,
-      })).concat(returnExtensionsAndContextLink);
+      const link = createPersistedQueryLink(
+        generatePersistedQueryIdsFromManifest({
+          loadManifest: () => manifest,
+        }),
+      ).concat(returnExtensionsAndContextLink);
 
       expect(
         await lastValueFrom(
-          execute(link, { query: parse("query Foobar { f }") }, { client: {} as any }),
+          execute(link, { query: parse("query Foobar { f }") }),
         ),
       ).toMatchInlineSnapshot(`
         {
@@ -261,9 +311,7 @@ describe("persisted-query-lists", () => {
           ...options,
         }).concat(returnExtensionsAndContextLink);
 
-        return await lastValueFrom(
-          execute(link, { query: parse(document) }, { client: {} as any }),
-        );
+        return await lastValueFrom(execute(link, { query: parse(document) }));
       }
 
       it("anonymous operation", async () => {
@@ -320,7 +368,7 @@ describe("persisted-query-lists", () => {
 
         // Minimal handcrafted operation object (bypasses createOperation)
         const context: any = {};
-        const operation: ApolloLink.Operation = {
+        const operation: Operation = {
           query: parse("fragment F on T { f }"),
           variables: {},
           operationName: "",
@@ -338,7 +386,9 @@ describe("persisted-query-lists", () => {
         expect(onVerificationFailed).toHaveBeenCalledTimes(1);
         expect(onVerificationFailed).toHaveBeenCalledWith({
           reason: "NoOperations",
-          operation: expect.objectContaining({ query: parse("fragment F on T { f }") }),
+          operation: expect.objectContaining({
+            query: parse("fragment F on T { f }"),
+          }),
         });
       });
 
@@ -408,7 +458,7 @@ describe("persisted-query-lists", () => {
         }).concat(returnExtensionsAndContextLink);
 
         await lastValueFrom(
-          execute(link, { query: parse("query Foobar {\n  f\n}") }, { client: {} as any }),
+          execute(link, { query: parse("query Foobar {\n  f\n}") }),
         );
 
         expect(onVerificationFailed).not.toHaveBeenCalled();
@@ -422,10 +472,15 @@ describe("persisted-query-lists", () => {
       }).concat(returnExtensionsAndContextLink);
 
       await expect(
-        lastValueFrom(
-          execute(link, { query: parse("{__typename}") }, { client: {} as any }),
-        ),
+        lastValueFrom(execute(link, { query: parse("{__typename}") })),
       ).rejects.toThrow("nope");
     });
   });
 });
+
+function getClientVersion() {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: ApolloLink.empty(),
+  }).version;
+}
