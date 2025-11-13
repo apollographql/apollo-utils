@@ -1,4 +1,9 @@
-import { gql } from "@apollo/client/core";
+import {
+  ApolloClient,
+  ApolloLink,
+  gql,
+  InMemoryCache,
+} from "@apollo/client/core";
 import { addTypenameToDocument } from "@apollo/client/utilities";
 import { prepareEnvironment } from "@gmrchk/cli-testing-library";
 import { equal } from "@wry/equality";
@@ -354,41 +359,83 @@ test("ensures manifest bodies and id hash applies document transforms", async ()
   await cleanup();
 });
 
-test("can disable adding __typename", async () => {
-  const { cleanup, writeFile, readFile, runCommand } = await setup();
-  const query = gql`
-    query CurrentUserQuery {
-      currentUser {
-        id
+if (getClientVersion().startsWith("3")) {
+  test("v3: can disable adding __typename", async () => {
+    const { cleanup, writeFile, readFile, runCommand } = await setup();
+    const query = gql`
+      query CurrentUserQuery {
+        currentUser {
+          id
+        }
       }
-    }
-  `;
+    `;
 
-  await writeFile("./src/current-user-query.graphql", print(query));
+    await writeFile("./src/current-user-query.graphql", print(query));
 
-  await writeFile(
-    "./persisted-query-manifest.config.json",
-    JSON.stringify({ addTypename: false }),
-  );
+    await writeFile(
+      "./persisted-query-manifest.config.json",
+      JSON.stringify({ addTypename: false }),
+    );
 
-  const { code } = await runCommand();
+    const { code } = await runCommand();
 
-  const manifest = await readFile("./persisted-query-manifest.json");
+    const manifest = await readFile("./persisted-query-manifest.json");
 
-  expect(code).toBe(0);
-  expect(manifest).toBeManifestWithOperations([
-    {
-      // Explicitly do not call addTypenameToDocument here.
-      id: sha256(query),
-      name: "CurrentUserQuery",
-      // Explicitly do not call addTypenameToDocument here.
-      body: print(query),
-      type: "query",
-    },
-  ]);
+    expect(code).toBe(0);
+    expect(manifest).toBeManifestWithOperations([
+      {
+        // Explicitly do not call addTypenameToDocument here.
+        id: sha256(query),
+        name: "CurrentUserQuery",
+        // Explicitly do not call addTypenameToDocument here.
+        body: print(query),
+        type: "query",
+      },
+    ]);
 
-  await cleanup();
-});
+    await cleanup();
+  });
+} else {
+  test("v4: warns when providing addTypename: false to config", async () => {
+    const { cleanup, writeFile, readFile, runCommand } = await setup();
+    const query = gql`
+      query CurrentUserQuery {
+        currentUser {
+          id
+        }
+      }
+    `;
+
+    await writeFile("./src/current-user-query.graphql", print(query));
+
+    await writeFile(
+      "./persisted-query-manifest.config.json",
+      JSON.stringify({ addTypename: false }),
+    );
+
+    const { code, stderr } = await runCommand();
+
+    const manifest = await readFile("./persisted-query-manifest.json");
+    const expected = addTypenameToDocument(query);
+
+    expect(code).toBe(0);
+    expect(stderr).toMatchInlineSnapshot(`
+      [
+        "\`addTypename\` was removed in Apollo Client 4 and is ignored. Please remove this option from your config.",
+      ]
+    `);
+    expect(manifest).toBeManifestWithOperations([
+      {
+        id: sha256(expected),
+        name: "CurrentUserQuery",
+        body: print(expected),
+        type: "query",
+      },
+    ]);
+
+    await cleanup();
+  });
+}
 
 test("can extract multiple operations", async () => {
   const { cleanup, writeFile, readFile, runCommand } = await setup();
@@ -1644,6 +1691,13 @@ async function setup() {
   };
 
   return { ...utils, writeFile, runCommand, installDependencies };
+}
+
+function getClientVersion() {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: ApolloLink.empty(),
+  }).version;
 }
 
 function sha256(query: DocumentNode) {

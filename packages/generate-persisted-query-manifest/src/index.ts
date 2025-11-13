@@ -399,6 +399,13 @@ function formatErrorMessage(error: Error) {
   return `${error.name}: ${error.message}`;
 }
 
+function getClientVersion() {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: ApolloLink.empty(),
+  }).version;
+}
+
 async function fromFilepathList(
   documents: string | string[],
 ): Promise<DocumentSourceConfig> {
@@ -494,6 +501,7 @@ export async function generatePersistedQueryManifest(
   config: PersistedQueryManifestConfig = {},
   configFilePath: string | undefined,
 ): Promise<PersistedQueryManifest> {
+  const clientVersion = getClientVersion();
   const {
     documents = defaults.documents,
     createOperationId = defaults.createOperationId,
@@ -543,9 +551,15 @@ export async function generatePersistedQueryManifest(
   // Apollo Client v4. When we upgrade this package to work with AC4 as well,
   // we'll want to do a version check and throw an error if the version is at
   // least 4.0.0.
-  if ("addTypename" in config && (config as any).addTypename === false) {
-    // @ts-ignore
-    cacheConfig.addTypename = config.addTypename;
+  if ("addTypename" in config) {
+    if (clientVersion.startsWith("4")) {
+      console.warn(
+        "`addTypename` was removed in Apollo Client 4 and is ignored. Please remove this option from your config.",
+      );
+    } else {
+      // @ts-ignore
+      cacheConfig.addTypename = config.addTypename;
+    }
   }
   // Using createFragmentRegistry means our minimum AC version is 3.7. We can
   // probably go back to 3.2 (original createPersistedQueryLink) if we just
@@ -621,7 +635,7 @@ export async function generatePersistedQueryManifest(
 
   const client = await createClient();
 
-  if (semver.gte(client.version, "3.8.0")) {
+  if (semver.gte(clientVersion, "3.8.0")) {
     await enableDevMessages();
   }
 
