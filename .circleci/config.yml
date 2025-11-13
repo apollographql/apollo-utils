@@ -7,7 +7,7 @@ orbs:
 parameters:
   mise_version:
     type: string
-    default: "v2025.5.4"
+    default: "v2025.11.4"
 
 commands:
   setup-node:
