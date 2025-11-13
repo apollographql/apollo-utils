@@ -704,4 +704,3 @@ export async function generatePersistedQueryManifest(
     operations: manifestOperations,
   };
 }
-
