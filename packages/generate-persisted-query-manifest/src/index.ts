@@ -10,7 +10,7 @@ import {
 import type {
   InMemoryCacheConfig,
   DocumentTransform as RealDocumentTransform,
-} from "@apollo/client";
+} from "@apollo/client/core";
 import { sortTopLevelDefinitions } from "@apollo/persisted-query-lists";
 import { gqlPluckFromCodeStringSync } from "@graphql-tools/graphql-tag-pluck";
 import globby from "globby";
