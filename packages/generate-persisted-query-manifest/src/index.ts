@@ -677,7 +677,6 @@ export async function generatePersistedQueryManifest(
           }
         } catch (error) {
           if (error instanceof Error) {
-            console.error(error);
             addError(source, formatErrorMessage(error));
           } else {
             addError(source, "Unknown error occured. Please file a bug.");
