@@ -1,7 +1,12 @@
 import { createFragmentRegistry } from "@apollo/client/cache";
 import type { FragmentRegistryAPI } from "@apollo/client/cache";
 import semver from "semver";
-import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
+import {
+  ApolloClient,
+  ApolloLink,
+  InMemoryCache,
+  Observable,
+} from "@apollo/client/core";
 import type {
   InMemoryCacheConfig,
   DocumentTransform as RealDocumentTransform
@@ -597,7 +602,10 @@ export async function generatePersistedQueryManifest(
 
       manifestOperations.push({ id, name: name as string, type, body });
 
-      return of({ data: null });
+      return new Observable((observer) => {
+        observer.next({ data: null });
+        observer.complete();
+      });
     }),
   });
 
