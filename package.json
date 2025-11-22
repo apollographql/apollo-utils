@@ -35,7 +35,7 @@
     "@changesets/cli": "2.29.7",
     "@jest/types": "29.6.3",
     "@types/bunyan": "1.8.11",
-    "@types/glob": "8.1.0",
+    "@types/glob": "9.0.0",
     "@types/jest": "29.5.14",
     "@types/lodash.sortby": "4.7.9",
     "@types/make-fetch-happen": "10.0.4",
