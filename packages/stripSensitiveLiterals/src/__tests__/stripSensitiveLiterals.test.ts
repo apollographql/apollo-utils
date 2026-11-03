@@ -45,7 +45,7 @@ describe("stripSensitiveLiterals", () => {
   it("strips only numeric and string literals with default configuration", () => {
     expect(stripSensitiveLiterals(document)).toMatchInlineSnapshot(`
       query Foo($b: Int, $a: Boolean) {
-        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: { a: "", b: 0 }) {
           ...Bar
           ... on User {
             hello
@@ -53,7 +53,7 @@ describe("stripSensitiveLiterals", () => {
           }
           tz
           aliased: name
-          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: { q: "", s: 0 })
         }
       }
 
@@ -71,7 +71,7 @@ describe("stripSensitiveLiterals", () => {
   it("strips only numeric and string literals with empty (but defined) configuration", () => {
     expect(stripSensitiveLiterals(document, {})).toMatchInlineSnapshot(`
       query Foo($b: Int, $a: Boolean) {
-        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: { a: "", b: 0 }) {
           ...Bar
           ... on User {
             hello
@@ -79,7 +79,7 @@ describe("stripSensitiveLiterals", () => {
           }
           tz
           aliased: name
-          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: { q: "", s: 0 })
         }
       }
 
@@ -99,7 +99,7 @@ describe("stripSensitiveLiterals", () => {
       stripSensitiveLiterals(document, { hideListAndObjectLiterals: false }),
     ).toMatchInlineSnapshot(`
       query Foo($b: Int, $a: Boolean) {
-        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: { a: "", b: 0 }) {
           ...Bar
           ... on User {
             hello
@@ -107,7 +107,7 @@ describe("stripSensitiveLiterals", () => {
           }
           tz
           aliased: name
-          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: { q: "", s: 0 })
         }
       }
 
@@ -127,7 +127,7 @@ describe("stripSensitiveLiterals", () => {
       stripSensitiveLiterals(document, { hideListAndObjectLiterals: true }),
     ).toMatchInlineSnapshot(`
       query Foo($b: Int, $a: Boolean) {
-        user(name: "", age: 0, pct: 0, lst: [], obj: {}) {
+        user(name: "", age: 0, pct: 0, lst: [], obj: {  }) {
           ...Bar
           ... on User {
             hello
@@ -135,7 +135,7 @@ describe("stripSensitiveLiterals", () => {
           }
           tz
           aliased: name
-          withInputs(str: "", int: 0, flt: 0, lst: [], obj: {})
+          withInputs(str: "", int: 0, flt: 0, lst: [], obj: {  })
         }
       }
 
