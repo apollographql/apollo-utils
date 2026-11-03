@@ -9,10 +9,10 @@ import { prepareEnvironment } from "@gmrchk/cli-testing-library";
 import { equal } from "@wry/equality";
 import { print, type DocumentNode } from "graphql";
 import { createHash } from "node:crypto";
+import { execFile } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { generate } from "@graphql-codegen/cli";
-import { addTypenameSelectionDocumentTransform } from "@graphql-codegen/client-preset";
+import { promisify } from "node:util";
 import type { PersistedQueryManifestOperation } from "../index";
 
 const IS_APOLLO_CLIENT_3 = getClientVersion().startsWith("3");
@@ -1158,19 +1158,14 @@ test("integrates with GraphQL codegen persisted documents", async () => {
   await writeFile("./schema.graphql", print(schema));
   await writeFile("./src/greeting-query.graphql", print(greetingQuery));
   await writeFile("./src/current-user-query.graphql", print(currentUserQuery));
-  await generate({
-    generates: {
-      [path.join(testPath, "./src/gql/")]: {
-        schema: path.resolve(testPath, "./schema.graphql"),
-        documents: [path.join(testPath, "./src/**/*.graphql")],
-        preset: "client",
-        presetConfig: {
-          persistedDocuments: true,
-        },
-        documentTransforms: [addTypenameSelectionDocumentTransform],
-      },
-    },
-  });
+  await promisify(execFile)(process.execPath, [
+    path.resolve(__dirname, "./runCodegen.mjs"),
+    JSON.stringify({
+      outputDir: path.join(testPath, "./src/gql/"),
+      schema: path.resolve(testPath, "./schema.graphql"),
+      documents: [path.join(testPath, "./src/**/*.graphql")],
+    }),
+  ]);
 
   await writeFile(
     "./persisted-query-manifest.config.ts",

@@ -1,9 +1,18 @@
+import { print, type ASTNode } from "graphql";
+import { isNode } from "graphql/language/ast";
 import gql from "graphql-tag";
 import { stripSensitiveLiterals } from "..";
 
-import graphQLASTSerializer from "@apollo/utils.jest-graphql-ast-serializer";
-
-expect.addSnapshotSerializer(graphQLASTSerializer);
+// graphql v17's `print` writes object literals as `{ a: 1 }` (and an empty one
+// as `{  }`), where v16 writes `{a: 1}` and `{}`. Normalizing to the v16 format
+// lets the snapshots below pass with either version.
+expect.addSnapshotSerializer({
+  test: (value: unknown) => isNode(value),
+  serialize: (value: ASTNode) =>
+    print(value)
+      .replace(/\{ +\}/g, "{}")
+      .replace(/\{ ([^{}\n]+) \}/g, "{$1}"),
+});
 
 const document = gql`
   query Foo($b: Int, $a: Boolean) {
@@ -45,7 +54,7 @@ describe("stripSensitiveLiterals", () => {
   it("strips only numeric and string literals with default configuration", () => {
     expect(stripSensitiveLiterals(document)).toMatchInlineSnapshot(`
       query Foo($b: Int, $a: Boolean) {
-        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: { a: "", b: 0 }) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
           ...Bar
           ... on User {
             hello
@@ -53,7 +62,7 @@ describe("stripSensitiveLiterals", () => {
           }
           tz
           aliased: name
-          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: { q: "", s: 0 })
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
         }
       }
 
@@ -71,7 +80,7 @@ describe("stripSensitiveLiterals", () => {
   it("strips only numeric and string literals with empty (but defined) configuration", () => {
     expect(stripSensitiveLiterals(document, {})).toMatchInlineSnapshot(`
       query Foo($b: Int, $a: Boolean) {
-        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: { a: "", b: 0 }) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
           ...Bar
           ... on User {
             hello
@@ -79,7 +88,7 @@ describe("stripSensitiveLiterals", () => {
           }
           tz
           aliased: name
-          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: { q: "", s: 0 })
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
         }
       }
 
@@ -99,7 +108,7 @@ describe("stripSensitiveLiterals", () => {
       stripSensitiveLiterals(document, { hideListAndObjectLiterals: false }),
     ).toMatchInlineSnapshot(`
       query Foo($b: Int, $a: Boolean) {
-        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: { a: "", b: 0 }) {
+        user(name: "", age: 0, pct: 0, lst: ["", "", ""], obj: {a: "", b: 0}) {
           ...Bar
           ... on User {
             hello
@@ -107,7 +116,7 @@ describe("stripSensitiveLiterals", () => {
           }
           tz
           aliased: name
-          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: { q: "", s: 0 })
+          withInputs(str: "", int: 0, flt: 0, lst: ["", "", ""], obj: {q: "", s: 0})
         }
       }
 
@@ -127,7 +136,7 @@ describe("stripSensitiveLiterals", () => {
       stripSensitiveLiterals(document, { hideListAndObjectLiterals: true }),
     ).toMatchInlineSnapshot(`
       query Foo($b: Int, $a: Boolean) {
-        user(name: "", age: 0, pct: 0, lst: [], obj: {  }) {
+        user(name: "", age: 0, pct: 0, lst: [], obj: {}) {
           ...Bar
           ... on User {
             hello
@@ -135,7 +144,7 @@ describe("stripSensitiveLiterals", () => {
           }
           tz
           aliased: name
-          withInputs(str: "", int: 0, flt: 0, lst: [], obj: {  })
+          withInputs(str: "", int: 0, flt: 0, lst: [], obj: {})
         }
       }
 

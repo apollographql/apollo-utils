@@ -65,13 +65,24 @@ jobs:
       - run:
           command: npm i -D graphql@15
 
+  GraphQL v16 - backcompat:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - setup-node
+      - run:
+          command: npm i -D graphql@16
+      - run: npm run test:ci
+      - store_test_results:
+          path: junit.xml
+
   Apollo Client 3 - backcompat:
     docker:
       - image: cimg/base:stable
     steps:
       - setup-node
       - run:
-          command: npm i -D @apollo/client@3
+          command: npm i -D @apollo/client@3 graphql@16
       - run: npm run test:ci
       - store_test_results:
           path: junit.xml
@@ -103,6 +114,7 @@ workflows:
                 - "24"
       - GraphQL v14 - backcompat
       - GraphQL v15 - backcompat
+      - GraphQL v16 - backcompat
       - Apollo Client 3 - backcompat
       - Prettier
       - Lint
