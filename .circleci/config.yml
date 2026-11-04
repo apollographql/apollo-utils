@@ -32,6 +32,13 @@ commands:
           command: stty cols 80 && ~/.local/bin/mise install --verbose && mise ls && mise env --shell bash >> "$BASH_ENV" && cat "$BASH_ENV"
       - run: node --version
       - run: npm --version
+      # The dev-only GraphQL codegen CLI (needed for graphql v17) depends on
+      # packages that declare Node >=22.13, which .npmrc's engine-strict rejects.
+      - when:
+          condition:
+            equal: ["20", << parameters.node-version >>]
+          steps:
+            - run: echo 'export npm_config_engine_strict=false' >> "$BASH_ENV"
       - node/install-packages:
           cache-version: node-v<< parameters.node-version >>
 
