@@ -21,7 +21,7 @@
   "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=16"
+    "node": ">=22.15"
   },
   "dependencies": {
     "@apollo/persisted-query-lists": "^1.1.0",
@@ -38,12 +38,12 @@
   },
   "peerDependencies": {
     "@apollo/client": "^3.7.0 || ^4.0.0",
-    "graphql": "14.x || 15.x || 16.x"
+    "graphql": "14.x || 15.x || 16.x || 17.x"
   },
   "devDependencies": {
     "@gmrchk/cli-testing-library": "0.1.2",
-    "@graphql-codegen/cli": "5.0.7",
-    "@graphql-codegen/client-preset": "4.8.3",
+    "@graphql-codegen/cli": "7.4.6",
+    "@graphql-codegen/client-preset": "6.2.3",
     "@wry/equality": "0.5.7"
   }
 }

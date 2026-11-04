@@ -63,24 +63,26 @@ export function sortAST(ast: DocumentNode): DocumentNode {
   });
 }
 
-function sortDirectives<T extends { directives?: readonly DirectiveNode[] }>(
-  node: T,
-): T {
+function sortDirectives<
+  T extends { directives?: readonly DirectiveNode[] | undefined },
+>(node: T): T {
   return "directives" in node
     ? { ...node, directives: sortBy(node.directives, "name.value") }
     : node;
 }
 
-function sortArguments<T extends { arguments?: readonly ArgumentNode[] }>(
-  node: T,
-): T {
+function sortArguments<
+  T extends { arguments?: readonly ArgumentNode[] | undefined },
+>(node: T): T {
   return "arguments" in node
     ? { ...node, arguments: sortBy(node.arguments, "name.value") }
     : node;
 }
 
 function sortVariableDefinitions<
-  T extends { variableDefinitions?: readonly VariableDefinitionNode[] },
+  T extends {
+    variableDefinitions?: readonly VariableDefinitionNode[] | undefined;
+  },
 >(node: T): T {
   return "variableDefinitions" in node
     ? {

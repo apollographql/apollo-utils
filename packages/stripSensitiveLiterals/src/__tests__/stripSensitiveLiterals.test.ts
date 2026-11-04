@@ -1,9 +1,18 @@
+import { print, type ASTNode } from "graphql";
+import { isNode } from "graphql/language/ast";
 import gql from "graphql-tag";
 import { stripSensitiveLiterals } from "..";
 
-import graphQLASTSerializer from "@apollo/utils.jest-graphql-ast-serializer";
-
-expect.addSnapshotSerializer(graphQLASTSerializer);
+// graphql v17's `print` writes object literals as `{ a: 1 }` (and an empty one
+// as `{  }`), where v16 writes `{a: 1}` and `{}`. Normalizing to the v16 format
+// lets the snapshots below pass with either version.
+expect.addSnapshotSerializer({
+  test: (value: unknown) => isNode(value),
+  serialize: (value: ASTNode) =>
+    print(value)
+      .replace(/\{ +\}/g, "{}")
+      .replace(/\{ ([^{}\n]+) \}/g, "{$1}"),
+});
 
 const document = gql`
   query Foo($b: Int, $a: Boolean) {
