@@ -1,5 +1,22 @@
 # @apollo/utils.usagereporting
 
+## 3.2.0
+
+### Minor Changes
+
+- [#522](https://github.com/apollographql/apollo-utils/pull/522) [`6fe0fb4`](https://github.com/apollographql/apollo-utils/commit/6fe0fb43decbf4093d8bb8d272ab234b79bb0bde) Thanks [@sirdodger](https://github.com/sirdodger)! - Support `graphql` v17. The `graphql` peer dependency range now includes `17.x`.
+
+  `@apollo/generate-persisted-query-manifest` now requires Node.js 22.15 or later, matching the requirements of its dependencies.
+
+### Patch Changes
+
+- Updated dependencies [[`6fe0fb4`](https://github.com/apollographql/apollo-utils/commit/6fe0fb43decbf4093d8bb8d272ab234b79bb0bde)]:
+  - @apollo/utils.dropunuseddefinitions@3.1.0
+  - @apollo/utils.stripsensitiveliterals@3.1.0
+  - @apollo/utils.printwithreducedwhitespace@3.1.0
+  - @apollo/utils.removealiases@3.1.0
+  - @apollo/utils.sortast@3.1.0
+
 ## 3.1.0
 
 ### Minor Changes

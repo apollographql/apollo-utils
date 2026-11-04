@@ -1,5 +1,18 @@
 # @apollo/generate-persisted-query-manifest
 
+## 2.0.0
+
+### Major Changes
+
+- [#522](https://github.com/apollographql/apollo-utils/pull/522) [`6fe0fb4`](https://github.com/apollographql/apollo-utils/commit/6fe0fb43decbf4093d8bb8d272ab234b79bb0bde) Thanks [@sirdodger](https://github.com/sirdodger)! - Support `graphql` v17. The `graphql` peer dependency range now includes `17.x`.
+
+  `@apollo/generate-persisted-query-manifest` now requires Node.js 22.15 or later, matching the requirements of its dependencies.
+
+### Patch Changes
+
+- Updated dependencies [[`6fe0fb4`](https://github.com/apollographql/apollo-utils/commit/6fe0fb43decbf4093d8bb8d272ab234b79bb0bde)]:
+  - @apollo/persisted-query-lists@1.2.0
+
 ## 1.4.0
 
 ### Minor Changes
