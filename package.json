@@ -10,7 +10,7 @@
   "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=16",
+    "node": ">=22.15",
     "npm": ">=8"
   },
   "scripts": {
